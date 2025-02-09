@@ -1,19 +1,22 @@
 """
+LCD.py              Updated: February 8, 2025
+
 Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver library.
 (https://github.com/russhughes/st7789py_mpy)
 
-This module implements an ST7789 LCD driver for the 240x240 pixel TFT LCD
-display panel used on mirobo.tech BEAPER Nano and BEAPER Pico circuits. The
-MicroPython FrameBuffer class and parts of Russ Hughes driver are merged
-to implement a comprehensive set of stylistically common functions:
+This module implements an ST7789 LCD driver for the 240x240 pixel TFT LCD display
+display panel that can be instaleld on mirobo.tech BEAPER Nano and BEAPER Pico
+circuit boards. The MicroPython FrameBuffer class and parts of Russ Hughes driver
+are merged to implement a comprehensive set of stylistically common functions:
 
 LCD control functions:
 
-    init() - initialize LCD panel
+    init() - initialize the LCD panel
     
-    hard_reset() - hardware reset the LCD panel (not used on BEAPER Nano or
-        BEAPER Pico since the microcontroller does not control the LCD panel
-        RESET pin (LCD RESET pin is connected to the Reset button circuit)
+    hard_reset() - hardware reset the LCD panel (This is not used on BEAPER Nano
+        or BEAPER Pico since their microcontrollers are not connected to the
+        RESET pin of the LCD panel. Instead, the LCD RESET pin is connected to
+        the Reset button circuit on these boards.)
     
     soft_reset() - software reset the LCD panel
     
@@ -21,10 +24,10 @@ LCD control functions:
     
     sleep_mode(m) - sleep LCD controller and turn off backlight if m=True
     
-    rotation(r) - rotate image to one of 4 orientations (0-3, 3 is upright)
+    rotation(r) - rotate LCD image to one of 4 orientations (0-3, 3 is upright)
     
     blit_buffer(b, x, y, w, h) - copy memory buffer b to frame buffer at
-        location x, y, using width w, and height h
+        location x, y, using buffer width w, and height h
     
     update() - update the LCD panel with the contents of the frame buffer
 
@@ -34,8 +37,9 @@ LCD graphics functions:
     
     color565(r, g, b) - convert r, g, b color values to RGB565 format
     
-    pixel(x, y [, c]) - draw pixel at x, y in the color c, or if not
-        supplied, return the color of the pixel at the x, y coordinate
+    pixel(x, y [, c]) - draw pixel at location x, y in the color c, or
+        if c is not supplied, return the color of the pixel at location
+        x, y
     
     hline(x, y, w, c) - draw a horizontal line starting at x, y, width w,
         using color c
@@ -47,32 +51,31 @@ LCD graphics functions:
         at x2, y2, using color c
     
     rect(x, y, w, h, c, [, f]) - draw a rectange at x, y, width w, height
-        h, using color c, and optionally fill the rectangle if f=True
+        h, using color c, and optionally fill the rectangle with color c
+        if f=True
     
     round_rect(x, y, w, h, r, c [, f]) - draw a rounded rectange at x, y,
         width w, height h, having corner radius r, using color c, and
-        optionally fill the rectangle if f=True
+        optionally fill the rectangle with color c if f=True
     
-    ellispe(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x, y,
+    ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centered at x, y,
         with x radius xr, y radius yr, using color c, and optionally fill
-        the ellipse if f=True. Optional m parameter enables drawing only
-        one quadrant of the ellipse: 1=top right, 2 = top left, 3=bottom
-        left, 4=bottom right
+        the ellipse with color c if f=True. Optional m parameter enables
+        the drawing of only one quadrant of the ellipse: 1=top right,
+        2 = top left, 3=bottom left, 4=bottom right
     
-    poly(x, y, coords, c [, f]) - draw a polygon at x, y, from an array of
-        integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]),
-        using color c, and optionally fill the polygon if f=True
-    
-    polygon(x, y, points, color [, angle, center_x, center_y) - draw a
-        rotatable polygon at x, y, from a list of coordinates points,
-        using color c, at an optional rotation angle (radians) and at
-        optional offset center_x and center_y
+    poly(x, y, coords, c [, f]) - draw a polygon at location x, y, from an
+        array of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]),
+        using color c, and optionally fill the polygon with color c if f=True
     
     scroll(xstep, ystep) - scroll the contents of the frame buffer by
         xstep and ystep
     
-    prbitmap(bitmap, x, y [, index}) - draw a converted bitmap file at x, y,
-        from an optional index
+    prbitmap(bitmap, x, y [, index}) - progressively draw a converted bitmap
+        file starting at location x, y, from an optional index within the
+        bitmap. The bitmap image must be converted to a python module using
+        Russ Hughes' image_converter.py program.
+        (https://github.com/russhughes/st7789py_mpy/tree/master/utils)
 
 Text functions:
 
@@ -80,8 +83,10 @@ Text functions:
         at location x, y, using color c
     
     write(s, x, y, font, fg [, bg]) - write text string s at location x, y,
-        in font font (a font object converted from a TTF font file), using
-        color fg, on a transparent background or using optional background
+        in font font (a font module converted from a TTF font file using
+        Russ Hughes' write_font_converter.py program found at
+        (https://github.com/russhughes/st7789py_mpy/tree/master/utils), using
+        color fg, on a transparent background or on top of optional background
         color bg
     
     write_width(s, font) - return the width of string s, written in font font

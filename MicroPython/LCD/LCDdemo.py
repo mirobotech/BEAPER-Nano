@@ -12,7 +12,7 @@ Required files:
     LCDconfig_Nano.py, or
     LCDconfig_Pico.py - low-level hardware configuration file for each circuit
     
-    LCD.py - LCD driver module that extends the MicroPhthon framebuffer
+    LCD.py - LCD driver module that extends the MicroPython framebuffer
     
     NotoSansDisplay_24.py - Noto Sans Display font converted from TrueType
         using Russ Hughes' write_font_converter.py program
