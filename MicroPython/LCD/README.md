@@ -21,7 +21,7 @@ This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789
     
 * rotation(r) - rotate LCD image to one of 4 orientations (0-3, 3 is upright on BEAPER Nano and BEAPER Pico)
     
-* blit_buffer(b, x, y, w, h) - copy memory buffer b to frame buffer at location x, y, setting width w, and height h
+* blit_buffer(b, x, y, w, h) - copy memory buffer b to frame buffer at location x, y, using buffer width w, and height h
     
 * update() - update the LCD panel with the contents of the frame buffer
 
@@ -44,13 +44,13 @@ This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789
     
 * round_rect(x, y, w, h, r, c [, f]) - draw a rounded-rectange at x, y, width w, height h, having corner radius r, using color c, and optionally fill the rectangle with color c if f=True
     
-* ellispe(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x, y, with x radius xr, y radius yr, using color c, and optionally fill the ellipse with color c if f=True. Optional m parameter enables the drawing of only one quadrant of the ellipse: 1=top right, 2 = top left, 3=bottom left, 4=bottom right
+* ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x, y, with x radius xr, y radius yr, using color c, and optionally fill the ellipse with color c if f=True. Optional m parameter enables the drawing of only one quadrant of the ellipse: 1=top right, 2 = top left, 3=bottom left, 4=bottom right
     
-* poly(x, y, coords, c [, f]) - draw a polygon at x, y, from an array of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]), using color c, and optionally fill the polygon with color c if f=True
+* poly(x, y, coords, c [, f]) - draw a polygon at location x, y, from an array of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]), using color c, and optionally fill the polygon with color c if f=True
     
 * scroll(xstep, ystep) - scroll the contents of the frame buffer by xstep and ystep
     
-* prbitmap(bitmap, x, y [, index}) - progressively draw a converted bitmap file at x, y, from an optional index within the bitmap. The bitmap image must be converted to a python module using Russ Hughes' [image_converter.py] (https://github.com/russhughes/st7789py_mpy/tree/master/utils) program.
+* prbitmap(bitmap, x, y [, index}) - progressively draw a converted bitmap file at location x, y, from an optional index within the bitmap. The bitmap image must be converted to a python module using Russ Hughes' [image_converter.py] (https://github.com/russhughes/st7789py_mpy/tree/master/utils) program.
 
 
 ## LCD Text functions
@@ -64,44 +64,42 @@ This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789
 
 ## Pre-defined colors:
 
-WHITE - 100% white
-WHITE75 - 75% white
-WHITE50 - 50% white
-YELLOW - 100% yellow
-YELLOW75 - 75% yellow
-YELLOW50 - 50% yellow
-CYAN - 100% cyan
-CYAN75 - 75% cyan
-CYAN50 - 50% cyan
-GREEN - 100% green
-GREEN75 - 75% green
-GREEN50 - 50% green
-MAGENTA - 100% magenta
-MAGENTA75 - 75% magenta
-MAGENTA50 - 50% magenta
-RED - 100% red
-RED75 - 75% red
-RED50 - 50% red
-BLUE - 100% blue
-BLUE75 - 75% blue
-BLUE50 - 50% blue
-GRAY - 25% white
-BLACK - 0% white
+WHITE - 100% white  
+WHITE75 - 75% white  
+WHITE50 - 50% white  
+YELLOW - 100% yellow  
+YELLOW75 - 75% yellow  
+YELLOW50 - 50% yellow  
+CYAN - 100% cyan  
+CYAN75 - 75% cyan  
+CYAN50 - 50% cyan  
+GREEN - 100% green  
+GREEN75 - 75% green  
+GREEN50 - 50% green  
+MAGENTA - 100% magenta  
+MAGENTA75 - 75% magenta  
+MAGENTA50 - 50% magenta  
+RED - 100% red  
+RED75 - 75% red  
+RED50 - 50% red  
+BLUE - 100% blue  
+BLUE75 - 75% blue  
+BLUE50 - 50% blue  
+GRAY - 25% white  
+BLACK - 0% white  
 
 
 ## Example use:
 
-`import LCDconfig_Pico as lcd_config     # Custom config for BEAPER Pico I/O
-# import LCDconfig_Nano as lcd_config     # Use this custom config for BEAPER Nano I/O
-import NotoSansDisplay_24 as notosans24 # Load converted TrueType font
-
-# Create an lcd object. Rotation=3 is the normal BEAPER Pico LCD orientation.
-lcd = lcd_config.config(rotation=3)
-
-lcd.fill(lcd.BLACK)     # Fill LCD framebuffer with black
-lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # Draw filled blue round rect
-lcd.write("Hello, world!", 10, 10, notosans24, lcd.YELLOW)  # Write yellow text
-lcd.update()            # update the LCD to display the framebuffer contents
-`
-
+    import LCDconfig_Pico as lcd_config     # Custom config for BEAPER Pico I/O
+    # import LCDconfig_Nano as lcd_config     # Use this custom config for BEAPER Nano I/O
+    import NotoSansDisplay_24 as notosans24 # Load converted TrueType font
+    
+    # Create an lcd object. Rotation=3 is the normal BEAPER Pico LCD orientation.
+    lcd = lcd_config.config(rotation=3)
+    
+    lcd.fill(lcd.BLACK)     # Fill LCD framebuffer with black
+    lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # Draw filled blue round rect
+    lcd.write("Hello, world!", 10, 10, notosans24, lcd.YELLOW)  # Write yellow text
+    lcd.update()            # update the LCD to display the framebuffer contents
 
