@@ -1,7 +1,7 @@
 /*
 Project:  BEAPER-Nano-Intro-1-Input-Output
 Activity: mirobo.tech/beaper-nano-intro-1
-Updated:  February 10, 2025
+Updated:  February 19, 2025
 
 This introductory programming activity for the mirobo.tech BEAPER Nano
 demonstrates pushbutton input, LED outut, the use of time delay
@@ -59,7 +59,7 @@ void setup() {
 
 // Main loop code repeats forever
 void loop() {
-  SW2State = digitalRead(SW2);  // Change to SW4 or SW5 for Arduino Uno R3
+  SW2State = digitalRead(SW2);
 
   if(SW2State == LOW) {
     digitalWrite(LED2,HIGH);
@@ -90,12 +90,12 @@ void loop() {
 
 1.  Let's analyze this program! Program analysis is an important skill
     to develop since it helps you to understand a program's operation.
-    Connect the Arduino Nano ESP32 to your computer. Press the Upload
-    button at the top of the IDE screen -- it's the large right-facing
-    arrow. The IDE will start compiling the program sketch and will
-    upload the program to the Arduino when compilation completes.
-    Press and release pushbutton SW2 on your BEAPER Nano circuit while
-    observing its LEDs.
+    Connect the Arduino Nano ESP32 in you BEAPER Nano to your computer.
+    Press the Upload button at the top of the IDE screen -- it's the
+    large right-facing arrow. The IDE will start compiling the program
+    sketch and will upload the program to the Arduino when compilation
+    finishes. Once the program has been uploaded, press and release
+    pushbutton SW2 on your BEAPER Nano circuit while observing its LEDs.
 
     What happens? How many LEDs flash? How many times does each LED
     flash? Do the LEDs flash again if SW2 is pressed and released a
@@ -114,9 +114,9 @@ void loop() {
 
     The digitalRead(SW2) function reads the voltage present on the
     pin defined as SW2, and stores the voltage as one of two possible
-    states in the SW2State variable. A voltage close to the level of
-    the power supply voltage will cause SW2State to become HIGH, and
-    a voltage level closer to 0V will cause SW2State to be LOW.
+    states in the SW2State variable. If the voltage on the pin is
+    high, the SW2State variable's value will become HIGH, and if the
+    voltage is low, its value will be be LOW.
 
     The next if (conditional) statement:
 
@@ -131,7 +131,8 @@ void loop() {
     If SW2State is HIGH, the condition is false, and all of the code
     inside the braces will be skipped.
 
-    When the condition is true, the first output statement that runs is:
+    Whenever the condition is true, the first output statement that
+    runs next is:
 
     digitalWrite(LED2,HIGH);
 
@@ -144,9 +145,9 @@ void loop() {
     digitalWrite(LED2,LOW);
 
     Both the input (digitalRead) and output (digitalWrite) statements
-    use the same HIGH and LOW terms to represent input and output
-    voltages. What real-world voltages do you think the values HIGH
-    and LOW correspond to on the Arduino Nano ESP32 used in your
+    use the same HIGH and LOW values to represent both input and
+    output voltages. What real-world voltages do you think the values
+    HIGH and LOW correspond to in the Arduino Nano ESP32 used in your
     BEAPER Nano?
 
 3.  Each digitalWrite statement is followed by a short delay:
@@ -185,15 +186,15 @@ void loop() {
     pushbutton as soon as the program starts running. Press and hold
     the pushbutton and you should observe a change in the voltage
     across the pushbutton. Does this value match your prediction?
-    How does this value relate to the value used by the SW2 input
-    statement?
+    How does voltage across a pressed pushbutton relate to the value
+    used by the SW2 input statement?
 
 5.  Let's compare the operation of 'if' and 'while' structures by
     making two new program blocks that will simulate the operation
     of real-world momentary buttons. Copy and paste the program code,
     listed below, into your program between the existing SW2 'if'
-    block and the 10ms sleep delay (shown by the location of the
-    comment in the program code).
+    block and the 10ms sleep delay (shown using a comment in the
+    program code).
 
   // Momentary button using an if structure
   SW3State = digitalRead(SW3);
@@ -221,20 +222,20 @@ void loop() {
     
     While both program switch blocks are designed to effectively
     mimic the operation of real-world momentary pushbuttons,
-    implementing these using a sequence of software steps makes them
+    implementing them using a sequence of software steps makes them
     behave differently than physical buttons would. To see the
     difference press and hold SW3, and while holding SW3 press and
     release SW4. Do both switches still operate as expected?
     
-    Now, try it in the opposite order. Press and hold SW4, and then
-    press and release SW3. Do both switches operate as expected?
+    Next, try it in the opposite order. Press and hold SW4, and then
+    press and release SW3. Do both switches still operate as expected?
     
     Explain the differences in the operation of the 'if' and 'while'
     blocks used to make the momentary button functions. How does each
-    affect the program flow -- the path taken by the microcontroller
-    through the main program loop. Which block would be better suited
-    to sense both switches simultaneously, as if they were wired as
-    separate parallel circuits?
+    affect the program flow -- the steps taken by the microcontroller
+    through the main program loop. Which block should be used when
+    creating a prgoram that needs to sense both switches
+    simultaneously, as if they were wired as parallel switch circuits?
 
 6.  Comment-out the second 'SW4State = digitalRead(SW4);' statement --
     the one inside the while loop -- by adding two slashes '//' at the
@@ -247,15 +248,18 @@ void loop() {
     might be operating that way.
 
 7.  Next, let's try nesting if conditions to mimic an operator safety
-    circuit on an industrial machine. To prevent operator injury,
+    circuit for an industrial machine. To prevent operator injury,
     some machines have two, widely-spaced start buttons that a machine
-    operator is required to press at the same time to activate it,
-    pressing one button with each hand and ensuring both hands are
-    safely away from dangerous parts of the machine.
+    operator is required to press at the same time in order to
+    activate it. The machine will only start if one button *and* the
+    other button are pressed simultaneously. Spacing the buttons far
+    enough apart requires the machine operator to press one button
+    with each hand, ensuring that both hands are safely away from
+    the dangerous parts of the machine when it starts.
     
     Replace the momentary button program blocks added above with the
-    new program block, below. The program combines two if conditions
-    to light LED4 (representing our machine) only when both SW3 and
+    new program block, below. This program combines two if conditions
+    to light LED4 (representing our machine) when both SW3 and
     SW4 are pressed.
 
   SW3State = digitalRead(SW3);
@@ -380,34 +384,38 @@ Programming Activities
     find that pressing and holding SW5 will make a buzzing noise
     instead of a musical sounding tone. Can you figure out why?
     
-    Did you figure it out? After the last 568us (microsecond) delay,
-    the delay(10); statement at the end of the loop function adds an
-    extra 10ms of delay before the BEEPER pin changes its value again.
-    This creates an extra-long LOW output of 10568us instead of the
-    568us HIGH output the LOW was indended to match! The simplest way
-    to fix the program is to comment out the 10ms delay using two
-    slashes, as shown below:
+    Did you figure it out? After making the output LOW and adding
+    the second 568us delay, the delay(10); statement at the end of
+    the program's main loop function adds an additional 10ms of delay
+    before the BEEPER pin can change back to HIGH again. This creates
+    an extra-long LOW output of 10568us instead of the 568us HIGH 
+    output the program intended! The simplest way to fix the program
+    without deleting the line is to comment-out the 10ms delay with
+    two slashes, making it into a single-line comment, as shown:
 
   // delay(10);
 
     Run the program again and press SW5. Does it sound more like a
     tone now? Try altering both of the delay values, always keeping
-    them the same. Does the pitch of the tone increase or decrease
-    when the delay values are made smaller? Does the opposite happen
-    if the delay values are made larger?
+    them the same as you increase or decrease the delay. Does the
+    pitch of the tone increase or decrease when the delay values are
+    made smaller? Does the opposite happen if the delay values are
+    made larger?
  
 3.  Arduino has a built-in tone() function that can be used to make a
     specified sound frequency without having to calculate a delay
-    time period and create a wave in software. Replace the code,
-    added above, with this code:
+    time period and to create your own wave by making an output pin
+    go high and low as you did above. Replace the code above, with
+    this code that produces the same sound using the tone() function:
  
   SW5State = digitalRead(SW5);    // Make a tone when SW5 is pressed
   if(SW5State == LOW) {
     tone(BEEPER, 880);
   }
 
-    The tone can be silenced by pressing the RESET button (SW1) on
-    BEAPER Nano, or in your program by using a 'noTone(BEEPER);'
+    The tone function specifies the pin (BEEPER) and frequency (880),
+    and can be silenced by pressing the RESET button (SW1) on the
+    BEAPER Nano, or in your program by adding a 'noTone(BEEPER);'
     statement. Modify your program using either a second 'if'
     condition or an 'else' condition so that it plays a tone only
     while SW5 is held, and stops playing the tone using the 'noTone'
@@ -416,24 +424,25 @@ Programming Activities
 4.  The setup() function includes a tone() function that makes a
     sound on start-up. How is the tone function in the setup function
     different than the one in the example above? What does the third
-    parameter control? Hint: you can find out more about tone() in
-    the Arduino reference documents at: https://docs.arduino.cc
+    parameter control? Hint: you can find out more about any Arduino
+    functions in the programming reference at: https://docs.arduino.cc
  
 5.  BEAPER Nano's LED circuits use 'active-high' logic, meaning each
     LED turns on when its output pin is set HIGH, or is connected to
     the power supply potential by each pin's output transistor. In
     contrast, the individual elements of the RGB (red, green, blue)
     LED built into the Arduino Nano ESP32 microcontroller are 
-    controlled using 'active-low' logic, meaning that current flows
-    through the LED element when its associated output is connected
-    to ground by setting the output pin LOW.
+    controlled using 'active-low' logic. This means that current flows
+    through the LED element when its associated output is made LOW, 
+    or connected to ground.
 
-    Each of the Arduino Nano ESP32's built-in LEDs are already pre-
-    defined (the commented-out LED definition statements near the top
-    of the program are just included to show you their names), but
-    they won't be usable until their I/O pins are initialized. Let's
-    add an initialization statement for the blue RGB LED element into
-    the program's setup() function, like this:
+    Each of the Arduino Nano ESP32's built-in LEDs have already been
+    pre-defined (their commented-out LED definitions are near the top
+    of the program, and have been included in the program to let you
+    know their names), but won't be usable until their I/O pins have
+    been initialized. Let's add an initialization statement for the 
+    blue RGB LED element into the program's setup() function, like
+    this:
 
   pinMode(LED_BLUE, OUTPUT);
 
@@ -444,13 +453,16 @@ Programming Activities
   digitalWrite(LED_BLUE, LOW);
 
     Upload the program to verify that the RGB LED turns blue. Create
-    addtional pinMode() statements for each of the other built-in LEDs.
+    addtional pinMode() statements for both the red and green LED
+    elements. Then, experiment with all three elements to determine
+    all of the possible colours. To help you figure it out, create a
+    chart that lists the colour along with the values of the red,
+    green, and blue LED elements to make that colour.
+
     What values correspond to the RGB LED being off? How many colours
-    can the RGB LED produce using only simple 0 and 1 output values
-    for control? (We'll explore how to display far more colours than
-    this in a later activity!) Create a chart that lists each colour
-    by name, along with the output values of each of the red, green,
-    and blue LED elements.
+    can the RGB LED produce using only simple HIGH and LOW output
+    values for control? (We'll explore how to display far more colours
+    than this in a later activity!)
     
 6.  Create a program that uses each pushbutton to generate either a
     unique flashing pattern using the LEDs, or to play a series of
@@ -494,23 +506,23 @@ Programming Activities
     all while the Stop button is being pressed. Test your program
     to ensure LED D5 stays off while SW5 is being pressed.
 
-10. Imagine that you're ready to apply your newly-acquired
+10. Let's say that you're ready to apply your newly-acquired
     microcontroller hardware and programming experience to create
     a turn signal circuit for your bicycle. Assume that you have
     designed a 3D-printed holder that holds an Arduino, a battery
-    holder, and up to four LEDs, and that this holder is designed
+    pack, and up to four LEDs, and that this holder is designed
     to be mounted on the bicycle's seat post. The LEDs will be
     controlled by two momentary pushbuttons mounted on the bicycle's
     handlebars. Plan the best way to implement both easy to use and
     easily visible turn signals, and then write a program that uses
-    the LEDs and pushbuttons on your circuit to simulate their
+    the LEDs and pushbuttons on your circuit board to simulate their
     operation.
 
 11. Modify the bicycle turn signal program, above, to add one or more
     extra features such as a brake signal, a horn or bell function
     using an unused pushbutton, or add a rapidly flashing visibility
     light that blinks constantly until one of the turn signals is
-    activated. Test your program to ensure that its functions work
-    as expected under all operating conditions (e.g. signalling and
-    applying the brakes, or using signalling while using the horn).
+    activated. Test your program to ensure that each of its functions
+    works as expected under all operating conditions (e.g. signalling
+    and applying the brakes, or using signalling while using the horn).
 */
