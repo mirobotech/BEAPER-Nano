@@ -1,7 +1,7 @@
 /*
 Project:  BEAPER-Nano-Intro-1-Input-Output
 Activity: mirobo.tech/beaper-nano-intro-1
-Updated:  February 19, 2025
+Updated:  February 20, 2025
 
 This introductory programming activity for the mirobo.tech BEAPER Nano
 demonstrates pushbutton input, LED outut, the use of time delay
