@@ -388,7 +388,7 @@ Programming Activities
     the second 568us delay, the delay(10); statement at the end of
     the program's main loop function adds an additional 10ms of delay
     before the BEEPER pin can change back to HIGH again. This creates
-    an extra-long LOW output of 10568us instead of the 568us HIGH 
+    an extra-long LOW output of 10568us instead of the 568us LOW 
     output the program intended! The simplest way to fix the program
     without deleting the line is to comment-out the 10ms delay with
     two slashes, making it into a single-line comment, as shown:
