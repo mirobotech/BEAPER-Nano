@@ -117,8 +117,8 @@ void loop() {
     The condition compares the value of the SW3Count variable with
     the maxCount constant to check if a limit has been reached.
     
-    Defining a constant to be used here seems like extra work when
-    the conditional statement could simply have been written as:
+    Defining a constant for this seems like extra work when the
+    conditional statement could simply have been written as:
 
   if(SW3Count >= 50) {
   
@@ -136,7 +136,7 @@ void loop() {
 
     Did the count reach 50? If not, can you describe why, or what
     might be happening in the program to make it mis-count? You may
-    be able to gain some insight into what might be happeing by
+    be able to gain some insight into what might be happening by
     pressing and quickly releasing SW3 during one attempt to reach
     50, clearing the count using SW5, and then repeating the attempt
     by pressing and slowly releasing SW3.
@@ -144,8 +144,8 @@ void loop() {
 5.  It's okay if you haven't identified any obvious problems with the
     program yet. We can add some debugging code that might help in
     discovering the nature of the problem. It seems like the program
-    is counting too quickly. To check, let's another condition to
-    turn LED D3 off if the count get very large, say ten times bigger
+    is counting too quickly. To check, let's add nother condition to
+    turn LED D3 off if the count gets very large, say ten times bigger
     than expected. We'll add this new condition right after the 
     existing condition that turns LED D3 on, like this:
 
@@ -176,7 +176,7 @@ void loop() {
     Since humans are slow, and microcontrollers can run through a
     simple loop like this very fast, the button will likely be read
     as pressed for many cycles through the loop. This explains why
-    SW3Count quickly exceeds maxCount.
+    the SW3Count quickly exceeds maxCount.
 
     To solve this problem, the program cannot simply read the state
     of the switch and assume that a LOW input is a new button press.
@@ -284,7 +284,7 @@ Programming Activities
     which player can press a button the fastest and become the first
     player to reach the maximum count and win the game!
 
-    Use SW4 for the second player, and light LED D5 when their button
+    Use SW4 for the second player, and light LED D5 when button SW4
     is pressed. Light LED D4 to show when the second player's count
     equals the maxCount.
     
@@ -318,7 +318,7 @@ Programming Activities
     exactly as this program did initially (and unitentionally)!
     
     Create a program that implements a multifunction button to light
-    one LED as soon as a button is pressed, and lights a second LED
+    one LED as soon as a button is pressed, and light a second LED
     if the button is held for more that one second. Have both LEDs
     turn off when the button is released.
    
