@@ -46,7 +46,6 @@ SW3_pressed = False
 LED3.value(0)       # Ensure LED D3 is off when the program re-starts
 
 while True:
-while True:
     # Count SW3 button presses
     if SW3.value() == 0:
         LED2.value(1)
