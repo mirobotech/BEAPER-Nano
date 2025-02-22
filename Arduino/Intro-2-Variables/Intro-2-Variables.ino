@@ -110,7 +110,7 @@ void loop() {
     difference betwee the two declarations, so what else could lead
     to SW3 and maxCount being interpreted differently?
 
-3.  The maxCount constant is at the start of an if condition:
+3.  The maxCount constant is used at the start of an if condition:
 
   if(SW3Count >= maxCount) {
 
