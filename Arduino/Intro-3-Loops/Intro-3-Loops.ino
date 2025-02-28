@@ -105,12 +105,15 @@ void loop() {
 4.  The while() loop turns LED D2 on when the value of LED2Level
     matches the pwmCounter value. As LED2Level changes, LED D2 will
     end up being on for different amounts of time relative to the
-    total time taken to execute the loop. This process of repeatedly
-    turning an output on and off for different proportions of a
-    fixed time perid is a technique known as PWM (Pulse-Width
-    Modulation). If the pulse frequency is fast enough, LED D2 will
-    appear to have different brightnesses instead of visibly
-    flashing.
+    total time taken to execute the loop. Another statement, outside
+    of the inner loop, turns LED D2 off before the main loop()
+    repeats.
+    
+    The process of repeatedly turning an output on and off for varying
+    proportions of a fixed time period is a technique called PWM
+    (Pulse-Width Modulation). If the frequency of pulses is fast
+    enough, PWM will cause LED D2 to have appear to have different
+    levels of brightness instead of visibly flashing.
 
     How many different levels of brightness can LED D2 have in this
     program? Calculate the percentage brightness change corresponding
@@ -119,32 +122,31 @@ void loop() {
    
 5.  Every finite while() loop consists of three parts:
 
-    1) An assignment statement to set the starting state. In this
-    program, the statement 'pwmCounter = 255;' sets the starting
-    value of the pwmCounter variable.
+    1) A statement that assigns a value to the loop's conditional
+    variable. In this program, the assignment statement is the
+    'pwmCounter = 255;' statement just above the while() condition.
 
-    2) A conditional expression that determines whether or not th
-    while loop will repeat. The 'while(pwmCounter != 0)' structure 
-    keeps running the loop until pwmCounter is equal to 0. Unlike
-    'if' statements, which run the code inside their conditional
-    braces only once if a condition is true, while statements keep
+    2) A conditional expression that determines whether or not the
+    while loop will repeat. The 'while(pwmCounter != 0)' will keep 
+    running the loop until pwmCounter is equal to 0. (Unlike 'if'
+    statements, which run the code inside their conditional braces
+    only once *if* a condition is true, while statements keep
     re-evaluating their conditions and repeating the code inside
-    their braces while their conditional statements are true.
+    their braces *while* their conditional statements are true.
 
-    3) An expression to modify the conditional variable inside the
-    while() loop. (If the variable is never modified, the program
-    will appear to get stuck in the loop and will never go on to run
-    any other code outside of the loop –- making the while structure
-    into an infinite loop.) The statement 'pwmCounter --;' uses a
-    decrement operator to decrease the value of the loop variable
-    by 1 every time it is encountered in the loop.
+    3) An expression that updates or modifies the conditional
+    variable inside the while() loop. In this program, the statement
+    The statement 'pwmCounter --;' uses a decrement operator to
+    decrease the value of the loop variable by 1 every time it is
+    encountered in the loop. (If the loop variable is never modified,
+    the program will appear to get stuck in the loop and will never
+    go on to run any other code outside of the loop –- making the
+    while structure into an infinite loop!)
 
     A for() loop is an alternative to a while() loop and incorporates
-    the same three parts of a while structure in a single program
+    the same three parts of a while structure into a single program
     statement. Compare the structure of the while() loop in the
-    program above with the same program re-written to use a for()
-    loop structure, below. What is an advantage of using a for()
-    loop instead of a while() loop? 
+    program above with the for() loop structure, below:
 
   for(int pwmCounter = 255; pwmCounter != 0; pwmCounter --) {
     if(LED2Level == pwmCounter) {
@@ -153,18 +155,28 @@ void loop() {
     delayMicroseconds(10);
   }
   digitalWrite(LED2,LOW);
- 
-    Next, replace the entire while loop structure in the original
-    program with the for() loop, above.
 
-    Compile the program and upload it into your circuit to try it out.
-    Does it work the same way as the program did when using the
+    The numbers in the for statement's brackets represent the starting
+    value, the ending value, and the step between successive values
+    of the pwmCounter variable.
+
+    Can you identify at least two advantages of using a for() loop
+    structure instead of a while() loop structure? There is one
+    potentially important disadvantage of a for() loop, though it
+    doesn't impact the for loop used here. Can you think of what
+    it might be?
+
+    Replace the entire while90 loop structure in the original
+    program with the for() loop structur, above.
+
+    Compile the program and upload it into your circuit to try it
+    out. Does it work the same way as the program did when using the
     while() loop?
-   
+
 6.  The pwmCounter variable defined in the program's header is known
-    as a 'global' variable because it is available from all parts of
-    the program. The for() loop code added above redefines the
-    pwmCounter variable as a 'local' variable just for use within
+    as a 'global' variable because it is accessible from all parts of
+    the program. The new for() loop code added above redefines the
+    pwmCounter variable as a 'local' variable for use only within
     the for() loop using the for loop's initialization statement:
     
   for(int pwmCounter = 255; pwmCounter != 0; pwmCounter --) {
@@ -204,14 +216,14 @@ void loop() {
     local pwmCounter variable's value was correct?
    
 7.  Remove the 'int' declaration from the for() loop's variable
-    assignment so that the for() looop initialization statement
+    assignment so that the for() loop initialization statement
     now looks like the one below:
     
    for(pwmCounter = 255; pwmCounter != 0; pwmCounter --) {
     
     Removing the 'int' declaration will cause the for() loop to use
-    the existing global pwmCounter variable instead of creating a
-    new local variable.
+    the existing global pwmCounter variable instead of creating its
+    own new local variable.
 
     Build and upload the program to your circuit and run it again.
     Is the output of LED D4 different now? How would you be able to
@@ -261,26 +273,29 @@ void loop() {
 10. All of the work that went into generating and testing our own PWM
     algorithm might seem like wasted effort after realizing that that
     a single instruction can replace all of our code, but that isn't
-    necessarily the case. Developing and testing a new algorithm to 
-    accomplish a specific task is an important skill, and this
+    necessarily the case. Developing and testing new algorithmd to 
+    accomplish specific taskd is an important skill, and this
     exercise hopefully helped you build a better understanding of
     how PWM works. Hopefully, some of the debugging steps introduced
     here will help prepare you to investigate, develop, and verify
-    the operation of new algorithms and functions for un-supported
-    hardware devices. Our code might even work differently, or more
-    efficiently than the code in pre-made functions. This is often
-    the case since pre-created functions may have been written with
-    extra code to support features or capabilities that may not be
-    needed in our program.
+    the operation of your new algorithms and functions for different
+    or un-supported hardware devices. And in some cases, your code
+    developed to implement a specific function may work better than
+    pre-made code to do the same thing. This is because pre-created
+    functions may have been written with extra code to support
+    features or capabilities that may not be needed in our program, 
+    so your code will end up being smaller and faster as a result.
 
     Look up the analogWrite() instruction in the Arduino reference
     documentation. What limitiations does analogWrite() have? Can
     you think of any applications that might benefit from different
     PWM frequencies, different PWM resolution (the number of distinct
-    output levels), or more PWM outputs? Could our PWM algorithm
-    be modified to overcome some of the limitations of the built-in
-    analogWrite() function?
-  
+    output levels), or more PWM outputs? Could the simple PWM
+    technique used in the original program be modified to overcome
+    some of the limitations of the built-in analogWrite() function?
+
+    What is one big drawback of using a loop to generate PWM?
+
 Programming Activities
    
 1.  Modify your program to control the brightness of two or more LEDs
@@ -290,23 +305,25 @@ Programming Activities
   
 2.  If you have access to an oscillscope, you can use it to view the
     PWM output waveform being sent to LED D2. Measure the time period
-    of the PWM wave and calculate the PWM frequency using the
+    of the PWM wave and calculate the PWM frequency when using the
     analogWrite() function.
 
     Compare the frequency of a PWM wave generated using one of the
     original loop functions. How can the PWM frequency of the PWM
     loop functions be changed?
    
-3.  Create a program that uses a for() loop to slowly increase the
+3.  A program could use a loop to automatically increase the PWM
+    value before sending it into a PWM function. This could be used
+    to implement a soft-start for an electric motor, which would
+    help to reduce the mechanical stress caused by suddenly applying
+    full voltage to the motor.
+    
+    Create a program that uses a for() loop to slowly increase the
     the brightness of an LED when a buton is pressed (instead of
     requiring the user to hold the button as in the original program).
-    
-    A program like this could be used to implement a soft-start for
-    an electric motor in order to reduce the mechanical stress
-    caused by suddenly applying full power to the motor.
 
 4.  Add another loop to gradually turn the same LED in the above
-    program off using either a second button or using the on-button
+    program off using either a second button or re-using the on-button
     as a toggle button.
 
 5.  Make a program that automatically creates a repeated, visual
