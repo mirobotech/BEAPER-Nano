@@ -1,10 +1,10 @@
 # MicroPython LCD Driver for BEAPER Nano and BEAPER Pico
 
-This module implements an ST7789 LCD driver for the 1.54", 240x240 pixel TFT LCD display panel that can be installed on mirobo.tech BEAPER Nano and BEAPER Pico circuit boards and controlled over the SPI bus.
+This module implements an ST7789 LCD driver for the 1.54", 240x240 pixel TFT LCD display panel that can be added to mirobo.tech BEAPER Nano and BEAPER Pico circuit boards. The LCD display panel is controlled over the SPI bus.
 
-The primary goals of this driver are: 1) to implement a simplified set of LCD control functions and graphics primitives in a common style, and 2) to leverage MicroPython's built-in frame buffer for consistent and fast operation.
+The primary goals of this driver are: 1) to implement a simplified set of LCD control functions and graphics primitives in a style common to MicroPython's built-in frame buffer, and 2) to leverage MicroPython's frame buffer for consistent and fast operation.
 
-This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789py_mpy] (https://github.com/russhughes/st7789py_mpy) driver, and the utilities on the linked GitHub page can be used to convert TrueType fonts and bitmap images so that they are able to be used with this driver. The LCD.py driver implements the LCD control functions, graphics functions, and text functions listed below, as well as pre-defines a set of RGB565 color values.
+This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789py_mpy] (https://github.com/russhughes/st7789py_mpy) driver, and the utilities on the linked GitHub page can be used to convert TrueType fonts and bitmap images for use with this driver. The LCD.py driver implements the LCD control functions, graphics functions, and text functions listed below, and also pre-defines a set of RGB565 color values.
 
 
 ## LCD control functions
@@ -19,11 +19,11 @@ This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789
     
 * sleep_mode(m) - sleep LCD controller and turn off backlight if m=True
     
-* rotation(r) - rotate LCD image to one of 4 orientations (0-3, 3 is upright on BEAPER Nano and BEAPER Pico)
+* rotation(r) - rotate LCD image to one of 4 orientations (r=0-3, 3 is upright on BEAPER Nano and BEAPER Pico)
     
-* blit_buffer(b, x, y, w, h) - copy memory buffer b to frame buffer at location x, y, using buffer width w, and height h
+* blit_buffer(b, x, y, w, h) - copy memory buffer b to LCD display memory at location x, y, using buffer width w, and height h
     
-* update() - update the LCD panel with the contents of the frame buffer
+* update() - update the LCD display memory with the contents of the frame buffer
 
 
 ## LCD graphics functions
@@ -44,13 +44,13 @@ This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789
     
 * round_rect(x, y, w, h, r, c [, f]) - draw a rounded-rectange at x, y, width w, height h, having corner radius r, using color c, and optionally fill the rectangle with color c if f=True
     
-* ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x, y, with x radius xr, y radius yr, using color c, and optionally fill the ellipse with color c if f=True. Optional m parameter enables the drawing of only one quadrant of the ellipse: 1=top right, 2 = top left, 3=bottom left, 4=bottom right
+* ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x, y, with x radius xr, y radius yr, using color c, and optionally fill the ellipse with color c if f=True. Optional m parameter enables the drawing of only one quadrant of the ellipse: 1=top right, 2=top left, 3=bottom left, 4=bottom right
     
 * poly(x, y, coords, c [, f]) - draw a polygon at location x, y, from an array of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]), using color c, and optionally fill the polygon with color c if f=True
     
 * scroll(xstep, ystep) - scroll the contents of the frame buffer by xstep and ystep
     
-* prbitmap(bitmap, x, y [, index}) - progressively draw a converted bitmap file at location x, y, from an optional index within the bitmap. The bitmap image must be converted to a python module using Russ Hughes' [image_converter.py] (https://github.com/russhughes/st7789py_mpy/tree/master/utils) program.
+* bitmap(bitmap, x, y [, index]) - draw a converted bitmap file at x, y, from an optional index (currently only draws bitmaps with size equal to the display size). The bitmap image must be converted to a python module using Russ Hughes' [image_converter.py] (https://github.com/russhughes/st7789py_mpy/tree/master/utils) program.
 
 
 ## LCD Text functions

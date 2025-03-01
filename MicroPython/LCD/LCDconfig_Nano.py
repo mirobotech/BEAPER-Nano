@@ -4,6 +4,7 @@ BEAPER Nano LCD Configuration for 1.54" 240x240 LCD
 Adapted from st7789py_mpy by Russ Hughes:
 https://github.com/russhughes/st7789py_mpy
 
+Updated March 1, 2025
 """
 
 from machine import Pin, SPI
@@ -32,13 +33,7 @@ def config(rotation=3):
         #( b'\x26', b'\x02', 0),		# GAMSET - Gamma set curve 2 (g1.8)
         ( b'\xb0', b'\x00\xf8', 0), # RAMCTRL - Swap endian order
         ( b'\x3a', b'\x55', 5), 	# COLMOD - 16 bit per pixel (RGB565) color mode
-        #( b'\xbb', b'\x28', 0),    # Set VCOMS setting 28 is 1.1V default x20 is 0.9V
         ( b'\xc0', b'\x3c', 0), 	# LCMCTRL - Mirrorring control
-        #( b'\xc2', b'\x01\xff', 0),    # Set power control 2 - default values
-        #( b'\xc3', b'\x10', 0),    # Set power control 3
-        #( b'\xc4', b'\x20', 0),    # Set power control 4
-        #( b'\xc6', b'\x0f', 0),    # FRCTRL2 - Frame control (60Hz)
-        #( b'\xd0', b'\xa4\xa1', 0),    # Set power control A
         ( b'\x29', b'\x00', 0), 	# DISPON - Turn the display on
     )
 

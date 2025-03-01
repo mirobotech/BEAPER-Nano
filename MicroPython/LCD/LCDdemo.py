@@ -1,21 +1,21 @@
 """
-BEAPER Nano LCD demo program
-February 8, 2025
+BEAPER Pico LCD demo program
+Updated: March 1, 2025
 
 Draws multiple screens of graphics primitives using MicroPython's frame buffer
 and counts the number of graphical objects of each type drawn per second.
 
-Uses the LCD.py driver module adapted from Russ Hughes' st7789mpy.py MicroPython
+Uses the LCD.py driver module adapted from Russ Hughes' st7789py.py MicroPython
 ST7789 driver library. (https://github.com/russhughes/st7789py_mpy)
 
 Required files:
     LCDconfig_Nano.py, or
-    LCDconfig_Pico.py - low-level hardware configuration file for each circuit
+    LCDconfig_Pico.py - low-level configuration file for each BEAPER circuit
     
     LCD.py - LCD driver module that extends the MicroPython framebuffer
     
     NotoSansDisplay_24.py - Noto Sans Display font converted from TrueType
-        using Russ Hughes' write_font_converter.py program
+        using Russ Hughes' write_font_converter.py program 
  
 """
 
@@ -107,7 +107,7 @@ start_time = time.ticks_us()
 lcd.update()
 update_time = time.ticks_diff(time.ticks_us(), start_time)
 
-for i in range(204, 0, -4):
+for i in range(200, 0, -8):
     # Draw fading mirobo logo
     logo_color = lcd.color565(i, i, i)
     # logo_color = lcd.WHITE75
@@ -148,10 +148,8 @@ for i in range(204, 0, -4):
     lcd.ellipse(212, 202, 10, 10, logo_bg, True)
     
     lcd.update()
-    if i == 204:
+    if i == 200:
         time.sleep(2)
-    
-start_time = time.ticks_us()
 
 # Color bars
 start_time = time.ticks_us()
@@ -441,7 +439,7 @@ while True:
     lcd.write(str(triangles) + " polys/s", 10, 192, notosans24, lcd.WHITE)
     lcd.write(str(ftriangles) + " fld-polys/s", 10, 216, notosans24, lcd.WHITE)
     lcd.update()
-
+    
     while SW5.value() == 1:
         time.sleep_ms(20)
 
