@@ -213,12 +213,16 @@ while(True):
                         ball_y_velocity = -ball_y_velocity
                         bricks_remaining -= 1
                         score += 10 * speed
+                        BEEPER.freq(1000)
+                        BEEPER.duty_u16(32768)
         
         # Check for paddle hit
         if paddle_x - half_paddle_w < ball_x + 2 and ball_x - 2 < paddle_x + half_paddle_w:
             if paddle_y + 2 > ball_y > paddle_y - 4:
                 ball_y_velocity = -ball_y_velocity
                 ball_y = ball_y + ball_y_velocity
+                BEEPER.freq(500)
+                BEEPER.duty_u16(32768)
                 
         # Check for ball drain
         if ball_y >= lcd.height:
@@ -292,7 +296,11 @@ while(True):
     # skip -= 1
     # if skip == 0:
     #     lcd.update()
+    #     BEEPER.duty_u16(0)
     #     skip = 2
 
     # Update LCD every frame on BEAPER Nano
     lcd.update()
+    BEEPER.duty_u16(0)
+
+    
