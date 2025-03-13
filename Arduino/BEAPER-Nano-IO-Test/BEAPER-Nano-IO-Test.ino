@@ -1,6 +1,6 @@
 /*
 Project:  BEAPER-Nano-IO-Test
-Date:     February 5, 2025
+Date:     March 12, 2025
  
 Functional test of on-board BEAPER Nano I/O devices.
 
@@ -100,6 +100,7 @@ void setup() {
   pinMode(ECHO, INPUT);
   pinMode(TRIG, OUTPUT);
   pinMode(H4, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED_RED, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
@@ -107,6 +108,7 @@ void setup() {
   servoTimer = millis();  // Set starting timer states
   sonarTimer = millis();
 
+  digitalWrite(LED_BUILTIN, HIGH);
   tone(BEEPER, 4000, 100);  // Say hello and print startup messages
 
   Serial.println(F("Starting BEAPER Nano"));
@@ -187,7 +189,7 @@ void loop() {
     sonarTimer = millis();
 
     // Get and print SONAR range
-    range = sonarRange(50);
+    range_cm = sonarRange(50);
     Serial.print("Range: ");
     Serial.print(range_cm);
     Serial.println("cm");
