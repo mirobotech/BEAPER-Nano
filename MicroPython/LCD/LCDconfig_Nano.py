@@ -4,7 +4,7 @@ BEAPER Nano LCD Configuration for 1.54" 240x240 LCD
 Adapted from st7789py_mpy by Russ Hughes:
 https://github.com/russhughes/st7789py_mpy
 
-Updated March 1, 2025
+Updated April 21, 2025
 """
 
 from machine import Pin, SPI
@@ -20,7 +20,7 @@ def config(rotation=3):
     Configures and returns an instance of the ST7789 display driver.
 
     Args:
-        rotation (int): The rotation of the display. BEAPER orientation is 3.
+        rotation (int): The rotation of the display. BEAPER LCD orientation is 3.
 
     Returns:
         ST7789: An instance of the ST7789 display driver.

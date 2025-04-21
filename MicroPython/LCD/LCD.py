@@ -1,6 +1,6 @@
 """
 LCD.py
-Updated: March 1, 2025
+Updated: April 21, 2025
 
 Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver library.
 (https://github.com/russhughes/st7789py_mpy)
@@ -8,7 +8,7 @@ Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver library.
 This module implements an ST7789 LCD driver for the 240x240 pixel TFT LCD
 display panel used on mirobo.tech BEAPER Nano and BEAPER Pico circuits. The
 MicroPython FrameBuffer class and parts of Russ Hughes driver are merged
-to implement a comprehensive set of stylistically common functions:
+to implement a comprehensive set of stylistically common display functions.
 
 LCD control functions:
 
@@ -66,7 +66,7 @@ LCD graphics functions:
         integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]),
         using color c, and optionally fill the polygon if f=True
     
-    polygon(x, y, points, color [, angle, center_x, center_y]) - draw a
+    polygon(x, y, points, color [, angle, center_x, center_y) - draw a
         rotatable polygon at x, y, from a list of coordinates points,
         using color c, at an optional rotation angle (radians) and at
         optional offset center_x and center_y
@@ -74,7 +74,7 @@ LCD graphics functions:
     scroll(xstep, ystep) - scroll the contents of the frame buffer by
         xstep and ystep
     
-    bitmap(bitmap, x, y [, index]) - draw a converted bitmap file at x, y,
+    bitmap(bitmap, x, y [, index}) - draw a converted bitmap file at x, y,
         from an optional index (currently only draws bitmaps with size equal
         to the display size)
 
@@ -88,7 +88,8 @@ Text functions:
         color fg, on a transparent background or using optional background
         color bg
     
-    write_width(s, font) - return the width of string s, written in font font
+    write_width(s, font) - return the width of string s, written in converted
+        font font
 
 Pre-defined colors:
 
@@ -113,21 +114,21 @@ Pre-defined colors:
     BLUE - 100% blue
     BLUE75 - 75% blue
     BLUE50 - 50% blue
-    GRAY - 25% white
+    GREY (or GRAY) - 25% white
     BLACK - 0% white
 
 Example use:
 
-    import LCDconfig_Pico as lcd_config     # Custom config for BEAPER Pico I/O
-    # import LCDconfig_Nano as lcd_config     # Use this config for BEAPER Nano
+    import LCDconfig_Nano as lcd_config     # Custom config for BEAPER Nano I/O
+    # import LCDconfig_Pico as lcd_config     # Use this config for BEAPER Pico
     import NotoSansDisplay_24 as notosans24 # Load converted display font
 
-    # Create an lcd object. Rotation=3 is the normal BEAPER Pico LCD orientation.
+    # Create an lcd object. Rotation=3 is the normal BEAPER Nano LCD orientation.
     lcd = lcd_config.config(rotation=3)
 
     lcd.fill(lcd.BLACK)     # Fill framebuffer with black
-    lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # filled blue round rect
-    lcd.write("Hello, world!", 10, 10, notosans24, lcd.YELLOW)  # write text
+    lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # Draw filled blue round rect
+    lcd.write("Hello, world!", 10, 10, notosans24, lcd.YELLOW)  # Write text string
     lcd.update()            # update the LCD display
 
 ---- Original license below: ----
@@ -623,7 +624,8 @@ class LCD(Canvas):
     BLUE75 = const(0x0017)
     BLUE50 = const(0x0004)
     BLACK = const(0x0000)
-    GRAY = const(0x2102)
+    GREY = const(0x2104)
+    GRAY = const(0x2104)
 
     def __init__(
         self,
@@ -701,18 +703,18 @@ class LCD(Canvas):
         Hard reset display.
         """
         if self.cs:
-            self.cs.off()
+            self.cs.value(0)
         if self.reset:
-            self.reset.on()
+            self.reset.value(1)
         sleep_ms(10)
         if self.reset:
-            self.reset.off()
+            self.reset.value(0)
         sleep_ms(10)
         if self.reset:
-            self.reset.on()
+            self.reset.value(1)
         sleep_ms(120)
         if self.cs:
-            self.cs.on()
+            self.cs.value(1)
 
     def soft_reset(self):
         """
@@ -726,7 +728,7 @@ class LCD(Canvas):
         Enable or disable display inverted color mode.
 
         Parameters:
-            value (bool): if True enable inverted color mode. if False disable
+            value (bool): if True enable inverted color mode, if False disable
             inversion mode
         """
         if value:
@@ -739,7 +741,7 @@ class LCD(Canvas):
         Enable or disable display sleep mode.
 
         Parameters:
-            value (bool): if True enable sleep mode. if False disable sleep
+            value (bool): if True enable sleep mode, if False disable sleep
             mode
         """
         if value:
@@ -808,15 +810,15 @@ class LCD(Canvas):
         SPI write to the device: commands and data.
         """
         if self.cs:
-            self.cs.off()
+            self.cs.value(0)
         if command is not None:
-            self.dc.off()
+            self.dc.value(0)
             self.spi.write(command)
         if data is not None:
-            self.dc.on()
+            self.dc.value(1)
             self.spi.write(data)
             if self.cs:
-                self.cs.on()
+                self.cs.value(1)
 
     def _set_window(self, x0, y0, x1, y1):
         """

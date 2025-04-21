@@ -1,6 +1,6 @@
 """
 BEAPER Pico LCD demo program
-Updated: March 1, 2025
+Updated: April 21, 2025
 
 Draws multiple screens of graphics primitives using MicroPython's frame buffer
 and counts the number of graphical objects of each type drawn per second.
@@ -9,8 +9,8 @@ Uses the LCD.py driver module adapted from Russ Hughes' st7789py.py MicroPython
 ST7789 driver library. (https://github.com/russhughes/st7789py_mpy)
 
 Required files:
-    LCDconfig_Nano.py, or
-    LCDconfig_Pico.py - low-level configuration file for each BEAPER circuit
+    LCDconfig_Nano.py - LCD configuration file for BEAPER Nano, or
+    LCDconfig_Pico.py - LCD configuration file for BEAPER Pico
     
     LCD.py - LCD driver module that extends the MicroPython framebuffer
     
