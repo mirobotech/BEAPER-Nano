@@ -284,4 +284,17 @@ Programming Activities
     loop to sweep through a range of frequencies from low to high,
     or from high to low, when a button is pressed.
 
+7.  Arduino Nano ESP32 has a built-in RGB LED. Create a program to
+    cycle between a range of colour combinations using PWM to control
+    the brightness of each R (red), G (green), and B (blue) LED
+    element. To display all of the colours in rainbow colour order,
+    for example, start with the red LED at maximum brighness, and the
+    green and blue LEDs at minimum brightness. Then, decrease the red
+    LED's brightness while increasing green LED's brightness, leaving
+    the blue LED off. Next, decrease the green brightness value while
+    increasing blue (and leaving the red LED off). Finally, increase
+    the red brightness while decreasing blue (and leaving green off).
+    The cycle is now back to its starting point and ready to be
+    repeated.
+
 """
