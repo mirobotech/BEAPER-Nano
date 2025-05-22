@@ -293,8 +293,8 @@ Programming Activities
     LED's brightness while increasing green LED's brightness, leaving
     the blue LED off. Next, decrease the green brightness value while
     increasing blue (and leaving the red LED off). Finally, increase
-    the red brightness while decreasing blue (and leaving green off).
-    The cycle is now back to its starting point and ready to be
+    the red brightness while decreasing blue (leaving the green LED
+    off). The cycle is now back to its starting point and ready to be
     repeated.
 
 """
