@@ -1,9 +1,10 @@
 """
-BEAPER Pico LCD demo program
-Updated: April 21, 2025
+BEAPER Nano LCD demo program
+Updated: May 27, 2025
 
-Draws multiple screens of graphics primitives using MicroPython's frame buffer
-and counts the number of graphical objects of each type drawn per second.
+Displays the time taken by various LCD operations and draws multiple screens
+of graphics primitives using MicroPython's framebuffer. Records and displays
+the number of each type of graphical objects drawn per second.
 
 Uses the LCD.py driver module adapted from Russ Hughes' st7789py.py MicroPython
 ST7789 driver library. (https://github.com/russhughes/st7789py_mpy)
@@ -19,7 +20,10 @@ Required files:
  
 """
 
-from machine import Pin, PWM, ADC, SPI
+frames_per_sec = 30  # Set the target number of frames per second
+frame_period = 1000000 // frames_per_sec  # Calculate frame period in microseconds
+
+from machine import Pin, PWM, ADC
 import array
 import random
 import time
@@ -38,13 +42,13 @@ LED2 = Pin(7, Pin.OUT)
 LED3 = Pin(8, Pin.OUT)
 LED4 = Pin(9, Pin.OUT)
 LED5 = Pin(10, Pin.OUT)
-BEEPER = Pin(17, Pin.OUT)
+BEEPER = PWM(Pin(17), freq=1000, duty_u16=0)
 
 # Configure built-in Arduino Nano ESP32 LEDs
-LED_BUILTIN = Pin(48, Pin.OUT, value = 0)   # Active High
-LED_BLUE = Pin(45, Pin.OUT, value = 1)      # Active Low
-LED_GREEN = Pin(0, Pin.OUT, value = 1)      # Active Low
-LED_RED = Pin(46, Pin.OUT, value = 0)       # Active Low
+LED_BUILTIN = Pin(48, Pin.OUT, value=0)    # Active High
+LED_BLUE = Pin(45, Pin.OUT, value=1)       # Active Low
+LED_GREEN = Pin(0, Pin.OUT, value=1)       # Active Low
+LED_RED = Pin(46, Pin.OUT, value=0)        # Active Low
 
 # Configure analog input devices
 Q1 = Q4 = ADC(1, atten = ADC.ATTN_11DB)
@@ -91,26 +95,25 @@ rainbow240 = (
 spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
 spi.deinit()
 
+# Time how long it takes to create the lcd object and initialize the LCD
 start_time = time.ticks_us()
-
-# Create lcd object. Rotation=3 is the normal BEAPER Pico LCD orientation.
-lcd = lcd_config.config(rotation=3)
+lcd = lcd_config.config()
 config_time = time.ticks_diff(time.ticks_us(), start_time)
 
+# Time how long it takes to fill the framebuffer
 start_time = time.ticks_us()
-# mirobo logo
 logo_bg = 0x0004
 lcd.fill(logo_bg)
 fill_time = time.ticks_diff(time.ticks_us(), start_time)
 
+# Time how long it takes to update the LCD
 start_time = time.ticks_us()
 lcd.update()
 update_time = time.ticks_diff(time.ticks_us(), start_time)
 
+# Draw the mirobo logo
 for i in range(200, 0, -8):
-    # Draw fading mirobo logo
-    logo_color = lcd.color565(i, i, i)
-    # logo_color = lcd.WHITE75
+    logo_color = lcd.color565(i, i, i) # Fade the logo colour
     lcd.round_rect(24, 48, 40, 114, 20, logo_color, fill=True)
     lcd.round_rect(74, 24, 40, 138, 20, logo_color, fill=True)
     lcd.round_rect(124, 48, 40, 114, 20, logo_color, fill=True)
@@ -151,7 +154,7 @@ for i in range(200, 0, -8):
     if i == 200:
         time.sleep(2)
 
-# Color bars
+# Time how long it takes to generate the colour bar test image
 start_time = time.ticks_us()
 lcd.fill(lcd.BLACK)
 lcd.rect(0, 0, 36, 160, lcd.WHITE75, True)
@@ -176,26 +179,29 @@ for x in range(240):
     color = lcd.color565(r, g, b)
     lcd.vline(x, 220, 20, color)
 lcd.update()
-finish_time = time.ticks_diff(time.ticks_us(), start_time)
+cbars_time = time.ticks_diff(time.ticks_us(), start_time)
 
-msg_x = 120 - lcd.write_width("init( ): ", notosans24)
-lcd.write("init( ): " + str(config_time) + "us", msg_x, 10, notosans24, lcd.WHITE)
+# Display all of the timings so far
+start_time = time.ticks_us()
+msg_x = 120 - lcd.write_width("config( ): ", notosans24)
+lcd.write("config( ): " + str(config_time) + "us", msg_x, 10, notosans24, lcd.WHITE)
 msg_x = 120 - lcd.write_width("fill( ): ", notosans24)
 lcd.write("fill( ): " + str(fill_time) + "us", msg_x, 34, notosans24, lcd.WHITE)
 msg_x = 120 - lcd.write_width("update( ): ", notosans24)
 lcd.write("update( ): " + str(update_time) + "us", msg_x, 58, notosans24, lcd.WHITE)
-msg_x = 120 - lcd.write_width("Bars: ", notosans24)
-lcd.write("Bars: " + str(finish_time) + "us", msg_x, 82, notosans24, lcd.WHITE)
+msg_x = 120 - lcd.write_width("colorbars: ", notosans24)
+lcd.write("colorbars: " + str(cbars_time) + "us", msg_x, 82, notosans24, lcd.WHITE)
 msg_x = (240 - lcd.write_width("Press SW5", notosans24)) // 2
 lcd.write("Press SW5", msg_x, 134, notosans24, lcd.WHITE)
+msg_x = 120 - lcd.write_width("write( ): ", notosans24)
+write_time = time.ticks_diff(time.ticks_us(), start_time)
+lcd.write("write( ): " + str(write_time) + "us", msg_x, 106, notosans24, lcd.WHITE)
 lcd.update()
 
 while SW5.value() == 1:
     time.sleep_ms(20)
 
-frames_per_sec = 20  # target number of frames per second
-frame_period = 1000000 // frames_per_sec  # frame period in microseconds
-
+# Cycle through creating different graphics primities
 while True:
     # Pixels
     pixels = 0
@@ -216,7 +222,6 @@ while True:
             pixels += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Lines
     lines = 0
@@ -239,7 +244,6 @@ while True:
             lines += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Rectangles
     rects = 0
@@ -263,7 +267,6 @@ while True:
             rects += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Filled Rectangles
     frects = 0
@@ -287,7 +290,6 @@ while True:
             frects += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Ellipses
     ellipses = 0
@@ -311,7 +313,6 @@ while True:
             ellipses += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Filled Ellipses
     fellipses = 0
@@ -335,9 +336,8 @@ while True:
             fellipses += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
-    # Round Rects
+    # Rounded Rectangles
     rrects = 0
     frames = frames_per_sec
     lcd.fill(lcd.BLACK)
@@ -357,9 +357,8 @@ while True:
             rrects += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
-    # Filled Round Rects
+    # Filled Rounded Rectangles
     frrects = 0
     frames = frames_per_sec
     lcd.fill(lcd.BLACK)
@@ -379,7 +378,6 @@ while True:
             frrects += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Triangles
     triangles = 0
@@ -402,7 +400,6 @@ while True:
             triangles += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
     # Filled Triangles
     ftriangles = 0
@@ -425,8 +422,8 @@ while True:
             ftriangles += 1
         frames -= 1
     lcd.update()
-    time.sleep(1)
 
+    # Show counts
     lcd.fill(lcd.BLUE75)
     lcd.write(str(pixels) + " pixels/s", 10, 0, notosans24, lcd.WHITE)
     lcd.write(str(lines) + " lines/s", 10, 24, notosans24, lcd.WHITE)
