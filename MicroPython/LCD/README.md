@@ -85,7 +85,7 @@ RED50 - 50% red
 BLUE - 100% blue  
 BLUE75 - 75% blue  
 BLUE50 - 50% blue  
-GRAY - 25% white  
+GREY (or GRAY) - 25% white  
 BLACK - 0% white  
 
 
