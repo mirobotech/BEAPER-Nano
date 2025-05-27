@@ -1,22 +1,22 @@
 """
 LCD.py
-Updated: April 21, 2025
+Updated: May 27, 2025
 
 Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver library.
 (https://github.com/russhughes/st7789py_mpy)
 
 This module implements an ST7789 LCD driver for the 240x240 pixel TFT LCD
-display panel used on mirobo.tech BEAPER Nano and BEAPER Pico circuits. The
-MicroPython FrameBuffer class and parts of Russ Hughes driver are merged
-to implement a comprehensive set of stylistically common display functions.
+display panel used on mirobo.tech BEAPER Nano and BEAPER Pico circuits. It
+merges the MicroPython FrameBuffer class and parts of Russ Hughes driver to
+implement a comprehensive set of stylistically common LCD display functions.
 
 LCD control functions:
 
     init() - initialize the LCD panel
     
-    hard_reset() - hardware reset the LCD panel (not used on BEAPER Nano or
-        BEAPER Pico since the microcontroller does not control the LCD panel
-        RESET pin (LCD RESET pin is connected to the Reset button circuit)
+    hard_reset() - hardware reset the LCD panel (not used for BEAPER Nano or
+        BEAPER Pico since each of their LCD RESET pins are connected to the
+        hardware reset button circuits and cannot be controlled by software)
     
     soft_reset() - software reset the LCD panel
     
@@ -29,7 +29,8 @@ LCD control functions:
     blit_buffer(b, x, y, w, h) - copy memory buffer b to LCD display memory at
         location x, y, using width w, and height h
     
-    update() - update the LCD display memory with the contents of the frame buffer
+    update() - update the LCD display memory with the entire contents of the
+        MicroPython frame buffer
 
 LCD graphics functions:
 
@@ -196,7 +197,7 @@ _ST7789_MADCTL_MH = const(0x04)
 RGB = 0x00
 BGR = 0x08
 
-# Color modes - non needed
+# Color modes - not needed
 # _COLOR_MODE_65K = const(0x50)
 # _COLOR_MODE_262K = const(0x60)
 # _COLOR_MODE_12BIT = const(0x03)
@@ -264,7 +265,7 @@ _SUPPORTED_DISPLAYS = (
     (135, 240, _DISPLAY_135x240),
     (128, 128, _DISPLAY_128x128))
 
-# Default init from st7789mpy.py library - overridden by LCDconfig_Pico.py
+# Default init from st7789mpy.py library - overridden by LCDconfig_Nano.py or LCDconfig_Pico.py
 # init tuple format (b'command', b'data', delay_ms)
 _ST7789_INIT_CMDS = (
     ( b'\x11', b'\x00', 120),               # Exit sleep mode
@@ -291,10 +292,11 @@ _ST7789_INIT_CMDS = (
 class Canvas(framebuf.FrameBuffer):
     """
     Canvas class inherits and extends MicroPython Framebuffer primitives with:
+        color565 - convert 8-bit RGB value to 16-bit RGB565 format
         round_rect - draw rounded rectangle
         write - write string using converted TrueType font
         write_width - find width of string using converted TrueType font
-        prbitmap - draw progressive bitmap
+        bitmap - draw bitmap
         polygon - draw polygon with rotation
         
     """
@@ -305,7 +307,7 @@ class Canvas(framebuf.FrameBuffer):
         
     def color565(self, red, green, blue):
         """
-        Convert red, green and blue values (0-255) into a 16-bit 565 encoding.
+        Convert red, green and blue values (0-255) into 16-bit RGB565 encoding.
         """
         return (red & 0xF8) << 8 | (green & 0xFC) << 3 | blue >> 3
 
@@ -375,7 +377,7 @@ class Canvas(framebuf.FrameBuffer):
 
         Parameters:
             string (string): The string to write
-            x (int): column to write startoing letter of string
+            x (int): column to write starting letter of string
             y (int): row to write starting letter of string
             font (font): The module containing the converted true-type font
             fg (int): foreground color (RGB565, optional), defaults to WHITE
@@ -700,7 +702,7 @@ class LCD(Canvas):
 
     def hard_reset(self):
         """
-        Hard reset display.
+        Hardware reset display (if LCD reset line is controllable).
         """
         if self.cs:
             self.cs.value(0)
@@ -718,7 +720,7 @@ class LCD(Canvas):
 
     def soft_reset(self):
         """
-        Soft reset display.
+        Software reset display controller.
         """
         self._write(_ST7789_SWRESET)
         sleep_ms(5)
