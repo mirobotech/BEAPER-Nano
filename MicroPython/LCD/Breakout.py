@@ -1,6 +1,6 @@
 """
 BEAPER Nano Breakout
-Updated: March 1, 2025
+Updated: May 12, 2025
 
 A nano-sized Breakout game made for BEAPER Nano: https://mirobo.tech/beaper
 
@@ -92,6 +92,7 @@ lives_message = "Lives: "
 message_row = lcd.height // 2
 lcd_middle = lcd.width // 2
 
+# Calculate brick colour from rainbow gradient
 def rainbow_rgb(color1, color2, t):
     return (
         int(color1[0] * (1 - t) + color2[0] * t),
@@ -106,6 +107,7 @@ def get_rainbow(t):
     # print(i, low, high, rainbow_rgb(low, high, i % 1))
     return rainbow_rgb(low, high, i % 1)
 
+# Brick class attributes define each brick
 class Brick:
     def __init__(self, x, y, width, height, color):
         self.x1 = x
@@ -160,6 +162,7 @@ lcd.write(message, msg_x, message_row, doto20, lcd.YELLOW)
 lcd.ellipse(msg_x + 10, message_row + 34, 8, 8, ball_color, True)
 lcd.write("Start", msg_x + 30, message_row + 24, doto20, lcd.YELLOW)
 
+# Update LCD every 2 frames on BEAPER Pico 
 skip = 2
 
 while(True):
@@ -167,11 +170,11 @@ while(True):
     lcd.rect(paddle_x - half_paddle_w, paddle_y, paddle_width, paddle_height, bg_color, True)
     lcd.rect(ball_x - 2, ball_y - 2, 4, 4, bg_color, True)
 
-    # Calculate analog pot controlled paddle position
+    # Control paddle position using BEAPER potentiometer
     half_paddle_w = paddle_width // 2
     paddle_x = map(RV1.read_u16(), 0, 65535, 0 + half_paddle_w, lcd.width - half_paddle_w)
     
-    # Calculate button controlled paddle position
+    # Control paddle position using BEAPER buttons
     # if buttons.left and buttons.left.value() == 0:
     #     if paddle_x - half_paddle_w >= 2:
     #         paddle_x -= 2
@@ -277,6 +280,7 @@ while(True):
         if bricks_remaining == 0:
             msg_x = lcd_middle - lcd.write_width(message, doto20) // 2
             lcd.write("BREAKOUT!!", msg_x, message_row, doto20, lcd.YELLOW)
+            BEEPER.duty_u16(0)
             lcd.update()
             time.sleep(2)
             ball_x_velocity = 0
