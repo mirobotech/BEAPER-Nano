@@ -1,7 +1,7 @@
 """
 Project:  Introductory Programming Activity 1 - Input and Output
 Activity: mirobo.tech/micropython/intro-1-input-output
-Updated:  May 20, 2025
+Updated:  June 16, 2025
 
 This introductory programming activity for the mirobo.tech BEAPER Nano
 demonstrates pushbutton input, LED outut, the use of time delay
@@ -105,9 +105,9 @@ Learn More -- Program Analysis Activities
     conditional check for equality, while a single equal sign is used
     to assign a value. If SW2's value is 0, the condition is true,
     and all of the program statements below and indented to the right
-    of the conditional 'if' statement will run. If SW2's value is 1,
-    the condition is false, and all of the indented program code
-    below the 'if' statement will be skipped.
+    of the conditional 'if' statement -- known as its body code --
+    will run. If SW2's value is 1, the condition is false, and all of
+    the body code indented below the 'if' statement will be skipped.
     
     The next statment:
     
