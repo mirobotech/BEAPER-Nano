@@ -1,7 +1,7 @@
 """
 Project:  Introductory Programming Activity 3 - Loops
 Activity: mirobo.tech/micropython/intro-3-loops
-Updated:  May 22, 2025
+Updated:  June 16, 2025
 
 This introductory programming activity for the mirobo.tech BEAPER Nano
 circuit demonstrates the use of both while-loop and for-loop structures
@@ -74,14 +74,16 @@ Learn More -- Program Analysis Activities
     loop to repeat only while its condition is true.
 
     What condition is being evaluated by the inner while loop
-    statement? How many times will this inner loop will run?
+    statement? How many times will the body statements within
+    this inner loop run?
 
-3.  An 'if' condition inside the inner while loop compares the
-    pwm_counter variable (used as a loop counter) with the value of
-    the LED2_level variable. With a starting LED2_level value of 127,
-    approximately how much time will pass before the 'if' condition
-    becomes true and LED D2 turns on? For approximately how much
-    time will LED D2 then remain on before it is turned off again?
+3.  An 'if' condition in the body of the inner while loop compares
+    the pwm_counter variable (used as a loop counter) with the value
+    of the LED2_level variable. With a starting LED2_level value of
+    127, approximately how much time will pass before the 'if'
+    condition becomes true and LED D2 turns on? For approximately
+    how much time will LED D2 then remain on before it is turned off
+    again?
    
 4.  As the value of the LED2_level variable is changed, LED D2's
     on-time will change relative to its off-time, while leaving the
@@ -112,17 +114,18 @@ Learn More -- Program Analysis Activities
     2) A conditional expression that determines whether or not the
     loop will repeat. The 'while pwm_counter != 0:' structure will
     keep repeating the loop until pwm_counter is equal to 0. (Unlike
-    'if' statements, which run the code indented below them only
+    'if' statements, which run the body code indented below them
     only once *if* a condition is true, while statements keep
-    repeating their indented code *while* the condition is true.)
+    repeating their body code *while* the condition is true.)
 
     3) An expression that updates or modifies the conditional
-    variable inside the while loop. In this program, the expression
-    'pwm_counter -= 1;' uses a decrement by one operator to decrease
-    the value of the loop variable every cycle through the loop.
-    (If a loop variable is never modified inside the loop, the program
-    will appear to be stuck in the loop, making it into an infinite
-    loop!)
+    variable inside the body of the while loop. In this program, the
+    expression 'pwm_counter -= 1;' uses a decrement by one operator
+    to decrease the value of the loop variable by one during every
+    cycle of the loop. (If a loop variable is never modified inside
+    the loop, then it will never reach its ending value and the
+    program will appear to be stuck in the loop -- making it into
+    an infinite loop!)
 
     A 'for' loop is an alternative to a while loop and incorporates
     the same three parts of a while structure into a single program
@@ -136,10 +139,12 @@ Learn More -- Program Analysis Activities
 
     The numbers inside the for statement's range brackets represent:
     the starting value, the ending value, and the size of the step
-    between successive values of the pwm_counter variable.
+    between successive values of the pwm_counter variable. The body
+    of the for loop doesn't need a statement to modify the value
+    of the conditional variable.
     
-    Can you identify at least two advantages of using a for loop
-    structure instead of using a while loop structure?
+    Can you identify at least two other advantages of using a for
+    loop structure instead of using a while loop structure?
 
 7.  There is one potentially important disadvantage of a for loop
     compared with a while loop, though it doesn't affect the loop
