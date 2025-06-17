@@ -1,7 +1,7 @@
 """
 Project:  Introductory Programming Activity 2 - Variables
 Activity: mirobo.tech/micropython/intro-2-variables
-Updated:  May 20, 2025
+Updated:  June 16, 2025
 
 This introductory programming activity for the mirobo.tech BEAPER Nano
 demonstrates the use of variables to count button presses and compares
@@ -150,13 +150,14 @@ Learn More -- Program Analysis Activities
     what can you infer about the value of the SW3_count variable?
    
 6.  One big challenge for new programmers is learning to understand
-    program flow, especially relating to how relatively slow human
-    events are processed by comparatively faster microcontrollers.
+    program flow, especially in relation to how relatively slow
+    human initiated events are processed by comparatively fast
+    microcontrollers.
     
-    As you may have seen in the previous programming activity, all
-    microcontroller programs consist of a repeated main program
-    loop. Each time this program's loop runs, the first thing it
-    does is read the state of the SW3 pushbutton. If SW3 is pressed,
+    Recall from the previous programming activity that all typical
+    microcontroller programs include a repeating main program loop.
+    Each time this program's loop runs, the first thing it does is
+    to read the state of the SW3 pushbutton. If SW3 is pressed,
     another count is added to the SW3_count variable. Since
     microcontrollers are so fast, the program can run through its
     main loop many times during a single button press. This should
