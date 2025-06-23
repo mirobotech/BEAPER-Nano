@@ -39,7 +39,7 @@ BEEPER = Pin(17, Pin.OUT)
 # Define program variables
 LED2_level = 127
 
-while(True):
+while True:
   # Decrease brightness?
   if SW3.value() == 0 and LED2_level > 0:
     LED2_level -= 1
