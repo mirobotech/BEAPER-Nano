@@ -1,7 +1,7 @@
 """
 Project:  Introductory Programming Activity 4 - Functions
 Activity: mirobo.tech/micropython/intro-4-functions
-Updated:  June 20, 2025
+Updated:  June 23, 2025
 
 This introductory programming activity for the mirobo.tech BEAPER Nano
 circuit demonstrates the operation and use of functions including
@@ -43,7 +43,7 @@ def beep():
   time.sleep(0.5)
   BEEPER.duty_u16(0)
   
-while(True):
+while True:
   # Beep!
   if SW2.value() == 0:
     beep()
@@ -130,7 +130,7 @@ while(True):
     
 3.  Run the example program in your BEAPER circuit. You may have
     noticed that although the beep() function is located above the
-    main 'while(True):' loop in the program, the code inside the
+    main 'while True:' loop in the program, the code inside the
     function itself didn't run until it was called by the beep()
     statements in the 'if' condition statements within the program's
     main while loop.
@@ -138,7 +138,7 @@ while(True):
     How do we know that the beep() function code doesn't actually
     run until it is called? What would we expect to happen if it did
     run as part of the program's start-up processing, before the
-    program entered the main 'while(True):' program loop?
+    program entered the main 'while True:' program loop?
     
 4.  Added function code, like the beep() function, is not part of the
     main program flow despite being part of the program. Since the
@@ -180,7 +180,7 @@ def beep(frequency):
     supply frequency arguments for the parameter used by the updated
     beep() function, like this:
 
-while(True):
+while True:
   # Beep!
   if SW2.value() == 0:
     beep(4000)
@@ -223,7 +223,7 @@ def read_buttons():
 
     Next, replace the main while loop code with this new code:
 
-while(True):
+while True:
   freq = read_buttons()
   beep(freq)
   
@@ -243,7 +243,7 @@ while(True):
     Replace the main while loop code with this version, and verify
     that the program works the same way it did before:
 
-while(True):
+while True:
   beep(read_buttons())
   
   time.sleep_ms(20)
@@ -276,7 +276,7 @@ def noTone(duration=None):
 
     Next, replace the main while function with this one:
 
-while(True):
+while True:
   freq = read_buttons()
   if freq == 0:
     noTone()
@@ -321,7 +321,7 @@ note_duration = 0.4
 
     Next, replace the main while loop with this one:
 
-while(True):
+while True:
   if SW2.value() == 0:
     for note in notes:
       tone(note, note_duration)
