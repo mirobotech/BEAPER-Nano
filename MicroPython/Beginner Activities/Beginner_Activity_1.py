@@ -43,11 +43,12 @@ Program Analysis Activities
     over again instead of just once. In MicroPython, program statements
     can be repeated by arranging them into a loop. In this program, the
     'while True:' structure creates a program loop that will repeat any
-    statements that are indented below it. Indentation is very important
-    in MicroPython, so let the IDE help you indent your program code
-    consistently. If program lines that are meant to be part of the same
-    structure are indented in different ways from each other, the
-    MicroPython intepreter will generate an error.
+    statements that are indented below it.
+    
+    Indentation is very important in MicroPython, so let the IDE help you
+    to indent your program code consistently. If program lines that are
+    meant to be part of the same structure are indented in different ways
+    from each other, the MicroPython intepreter will generate an error.
     
     In this program, would it make sense to turn LED2 on in the loop? Why
     or why not? What would the program be trying to do if we did that?
@@ -64,7 +65,7 @@ Program Analysis Activities
     does pass do? How might this be helpful for us later?
 
 4.  Let's try to blink LED3 on and off. Replace the contents of the main
-    'while True:' loop with two LED satements, so that it looks like this:
+    'while True:' loop with two LED statements, so that it looks like this:
 
 while True:
   beaper.LED3.value(1)  # LED3 on
@@ -75,12 +76,12 @@ while True:
     bottom, and then return to the top to re-run the statements. In this
     case LED3 should repeatedly turn on, then off, then on again, then
     off again... forever. Run the program and observe LED3. Is LED3 on,
-    off, or flashing? What do you think is happening?
+    off, or flashing? What do you think is happening? How could you know?
 
 
 Programming Activities
 
-1.  The original program included a statement to turn LED2 on. What do
+1.  The original program includes a statement to turn LED2 on. What do
     you think will happen if this statement is immediately followed by
     a second statement to turn LED2 off?
 
@@ -99,7 +100,7 @@ Programming Activities
 4.  The BEAPER_Nano board module file includes functions to control the
     Arduino Nano ESP32 module's on-board LED (as well as many other pin
     definitions and pre-made functions for the BEAPER Nano circuit – feel
-    free to open the file and explore all the code that it contains!).
+    free to open the file and explore all of the code that it contains!).
     
     The nano_led_on() function can be used to turn the Nano's LED on like
     this:
