@@ -1,12 +1,13 @@
 """
 BEAPER_Nano.py
+January 30, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
 This module provides simple helper functions for the BEAPER Nano
 circuit so that beginners can focus on programming concepts first.
 
-Before getting started you should know:
+Before getting started with it you should know:
 - nothing here is hidden, or * magic *, or requires special libraries
 - the functions are just normal Python code to help you start learning
 - you're encouraged to modify the code to make it work better for you!
@@ -153,25 +154,25 @@ def right_motor_reverse():
 # ---------------------------------------------------------------------
 
 # Piezo beeper
-BEEPER_PIN = 17
+LS1_PIN = 17
 
 # Generate tones using PWM. Designed to mimic Arduino tone() functions.
-BEEPER = PWM(Pin(BEEPER_PIN), freq = 1000, duty_u16 = 0)
+LS1 = PWM(Pin(LS1_PIN), freq = 1000, duty_u16 = 0)
 
 # Start a tone at the supplied frequency (Hz), and optionally stop
-# the tone after the duration (s). (Blocking delay)
+# the tone after the duration (ms). (Blocking delay)
 def tone(frequency, duration=None):
-  BEEPER.freq(frequency)
-  BEEPER.duty_u16(32768)
+  LS1.freq(frequency)
+  LS1.duty_u16(32768)
   if duration is not None:
-    time.sleep(duration)
+    time.sleep_ms(duration)
     noTone()
 
-# Stop the tone. Optionally pause for the duration (s). (Blocking delay) 
+# Stop the tone. Optionally pause for the duration (ms). (Blocking delay) 
 def noTone(duration=None):
-  BEEPER.duty_u16(0)
+  LS1.duty_u16(0)
   if duration is not None:
-    time.sleep(duration)
+    time.sleep_ms(duration)
 
 
 # ---------------------------------------------------------------------

@@ -17,55 +17,55 @@ course for use with BEAPER Nano.
 
 ## Activity 1 - Output
 
-Learn how a microcontroller program makes something happen.
+Focus: Learning how a microcontroller program makes something happen.
 
 ## Activity 2 - Timing (blocking)
 
-Control when something happens.
+Focus: Controlling when or how long something happens.
 
-## Activity 3 - Data: Constants and Variables
+## Activity 3 - Digital Input
 
-Store, remember, and use values.
+Focus: Reacting to an external input.
 
-## Activity 4 - Digital Input
+## Activity 4 - Data: Constants and Variables
 
-Let the user control what happens.
+Focus: Remembering and using values.
 
 ## Activity 5 - Decision Structures
 
-More complex ways to control what happens.
+Focus: Making decisions using logic and comparisons.
 
 ## Activity 6 - Conditional Loops
 
-Repeating actions while conditions are true.
+Focus: Repeating actions while conditions are true.
 
 ## Activity 7 - Counted Loops
 
-Repeating actions a specific number of times.
+Focus: Repeating actions a known number of times.
 
 ## Activity 8 - Functions (parameter passing)
 
-Naming and re-using common actions.
+Focus: Naming and re-using common actions.
 
 ## Activity 9 - Analog Input
 
-Measure and respond to real-world inputs.
+Focus: Measuring and responding to real-world inputs.
 
 ## Activity 10 - Analog Output (PWM)
 
-Control real-world outputs.
+Focus: Controlling real-world outputs.
 
 ## Activity 11 - Non-Blocking Timing
 
-Enable more than one action simultaneously.
+Focus: Doing more than one thing at a time.
 
 ## Activity 12 - State Machines
 
-Simplify program tasks into modes of operation.
+Focus: Simplifying program tasks into modes of operation.
 
 ## System Design Challenge
 
-Incorporate all of your learning into a simple project such as:
+Incorporating all of the learning into a simple project such as:
 
 * Simon-style memory game
 * Room alarm system with secret arm/disarm code

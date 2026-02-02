@@ -1,6 +1,6 @@
 /* ================================================================================
-Beginner Activity 1: Digital Output
-Jan 28, 2026
+Beginner Activity 1: Digital Output [Activity-B01-Output]
+February 2, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPERNano.h header file
