@@ -44,8 +44,8 @@ const uint8_t SW5 = 3;
 
 const uint8_t LED2 = 4;   // M1A
 const uint8_t LED3 = 5;   // M1B
-const uint8_t LED4 = 6;  // M2A
-const uint8_t LED5 = 7;  // M2B
+const uint8_t LED4 = 6;   // M2A
+const uint8_t LED5 = 7;   // M2B
 
 
 /* =====================================
@@ -55,15 +55,15 @@ const uint8_t LED5 = 7;  // M2B
 
 const uint8_t M1A = 4;    // Left motor terminal A
 const uint8_t M1B = 5;    // Left motor terminal B
-const uint8_t M2A = 6;   // Right motor terminal A
-const uint8_t M2B = 7;   // Right motor terminal B
+const uint8_t M2A = 6;    // Right motor terminal A
+const uint8_t M2B = 7;    // Right motor terminal B
 
 
 /* =====================================
  * Piezo Beeper Pin
  * ====================================*/
 
-const uint8_t BEEPER = 8; // BEAPER Nano Piezo beeper LS1
+const uint8_t LS1 = 8;    // BEAPER Nano Piezo beeper LS1
 
 
 /* =====================================
