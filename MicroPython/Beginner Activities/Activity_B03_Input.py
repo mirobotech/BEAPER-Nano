@@ -1,7 +1,7 @@
 """
 ================================================================================
 Beginner Activity 3:  Digital Input [Activity_B03_Input.py]
-February 2, 2026
+February 5, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPER_Nano.py board module file.
@@ -16,13 +16,13 @@ beaper.nano_led_on()
 
 while True:
   # Momentary button SW2
-  if beaper.SW2_pressed():
+  if beaper.SW2.value() == 0:
     beaper.LED2.value(1)
   else:
     beaper.LED2.value(0)
-    
+
   # Start a pattern
-  if beaper.SW5_pressed():
+  if beaper.SW5.value() == 0:
     beaper.LED2.value(1)
     time.sleep(0.2)
     beaper.LED3.value(1)
@@ -40,123 +40,95 @@ while True:
     beaper.LED5.value(0)
     time.sleep(0.2)
 
-  if beaper.SW3_pressed():
-    beaper.tone(440)
-  else:
-    beaper.noTone()
-
     
 """
 Program Analysis Activities
 
-1.  The previous two activities helped you develop an understanding of
-    program operation (as well as output, and timing, of course),
-    including an understanding of the program structure that results
-    in the contents of the main 'while True:' loop being repeated.
+1.  The pushbuttons in the BEAPER Nano circuit are connected in what
+    is known as a pull-up configuration, meaning one side of each
+    pushbutton switch is wired in series with a resistor that is
+    connected, or 'pulled-up', to the power supply potential. The
+    other terminal of the pushbutton switch is connected to ground,
+    and the microcontroller input pin is connected in-between the
+    pull-up resistor and the switch, so that it reads the potential
+    across the switch.
     
-    The 'if' statement in this program, known as an 'if condition',
-    employs a similar structure to 'while'. That is, the program
-    statements that are indented below the if statement will be
-    executed whenever the condition is true (or, 'True' in the case
-    of MicroPython -- capitalization is important!).
+    The inactive potential (when the pushbutton is not pressed) of a
+    pull-up circuit will be a high voltage due to the resistor's power
+    supply connection, and the active potential (when the pushbutton is
+    pressed) will be 0V. This pull-up circuit arrangment creates what
+    is commonly referred to as an 'active-low' pushbutton switch.
     
-    In this part of the program, the if condition checks if SW2 is
-    pressed using the SW2_pressed() function in the beaper module:
+    MicroPython's value() method can be used without an argument
+    (the 0, or 1, used to make the pin output low, or high) to read
+    the value of an I/O pin, like this:
 
-  # Momentary button SW2
-  if beaper.SW2_pressed():
-    beaper.LED2.value(1)
-  else:
-    beaper.LED2.value(0)
-    
-    If SW2 is pressed, then the if condition is considered to be true
-    and LED2 will turn on. It also means that the if statement's
-    corresponding 'else:' statement will be false, so the LED2.value(0)
-    statement that follows it will not run, and preventing it from
-    turning LED2 off.
+  if beaper.SW2.value() == 0:
 
-    On the other hand, if SW2 is not pressed, then the if condition is
-    false, preventing LED2 from being turned on. But, in this case,
-    the else condition will be true, and LED2 will be turned off.
+    The 'if' statement, known as an 'if condition', employs a similar
+    structure to that used by the 'while' loop. That is, the program
+    statements indented below the if statement will execute whenever
+    the condition is true (or, 'True' in the case of MicroPython,
+    since capitalization matters). And, in this case the condition
+    will be true when the value of the SW2 pin is equal to zero (two
+    equals signs are used to check and compare values, as oppposed to
+    one equals sign being used to set a value).
 
-    Give it a try! Verify that SW2 acts as a momentary button, and
-    that LED2 on only turns on while SW2 is pressed.
+    This if condition also includes a complementary 'else:' statement,
+    whcih will logically be the opposite of if. When if is true, else
+    will be false, and when if is false, else will become true.
 
-2.  Press SW5 to start its light pattern. While the light pattern is
-    running, does pressing SW2 turn LED2 on at all? Explain why or
-    why not, or what you think is happening. Can you think of a way
-    to test and verify your assumption?
+    Looking at SW2's if-else condition, explain the program flow when
+    SW2 is not pressed, and when SW2 is pressed. Which LED2 value()
+    function executes in each case?
 
-3.  The pushbuttons in the BEAPER Nano circuit are connected in what
-    is known as a pull-up configuration, meaning that one side of each
-    switch is wired in series with a resistor that 'pulls' it up to
-    the power supply potential, while the opposite side of the switch
-    connects to ground. A microcontroller reading the potential between
-    the switch and the resistor will see the inactive potential (when
-    the switch is not pressed) as a high voltage, and the active
-    potential (when the switch is pressed) as a low voltage. This
-    arrangment makes what is commonly known as an 'active-low' switch.
-    
-    A common way to read an input pin's potential in MicroPython is
-    by using a parameter-less 'value()' method, like this:
+2.  Press SW5 to start a light pattern. While the light pattern is
+    running, does pressing and holding SW2 turn LED2 on? Explain why
+    or why not, and what you think is happening in the program. Can
+    you think of a way to test and verify your assumption?
 
-  # Momentary button SW3
+3.  The previous programming activity demonstrated how to use the
+    tone() function to play a tone for a specific amount of time by
+    passing it both frequency and duration arguments. Passing the
+    tone() function only a frequency argument will cause it to start
+    playing the tone until either: another call to tone() changes the
+    frequency, or the noTone() function is called to stop the tone.
+
+    An if-else condition is an ideal way to play the tone while a
+    button is being pressed, and stop it when the button is released.
+    Add this code to your program to try it out:
+
   if beaper.SW3.value() == 0:
-    beaper.LED3.value(1)
+    beaper.tone(440)
   else:
-    beaper.LED3.value(0)
+    beaper.noTone()
 
-    The empty brackets in 'beaper.SW3.value()' signify that a value
-    must be measured (as an input) instead of being provided by the
-    program (as an output). The double equals expression '== 0' checks
-    if the input value is equal to 0, or low (which it would be if SW3
-    is pressed), making the condition true. And, by now, you likely
-    know how the rest of this code works. If the condition is true,
-    then the statement(s) indented below it execute. If the condition
-    is false, the statement(s) below 'else:' execute instead.
-
-    Try copying the momentary SW3 program code, above, into your
-    program. It should work exactly the same way as the momentary SW2
-    code already in the program. Confirm that the two momentary
-    buttons act the same way.
-
-4.  The BEAPER_Nano.py board module contains a 'SW2_pressed()' helper
-    function (as well as equivalent helper functions for the other
-    switches). Let's compare the two switch input conditions, one
-    using the helper function, and the other using the value() method:
-
-    if beaper.SW2_pressed():    vs.    if beaper.SW3.value() == 0:
-
-    While both perform the same conditional operation, SW2_pressed()
-    provides semantic meaning (an understanding that the switch is
-    being pressed), while SW3.value provides more technical accuracy
-    (a pressed switch creates a low voltage) – but requires programmers
-    to understand that the switches are active-low. The value() method
-    is commonly found in most online MicroPython examples, but you
-    might find that using the SW2_pressed() function makes the code
-    easier to read and use. Feel free to use whichever input method
-    makes the most sense to you.
+    What is the advantage of using an 'if-else' structure instead of
+    using two separate if conditions – one to start the tone, and a
+    second to stop the tone – to do the same thing?
 
 
 Programming Activities
 
 1.  Create a program that simulates the separate 'Start' and 'Stop'
-    buttons that would be found on large, industrial machines. Pressing
-    the 'Start' button should turn on an LED (simulating the machine).
-    The LED should remain on even after the 'Start' button is released,
-    and turn of only when the 'Stop' button is pressed.
+    buttons that would be found on large, industrial machines. The
+    machine (simulated by an LED) should turn on when the 'Start'
+    button is pressed, and remain on until the 'Stop' button is
+    pressed.
 
-2.  Modify the program in activity 1, above, to light the LED only
+2.  Describe what happens in the Start/Stop program, above, if both
+    pushbuttons are held? Is the machine (LED) on, or off? Describe
+    what the program is doing.
+
+3.  Modify the program in activity 1, to only turn the LED on if
+    the 'Start' button is pressed while the 'Stop' button is released.
+    
+4.  Modify the program in activity 1, above, to light the LED only
     after the 'Start' button is held for longer than one second.
 
-3.  Create a program that uses each pushbutton to display its own,
-    unique lighting pattern using any of the LEDs on BEAPER Nano or
-    the Arduino Nano ESP32 module.
-
-4.  The previous activity showed how to use the tone() function to
-    play a tone for a specific amount of time. Passing only the audio
-    frequency to the tone causes it to continue playing the tone until
-    it is stopped using the noTone() function. Create a program that
-    plays a different tone while each button is being pressed.
+5.  Create a program that uses each pushbutton to either display its
+    own, unique lighting pattern using any combination of LEDs, or to
+    play different tones (or even short tunes) when each button is
+    pressed.
     
 """

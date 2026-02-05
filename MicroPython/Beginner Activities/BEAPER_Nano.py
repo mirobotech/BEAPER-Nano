@@ -1,11 +1,12 @@
 """
 BEAPER_Nano.py
-January 30, 2026
+February 4, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
-This module provides simple helper functions for the BEAPER Nano
-circuit so that beginners can focus on programming concepts first.
+This module configures Arduino Nano ESP32's GPIO pins to use BEAPER
+Nano's built-in circuits and provides simple helper functions to
+enable beginners to focus on programming concepts first.
 
 Before getting started with it you should know:
 - nothing here is hidden, or * magic *, or requires special libraries
@@ -66,10 +67,10 @@ def nano_rgb_blue(brightness):
 
 # All pushbutton switches use internal pull-up resistors (active LOW)
 
-SW2_PIN = 44  # SW2
-SW3_PIN = 43  # SW3
-SW4_PIN = 5   # SW4
-SW5_PIN = 6   # SW5
+SW2_PIN = const(44)  # SW2
+SW3_PIN = const(43)  # SW3
+SW4_PIN = const(5)   # SW4
+SW5_PIN = const(6)   # SW5
 
 SW2 = Pin(SW2_PIN, Pin.IN, Pin.PULL_UP)
 SW3 = Pin(SW3_PIN, Pin.IN, Pin.PULL_UP)
@@ -100,10 +101,10 @@ def SW5_pressed():
 # IMPORTANT: LED pins are shared with the motor controller. Using the
 # LEDs while the the motors are active will affect motor behavior!
 
-LED2_PIN = 7  # LED2 and Motor 1A (Motor 1 = left motor)
-LED3_PIN = 8  # LED3 and Motor 1B
-LED4_PIN = 9  # LED4 and Motor 2A (Motor 2 = right motor)
-LED5_PIN = 10 # LED5 and Motor 2B
+LED2_PIN = const(7)  # LED2 and Motor 1A (Motor 1 = left motor)
+LED3_PIN = const(8)  # LED3 and Motor 1B
+LED4_PIN = const(9)  # LED4 and Motor 2A (Motor 2 = right motor)
+LED5_PIN = const(10) # LED5 and Motor 2B
 
 LED2 = Pin(LED2_PIN, Pin.OUT)
 LED3 = Pin(LED3_PIN, Pin.OUT)
@@ -154,7 +155,7 @@ def right_motor_reverse():
 # ---------------------------------------------------------------------
 
 # Piezo beeper
-LS1_PIN = 17
+LS1_PIN = const(17)
 
 # Generate tones using PWM. Designed to mimic Arduino tone() functions.
 LS1 = PWM(Pin(LS1_PIN), freq = 1000, duty_u16 = 0)
@@ -181,10 +182,10 @@ def noTone(duration=None):
 
 # IMPORTANT: On-board analog jumpers must be used to select analog devices.
 
-ADC0_PIN = 1  # Ambient light sensor Q4 OR floor sensor Q1
-ADC1_PIN = 2  # Temperature sensor U4 OR line sensor Q2
-ADC2_PIN = 3  # Pot RV1 OR floor/line sensor Q3
-ADC3_PIN = 4  # Pot RV2 OR battery divider circuit VDIV
+ADC0_PIN = const(1)  # Ambient light sensor Q4 OR floor sensor Q1
+ADC1_PIN = const(2)  # Temperature sensor U4 OR line sensor Q2
+ADC2_PIN = const(3)  # Pot RV1 OR floor/line sensor Q3
+ADC3_PIN = const(4)  # Pot RV2 OR battery divider circuit VDIV
 
 ADC0 = ADC(Pin(ADC0_PIN), atten = ADC.ATTN_11DB)
 ADC1 = ADC(Pin(ADC1_PIN), atten = ADC.ATTN_11DB)
@@ -231,10 +232,10 @@ def VDIV_level():
 # IMPORTANT: Headers H1-H4, headers H5-H8, and I2C/QWIIC connector J4
 # share Arduino Nano ESP32 I/O pins. Plan header I/O carefully!
 
-H1_PIN = 11  # H1 (I2C SDA)
-H2_PIN = 13  # H2 (SONAR TRIG)
-H3_PIN = 14  # H3 (SONAR ECHO)
-H4_PIN = 12  # H4 (I2C SCL)
+H1_PIN = const(11)  # H1 (I2C SDA)
+H2_PIN = const(13)  # H2 (SONAR TRIG)
+H3_PIN = const(14)  # H3 (SONAR ECHO)
+H4_PIN = const(12)  # H4 (I2C SCL)
 
 # SONAR distance function
 # Returns distance to closest target, up to a user-settable maximum

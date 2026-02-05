@@ -8,7 +8,7 @@ Requires: BEAPER_Nano.py board module file.
 ================================================================================
 """
 # IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32
-import BEAPER_Nano as beaper
+import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
 
 import time
 
@@ -27,20 +27,22 @@ while True:
 """
 Program Analysis Activities
 
-1.  In the previous activity you learned that BEAPER_Nano.py is a 
-    board module file that defines all of BEAPER Nano's I/O devices.
-    (You can open it in the editor and view its contents!) So, what
-    does the 'import BEAPER_Nano as beaper' statement actually do?
+1.  The previous output activity (Activity_B01_Output.py) imported a
+    board module file (BEAPER_Nano.py) to define all of BEAPER Nano's
+    I/O devices using this import statement at the top of the code:
 
-    Modules like BEAPER_Nano.py consist of ordinary MicroPython
-    program code, and the import statement simply includes that code
-    into the current program – but invisibly. The contents of the file
-    won't appear in the program editor, but will still be accessible
-    by the program that includes them.
+import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
 
-    The 'import time' statement in this program does the same thing – 
+    If you open the BEAPER_Nano.py module in the editor, you'll see
+    that it consists of ordinary MicroPython program code, and the
+    import statement simply includes all of its code into the current
+    program – invisibly. That is, the contents of the BEAPER_Nano.py
+    file won't be visible in this program's editor window, but all
+    of the file's code will be fully accessible by this program.
+
+    The 'import time' statement in this program does a similar thing – 
     it imports the functions built into MicroPython's time module into
-    our program. We can't open the time module to view its functions
+    this program. We can't open the time module to view its functions
     as we can with the BEAPER_Nano.py board module, but we can look up
     the time module's functions in the MicroPython documentation, here:
     
@@ -160,7 +162,8 @@ Programming Activities
 
 1.  Simulate a machine's start-up and operation by lighting one LED
     for two seconds after the program starts. After the two second
-    delay finishes, have the program blink a second LED at a 1Hz rate.
+    delay finishes, have the program blink a second LED once per
+    second.
 
 2.  Create an animated light pattern using the four on-board LEDs. It
     could light and extinguish the four LEDs in sequence, or chase a
@@ -168,8 +171,9 @@ Programming Activities
     or make a more unique or artistic pattern - it's up to you!
 
 3.  Really old computers used lights to show binary values. Try to
-    simulate a binary count on BEAPER Nano's LEDs.
+    simulate a binary counting sequence using BEAPER Nano's LEDs.
     
-4.  Create a musical sequence of tones that repeats after a pause. 
+4.  Create a musical sequence of tones or a short song that repeats
+    after a 10 second pause. 
     
 """
