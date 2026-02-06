@@ -1,47 +1,76 @@
-"""
-================================================================================
-Beginner Activity 3:  Digital Input [Activity_B03_Input.py]
+/* ================================================================================
+Beginner Activity 3: Input [Activity-B03-Input]
 February 6, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
-Requires: BEAPER_Nano.py board module file.
-================================================================================
-"""
-# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32
-import BEAPER_Nano as beaper
+Requires: BEAPERNano.h header file
+=================================================================================*/
+// IMPORTANT: Make sure that BEAPERNano.h is accessible as a tab in this project.
+#include "BEAPERNano.h"   // Define BEAPER Nano I/O devices
 
-import time
+// ---------------------------------------------------------------
+// Setup runs once at power-up
+// ---------------------------------------------------------------
+void setup()
+{
+    // Configure Arduino Nano ESP32 status LED as output
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);    // Status LED on
 
-beaper.nano_led_on()
+    // Configure BEAPER Nano LEDs as outputs
+    pinMode(LED2, OUTPUT);
+    pinMode(LED3, OUTPUT);
+    pinMode(LED4, OUTPUT);
+    pinMode(LED5, OUTPUT);
 
-while True:
-  # Momentary button SW2
-  if beaper.SW2.value() == 0:
-    beaper.LED2.value(1)
-  else:
-    beaper.LED2.value(0)
+    // Configure BEAPER Nano pushbuttons as inputs
+    pinMode(SW2, INPUT_PULLUP);
+    pinMode(SW3, INPUT_PULLUP);
+    pinMode(SW4, INPUT_PULLUP);
+    pinMode(SW5, INPUT_PULLUP);
+}
 
-  # Start a pattern
-  if beaper.SW5.value() == 0:
-    beaper.LED2.value(1)
-    time.sleep(0.2)
-    beaper.LED3.value(1)
-    time.sleep(0.2)
-    beaper.LED4.value(1)
-    time.sleep(0.2)
-    beaper.LED5.value(1)
-    time.sleep(0.2)
-    beaper.LED2.value(0)
-    time.sleep(0.2)
-    beaper.LED3.value(0)
-    time.sleep(0.2)
-    beaper.LED4.value(0)
-    time.sleep(0.2)
-    beaper.LED5.value(0)
-    time.sleep(0.2)
+// ---------------------------------------------------------------
+// Loop runs forever
+// ---------------------------------------------------------------
+void loop()
+{
+    // Momentary button SW2
+    if (digitalRead(SW2) == LOW)
+    {
+        digitalWrite(LED2, HIGH);
+    }
+    else
+    {
+        digitalWrite(LED2, LOW);
+    }
+
+    // Start a pattern
+    if (digitalRead(SW5) == LOW)
+    {
+        digitalWrite(LED2, HIGH);
+        delay(200);
+        digitalWrite(LED3, HIGH);
+        delay(200);
+        digitalWrite(LED4, HIGH);
+        delay(200);
+        digitalWrite(LED5, HIGH);
+        delay(200);
+        digitalWrite(LED2, LOW);
+        delay(200);
+        digitalWrite(LED3, LOW);
+        delay(200);
+        digitalWrite(LED4, LOW);
+        delay(200);
+        digitalWrite(LED5, LOW);
+        delay(200);
+    }
+
+    delay(20);  // Add a short loop delay
+}
 
 
-"""
+/*
 Program Analysis Activities
 
 1.  The pushbuttons in the BEAPER Nano circuit are connected in what
@@ -59,27 +88,35 @@ Program Analysis Activities
     pressed) will be 0V. This pull-up circuit arrangment creates what
     is commonly referred to as an 'active-low' pushbutton switch.
     
-    MicroPython's value() method can be used without an argument
-    (the 0, or 1, used to make the pin output low, or high) to read
-    the value of an I/O pin, like this:
+    Arduino's digitalRead() function is used to read the value of
+    I/O pins, and it reads pins as being either HIGH or LOW (exactly
+    like the values set using the digitalWrite() function). Let's
+    look at the if-else structure in the program:
 
-  if beaper.SW2.value() == 0:
+    // Momentary button SW2
+    if (digitalRead(SW2) == LOW)
+    {
+        digitalWrite(LED2, HIGH);
+    }
+    else
+    {
+        digitalWrite(LED2, LOW);
+    }
 
     The 'if' statement, known as an 'if condition', employs a similar
-    structure to that used by the 'while' loop. That is, the program
+    structure to that used by the main loop(). That is, the program
     statements indented below the if statement will execute whenever
-    the condition is true (or, 'True' in the case of MicroPython,
-    since capitalization matters). And, in this case the condition
-    will be true when the value of the SW2 pin is equal to zero (two
-    equals signs are used to check and compare values, as oppposed to
+    the if condition is true. And, in this case the condition will be
+    true when the value of the SW2 pin is equal to LOW (two equals
+    signs are used to check and compare values, as oppposed to one
     one equals sign being used to set a value).
 
-    This if condition also includes a complementary 'else:' statement,
+    This if condition also includes a complementary 'else' statement,
     whcih will logically be the opposite of if. When if is true, else
     will be false, and when if is false, else will become true.
 
     Looking at SW2's if-else condition, explain the program flow when
-    SW2 is not pressed, and when SW2 is pressed. Which LED2 value()
+    SW2 is not pressed, and when SW2 is pressed. Which digitalWrite()
     function executes in each case?
 
 2.  Press SW5 to start a light pattern. While the light pattern is
@@ -98,10 +135,14 @@ Program Analysis Activities
     button is being pressed, and stop it when the button is released.
     Add this code to your program to try it out:
 
-  if beaper.SW3.value() == 0:
-    beaper.tone(440)
-  else:
-    beaper.noTone()
+    if (digitalRead(SW3) == LOW)
+    {
+        tone(LS1, 440);
+    }
+    else
+    {
+        noTone(LS1);
+    }
 
     What is the advantage of using an 'if-else' structure instead of
     using two separate if conditions – one to start the tone, and a
@@ -111,34 +152,46 @@ Program Analysis Activities
     LED. One way to accomplish this is by nesting one if-else
     condition inside another, like this:
 
-  if beaper.SW3.value() == 0:
-    if beaper.SW4.value() == 0:
-      beaper.LED3.value(1)
-    else:
-      beaper.LED3.value(0)
-  else:
-    beaper.LED3.value(0)
+    if (digitalRead(SW3) == LOW)
+    {
+        if (digitalRead(SW4) == LOW)
+        {
+            digitalWrite(LED3, HIGH);
+        }
+        else
+        {
+            digitalWrite(LED3, LOW);
+        }
+    }
+    else
+    {
+        digitalWrite(LED3, LOW);
+    }
     
     The nested if-else logic enables SW4 to turn the LED only if both
     it and SW3 are pressed. Try the code in your program to verify
     that it works as expected.
 
 5.  A better way to use two buttons to turn on one LED is by using
-    an 'and' logical operator in the if condition, like this:
+    an '&&' (AND) logical operator in the if condition, like this:
 
-  if beaper.SW3.value() == 0 and beaper.SW4.value() == 0:
-    beaper.LED3.value(1)
-  else:
-    beaper.LED3.value(0)
+    if (digitalRead(SW3) == LOW && digitalRead(SW4) == LOW)
+    {
+        digitalWrite(LED3, HIGH);
+    }
+    else
+    {
+        digitalWrite(LED3, LOW);
+    }
 
     Try this code in your program to verify that it works. In what
     ways is this solution better than using nested if-else conditions?
-
-6.  The logical 'or' operator can also be used in conditional
+    
+6.  The logical '||' (OR) operator can also be used in conditional
     expressions. Describe the when the LED would be lit if the SW3
     and SW4 pushbutton inputs in the activity were combined using a
     logical or operator instead of the and operator in the condition.
-    
+
 
 Programming Activities
 
@@ -162,5 +215,5 @@ Programming Activities
     own, unique lighting pattern using any combination of LEDs, or to
     play different tones (or even short tunes) when each button is
     pressed.
-    
-"""
+
+*/
