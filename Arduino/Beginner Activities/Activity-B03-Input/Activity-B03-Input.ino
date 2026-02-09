@@ -1,6 +1,6 @@
 /* ================================================================================
 Beginner Activity 3: Input [Activity-B03-Input]
-February 6, 2026
+February 9, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPERNano.h header file
@@ -215,5 +215,17 @@ Programming Activities
     own, unique lighting pattern using any combination of LEDs, or to
     play different tones (or even short tunes) when each button is
     pressed.
+
+6.  Imagine that you're creating a turn signal circuit for a bicycle.
+    The circuit design calls for four LEDs mounted in a horizontal row
+    under the rider's seat, and these will be controlled by two
+    pushbuttons mounted on the bicycle's handlebars. Write a program
+    to simulate the operation of the turn signal circuit using one
+    or more of the LEDs to indicate a turn while its corresponding
+    direction button is being held.
+
+    For an extra challenge, add brake functionality or a bell/horn
+    feature. Can you make the brake or horn operate while the turn
+    signal is in operation? What makes doing this so difficult?
 
 */
