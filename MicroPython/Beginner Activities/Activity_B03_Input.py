@@ -164,7 +164,7 @@ Programming Activities
     pressed.
 
 6.  Imagine that you're creating a turn signal circuit for a bicycle.
-    The circuit design calls for four LEDs mounted in a horizontal row
+    The circuit design uses four LEDs mounted in a horizontal row
     under the rider's seat, and these will be controlled by two
     pushbuttons mounted on the bicycle's handlebars. Write a program
     to simulate the operation of the turn signal circuit using one
