@@ -157,7 +157,7 @@ bool display_pattern = false;
     to determine the path of any if condition it's used in.
 
     And, just like the name BLINK_DELAY, the variable name SW2_pressed
-    also carries meaning. The variabel SW2_pressed will be true only
+    also carries meaning. The variable SW2_pressed will be true only
     when SW2 is actually pressed.
 
     Could the program use a similar statement to check for a pushbutton
@@ -165,9 +165,9 @@ bool display_pattern = false;
     expression that could be used to detect if the SW2 pushbutton is
     in an un-pressed state.
     
-4.  The last new concept introduced in this program is a way of
-    ensuring that input state remains consistent for the duration of
-    each main loop cycle in the program.
+4.  The last new concept introduced in this program demonstrates a
+    method of ensuring that input state remains consistent for the
+    duration of each main loop cycle in the program.
 
     Doing this is not a critical requirement for this program, but it
     does become important in a large, complex program loop. Imagine if
@@ -176,11 +176,12 @@ bool display_pattern = false;
 
     if (digitalRead(SW2) == LOW)
 
-    There is no guarantee that every read of SW2 during the same program
-    loop will produce the same, consistent value. A solution to this
-    problem is to store SW2's state in a variable once during each 
-    program cycle, and the to have any other parts of the program that
-    use SW2's state read the variable instead of the switch:
+    There is no guarantee that every read of SW2 during the same
+    program loop will produce the same, consistent value. A solution
+    to this problem is to store SW2's state in a variable just once
+    during each program cycle, and then to have any other parts of
+    the program that need to use SW2's state read the value of the
+    variable instead of the switch itself:
     
     SW2_pressed = (digitalRead(SW2) == LOW);
     
@@ -194,9 +195,9 @@ bool display_pattern = false;
     This conditional espression is simple, short, meaningful, and
     unambiguous. A programmer trying to understand or add features
     to the code won't have to think about whether the switch is
-    active-high or active-low (though somebody had to, earlier),
+    active-high or active-low (although somebody had to, earlier),
     making code maintenace easier. Because this method is so clear
-    and useful, you'll see it a lot more in future learning activites.
+    and useful, you'll see it used more in future learning activites.
    
 5.  Let's make some extensive changes to the program, with the goal
     of replacing the BLINK_DELAY constant with a blink_delay_ms
