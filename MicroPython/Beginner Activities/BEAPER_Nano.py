@@ -1,11 +1,11 @@
 """
 BEAPER_Nano.py
-February 4, 2026
+February 16, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
-This module configures Arduino Nano ESP32's GPIO pins to use BEAPER
-Nano's built-in circuits and provides simple helper functions to
+This module configures Arduino Nano ESP32's GPIO pins for BEAPER
+Nano's on-board circuits and provides simple helper functions to
 enable beginners to focus on programming concepts first.
 
 Before getting started with it you should know:
@@ -14,7 +14,7 @@ Before getting started with it you should know:
 - you're encouraged to modify the code to make it work better for you!
 
 BEAPER Nano hardware notes:
-- Buttons use internal pull-up resistors (so pressed == LOW)
+- Buttons use internal pull-up resistors (so pressed == 0)
 - LEDs and motor driver inputs share I/O pins
 - Headers H1-H4 and H5-H8 share I/O pins (so much I/O, too few pins!)
 - Analog jumpers on BEAPER Nano must be set to connect sensors to pins:
@@ -24,7 +24,7 @@ BEAPER Nano hardware notes:
 """
 
 import machine
-from machine import Pin, ADC, PWM, I2C, SPI, 
+from machine import Pin, ADC, PWM, I2C
 import time
 
 # ---------------------------------------------------------------------
@@ -120,7 +120,7 @@ LED5 = Pin(LED5_PIN, Pin.OUT)
 # LEDs while the the motors are active will affect motor behavior!
 
 # NOTE: The forward and reverse directions of each motor are dependent
-# on both program code and the physical motor wiring on connector CON1.
+# on both program code and physical motor wiring connections on CON1.
 
 M1A = LED2
 M1B = LED3
@@ -141,6 +141,10 @@ def left_motor_reverse():
   M1A.value(0)
   M1B.value(1)
 
+def left_motor_stop():
+    M1A.value(0)
+    M1B.value(0)
+
 def right_motor_forward():
   M2A.value(0)
   M2B.value(1)  # Opposite of left_motor_forward()
@@ -148,6 +152,10 @@ def right_motor_forward():
 def right_motor_reverse():
   M2A.value(1)  # Opposite of left_motor_reverse()
   M2B.value(0)
+
+def right_motor_stop():
+    M2A.value(0)
+    M2B.value(0)
 
 
 # ---------------------------------------------------------------------
@@ -157,11 +165,11 @@ def right_motor_reverse():
 # Piezo beeper
 LS1_PIN = const(17)
 
-# Generate tones using PWM. Designed to mimic Arduino tone() functions.
+# Generate tones using PWM (similar to Arduino tone() functions)
 LS1 = PWM(Pin(LS1_PIN), freq = 1000, duty_u16 = 0)
 
-# Start a tone at the supplied frequency (Hz), and optionally stop
-# the tone after the duration (ms). (Blocking delay)
+# Start a tone at specified frequency (Hz), and optionally stop the
+# tone after duration (ms). Adding duration causes a blocking delay.
 def tone(frequency, duration=None):
   LS1.freq(frequency)
   LS1.duty_u16(32768)
@@ -169,7 +177,7 @@ def tone(frequency, duration=None):
     time.sleep_ms(duration)
     noTone()
 
-# Stop the tone. Optionally pause for the duration (ms). (Blocking delay) 
+# Stop the tone. Optionally pause for the duration (ms). 
 def noTone(duration=None):
   LS1.duty_u16(0)
   if duration is not None:
@@ -187,45 +195,58 @@ ADC1_PIN = const(2)  # Temperature sensor U4 OR line sensor Q2
 ADC2_PIN = const(3)  # Pot RV1 OR floor/line sensor Q3
 ADC3_PIN = const(4)  # Pot RV2 OR battery divider circuit VDIV
 
+# IMPORTANT: ADC4-7 are shared with headers H1-H4, H5-H8, I2C, and 
+# have additional limitations. For more details see:
+# https://docs.arduino.cc/tutorials/nano-esp32/cheat-sheet/#pins
+# ADC4_PIN = const(11) # Shared with H1, H5, and I2C SDA
+# ADC5_PIN = const(12) # Shared with H4, H6, and I2C SCL
+# ADC6_PIN = const(13) # Shared with H2 (SONAR TRIG) and H7
+# ADC7_PIN = const(14) # Shared with H3 (SONAR ECHO) and H8
+
 ADC0 = ADC(Pin(ADC0_PIN), atten = ADC.ATTN_11DB)
 ADC1 = ADC(Pin(ADC1_PIN), atten = ADC.ATTN_11DB)
 ADC2 = ADC(Pin(ADC2_PIN), atten = ADC.ATTN_11DB)
 ADC3 = ADC(Pin(ADC3_PIN), atten = ADC.ATTN_11DB)
+# ADC4 = ADC(Pin(ADC4_PIN), atten = ADC.ATTN_11DB)
+# ADC5 = ADC(Pin(ADC5_PIN), atten = ADC.ATTN_11DB)
+# ADC6 = ADC(Pin(ADC6_PIN), atten = ADC.ATTN_11DB)
+# ADC7 = ADC(Pin(ADC7_PIN), atten = ADC.ATTN_11DB)
 
 def light_level():
   """ Read Q4 ambient light sensor value. Set JP1 to Enviro. """
-  return 65535 - ADC0.read_u16()
+  return 65535-ADC0.read_u16() # Brighter -> higher values
 
 def temp_level():
   """ Read U4 analog temperature sensor value. Set JP2 to Enviro. """
-  return ADC1.read_u16()
+  return ADC1.read_u16()  # Warmer -> higher values
 
 def Q1_level():
   """ Read floor sensor Q1. Set JP1 to Robot. """
-  return ADC0.read_u16()
+  return 65535-ADC0.read_u16()  # Higher reflectivity -> higher values
 
 def Q2_level():
   """ Read line sensor Q2. Set JP2 to Robot. """
-  return ADC1.read_u16()
+  return 65535-ADC1.read_u16()  # Higher reflectivity -> higher values
 
 def Q3_level():
   """ Read floor/line sensor Q3. Set JP3 to Robot. """
-  return ADC2.read_u16()
+  return 65535-ADC2.read_u16()  # Higher reflectivity -> higher values
 
 def RV1_level():
   """ Read potentiometer RV1. Set JP3 to Enviro. """
-  return ADC2.read_u16()
+  return ADC2.read_u16()  # Clockwise -> higher values
 
 def RV2_level():
   """ Read potentiometer RV2. Set JP3 to Enviro. """
-  return ADC3.read_u16()
+  return ADC3.read_u16()  # Clockwise -> higher values
 
 def VDIV_level():
   """ Read VDIV voltage divider. Set JP3 to Robot. """
   return ADC3.read_u16()
 
+
 # ---------------------------------------------------------------------
-# 3.3V I/O Headers H1-H4 (supports 3.3V HC-SR04P SONAR module)
+# 3.3V I/O Headers H1-H4 (supports I2C and 3.3V HC-SR04P SONAR module)
 # ---------------------------------------------------------------------
 
 # Analog/digital I/O header (optional SONAR module shares H2 and H3)
@@ -236,6 +257,15 @@ H1_PIN = const(11)  # H1 (I2C SDA)
 H2_PIN = const(13)  # H2 (SONAR TRIG)
 H3_PIN = const(14)  # H3 (SONAR ECHO)
 H4_PIN = const(12)  # H4 (I2C SCL)
+
+
+# QWIIC connector I2C bus initialization
+
+I2C_ID = 0
+SDA = H1_PIN
+SCL = H4_PIN
+QWIIC = I2C(id=I2C_ID, sda=SDA, scl=SCL)
+
 
 # SONAR distance function
 # Returns distance to closest target, up to a user-settable maximum
@@ -292,7 +322,9 @@ H6_PIN = H4_PIN
 H7_PIN = H2_PIN
 H8_PIN = H3_PIN
 
-SERVO1 = PWM(Pin(H5_PIN), freq=50, duty_u16=4916)
+# IMPORTANT: Servo outputs are disabled by default. Disable I2C or
+# SONAR pin configuration before enabling SERVOx pin configuration.
+# SERVO1 = PWM(Pin(H5_PIN), freq=50, duty_u16=4916)
 # SERVO2 = PWM(Pin(H6_PIN), freq=50, duty_u16=4916)
 # SERVO3 = PWM(Pin(H7_PIN), freq=50, duty_u16=4916)
 # SERVO4 = PWM(PIN(H8_PIN), freq=50, duty_u16=4916)
