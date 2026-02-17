@@ -1,7 +1,7 @@
 """
 ================================================================================
 Beginner Activity 4: Constants and Variables [Activity_B04_Constants_Variables.py]
-February 11, 2026
+February 17, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPER_Nano.py board module file.
@@ -273,17 +273,24 @@ Programming Activities
 
 2.  Create the code for a 'toggle' button, a type of switch behaviour
     that uses a single button to alternately turn a device or feature
-    on and off. In order to do this, the previous state of the button
-    must be compared with its current state, and the output should
-    only change when the button state changes from not being pressed
-    to being pressed. Each new press of the toggle button should
-    alternately turn a single LED on or off. Ensure that the LED state
-    doesn't change if the toggle button is held for any length of time.
+    on and off. Toggle buttons are commonly used as power buttons in
+    electronics devices.
+    
+    In order to use a momentary button to turn a device on or off, the
+    program needs to remember the current power state. And, in order
+    for the program to only change states when there a new button press
+    occurs, the program must also remember the last button state. This
+    allows the current button state to be compared with the previous
+    button state so that only a change from not-pressed to pressed
+    will enable the toggle button to perform its intended action. For
+    this program each press of the toglle button should alternately
+    turn a single LED on or off. Ensure that the LED state doesn't
+    change if the toggle button is held for any length of time.
 
 3.  Extend the toggle button program you created, above, so that each
     pushbutton on your circuit toggles a corresponding LED, allowing
-    a user to set any light pattern on the circuit simply by pressing
-    buttons.
+    a user to set any light pattern on the circuit simply by repeatedly
+    pressing the individual buttons.
 
 4.  Re-create the bicycle turn signal circuit from Activity B03 using
     named buttons and logical variables. (The details are repeated
