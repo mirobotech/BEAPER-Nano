@@ -78,7 +78,7 @@ BLINK_DELAY = const(200)
     Run the program and watch its blink rate. Then, change the
     value of the BLINK_DELAY constant to 100 and run the program
     again. Then, change it to 50 and run it again. Imagine how much
-    longer it would have taken change every single sleep statement
+    longer it would have taken to change every single sleep statement
     instead of just changing the constant.
 
 2.  The second important concept introduced in this program is the
@@ -97,10 +97,10 @@ display_pattern = False
     Boolean variables, referring to their use in Boolean logic.
     
     What's special about Boolean variables is not just that they
-    can change state between True and False, but that that they
-    also enable if conditions to use a clever short-cut. Instead
-    of checking the value of the display_pattern variable with
-    this typical if expression:
+    can change state between True and False, but that they also
+    enable if conditions to use a clever short-cut. Instead of
+    checking the value of the display_pattern variable with this
+    typical if expression:
 
     if display_pattern == True:
 
@@ -115,11 +115,11 @@ display_pattern = False
 
     Since the expression 'display_pattern == True' can only be true
     if the display_pattern variable itself is True, the second case
-    simply uses the state of the display_pattern variable istelf
+    simply uses the state of the display_pattern variable itself
     (True/False) to determine the path of program execution.
 
     Explain which part of the program sets the display_pattern
-    variable to true, and which part resets it to false.
+    variable to True, and which part resets it to False.
 
 3.  The third important concept introduced in this program blends
     the features and benefits of the previous two. The SW2_pressed 
@@ -134,7 +134,7 @@ display_pattern = False
     the path of any if condition it's used in.
 
     And, just like the name BLINK_DELAY, the variable name SW2_pressed
-    also carries meaning. The variable SW2_pressed will be true only
+    also carries meaning. The variable SW2_pressed will be True only
     when SW2 is actually pressed.
 
     Could the program use a similar statement to check for a pushbutton
@@ -169,12 +169,12 @@ display_pattern = False
 
     if SW2_pressed:
 
-    This conditional espression is simple, short, meaningful, and
+    This conditional expression is simple, short, meaningful, and
     unambiguous. A programmer trying to understand or add features
     to the code won't have to think about whether the switch is
     active-high or active-low (although somebody had to, earlier),
-    making code maintenace easier. Because this method is so clear
-    and useful, you'll see it used more in future learning activites.
+    making code maintenance easier. Because this method is so clear
+    and useful, you'll see it used more in future learning activities.
     
 5.  Let's make some extensive changes to the program, with the goal
     of replacing the BLINK_DELAY constant with a blink_delay_ms
@@ -188,7 +188,7 @@ blink_delay_ms = 200
 
     Replace all of the existing program code with the new program
     code below, starting from the 'Program Constants' comment down 
-    to the end of the program:
+    to the end of the program's while True: loop:
 
 # --- Program Constants ----------------
 SLOW_DELAY = const(200)
@@ -250,10 +250,10 @@ while True:
     Which characteristics of the new program code helped you to
     make your prediction or helped you to understand the code?
 
-7.  How does the compiler know that BLINK_DELAY is a constant,
+6.  How does MicroPython know that BLINK_DELAY is a constant,
     and that blink_delay_ms is a variable?
 
-8.  Predict what will happen in the above program if two buttons are
+7.  Predict what will happen in the above program if two buttons are
     pressed at the same time. Try it! Was your prediction correct?
     Explain why you think this happens.
     
@@ -273,19 +273,24 @@ Programming Activities
 
 2.  Create the code for a 'toggle' button, a type of switch behaviour
     that uses a single button to alternately turn a device or feature
-    on and off. Toggle buttons are commonly used as power buttons in
-    electronics devices.
-    
-    In order to use a momentary button to turn a device on or off, the
-    program needs to remember the current power state. And, in order
-    for the program to only change states when there a new button press
-    occurs, the program must also remember the last button state. This
-    allows the current button state to be compared with the previous
-    button state so that only a change from not-pressed to pressed
-    will enable the toggle button to perform its intended action. For
-    this program each press of the toglle button should alternately
-    turn a single LED on or off. Ensure that the LED state doesn't
-    change if the toggle button is held for any length of time.
+    on and off. In order to do this, the previous state of the button
+    must be compared with its current state, and the output should
+    only change when the button state changes from not being pressed
+    to being pressed. Each new press of the toggle button should
+    alternately turn a single LED on or off. Ensure that the LED state
+    doesn't change if the toggle button is held for any length of time.
+
+    Hint: You will need three variables - one to store the current LED
+    state, one to store the current button state, and one to store the
+    previous button state. Start with something like:
+
+LED2_on = False
+SW2_pressed = False
+SW2_last = False
+
+    Each loop, save the current SW2_pressed value into SW2_last before
+    reading the new button state. A toggle should only happen when
+    SW2_pressed is True and SW2_last was False (a new press).
 
 3.  Extend the toggle button program you created, above, so that each
     pushbutton on your circuit toggles a corresponding LED, allowing
