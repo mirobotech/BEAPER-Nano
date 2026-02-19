@@ -81,6 +81,17 @@ BLINK_DELAY = const(200)
     longer it would have taken to change every single sleep statement
     instead of just changing the constant.
 
+    BLINK_DELAY is a 'type' of constant known as an 'int' - short for
+    integer - which simply refers to any positive or negative whole
+    number. The SW2_pressed variable will be assigned a 'bool' type,
+    referring to Boolean logic's use of True (1) or False (0) values.
+    A third numeric type (not use here) is a 'float', used to encode
+    floating point numbers with decimal parts (PI = 3.1415927 would
+    be an example of a float). MicroPython infers the numeric types
+    of constants and variables for you (and lets you change them
+    later), while many other computer languages require programmers
+    to specify each constant or variable's type as it is created.
+
 2.  The second important concept introduced in this program is the
     use of variables to store simple true/false values. Variables
     are named, just like constants, but their values are expected to
@@ -200,6 +211,15 @@ display_pattern = False
     active-high or active-low (although somebody had to, earlier),
     making code maintenance easier. Because this method is so clear
     and useful, you'll see it used more in future learning activities.
+
+    Notice the connection between meaningful names and meaningful
+    comments - both are forms of communication to future readers.
+    Good variable names and constants can make code nearly
+    self-explanatory, reducing the need for comments. But comments
+    remain valuable for explaining the reasoning behind decisions
+    that aren't obvious from the code itself. Aim for both: names
+    that describe what a value is, and comments that explain why
+    it's used the way it is.
     
 5.  Let's make some extensive changes to the program, with the goal
     of replacing the BLINK_DELAY constant with a blink_delay_ms
