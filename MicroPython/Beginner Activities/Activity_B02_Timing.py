@@ -36,11 +36,11 @@ import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
     If you open the BEAPER_Nano.py module in the editor, you'll see
     that it consists of ordinary MicroPython program code, and the
     import statement simply includes all of its code into the current
-    program – invisibly. That is, the contents of the BEAPER_Nano.py
+    program - invisibly. That is, the contents of the BEAPER_Nano.py
     file won't be visible in this program's editor window, but all
     of the file's code will be fully accessible by this program.
 
-    The 'import time' statement in this program does a similar thing – 
+    The 'import time' statement in this program does a similar thing -
     it imports the functions built into MicroPython's time module into
     this program. We can't open the time module to view its functions
     as we can with the BEAPER_Nano.py board module, but we can look up
@@ -48,8 +48,8 @@ import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
     
     https://docs.micropython.org/en/latest/
 
-    Open the MicroPython documentation website in a browswer and search
-    for 'time'. Then, click the link 'time - time related functions' – 
+    Open the MicroPython documentation website in a browser and search
+    for 'time'. Then, click the link 'time - time related functions' -
     or, use this URL to navigate there directly:
     
     https://docs.micropython.org/en/latest/library/time.html#module-time )
@@ -61,7 +61,7 @@ import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
     It's important to recognize that whenever a dot '.' appears in a
     MicroPython program statement, it simply means that it's using
     some function or class or method in a module (we'll learn more
-    about all of these specific terms in later actvities). For now,
+    about all of these specific terms in later activities). For now,
     just realize that:
     
     beaper.LED2.value(1) - sets the value of LED2 in the beaper module
@@ -91,7 +91,7 @@ import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
     time.sleep_ms(500)
     
     and run the program again. The result should be exactly the same.
-    Is it? Is there any advantage to using time.sleep_ms() function
+    Is it? Is there any advantage to using the time.sleep_ms() function
     instead of the time.sleep() function?
     
 3.  Stop the program from running. When the program stops, do all of
@@ -107,14 +107,16 @@ import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
     but the speaker used on BEAPER Nano needs to be rapidly turned on
     and off to create audible frequencies. Let's try it!
 
-    First, add this line between the import statements and the main
-    'while True:' loop:
+    First, add these two lines between the import statements and the
+    main 'while True:' loop. The first imports Pin from the machine
+    module, and the second re-defines the circuit's LS1 connection
+    as a pin output called 'speaker':
 
+from machine import Pin
 speaker = Pin(beaper.LS1_PIN, Pin.OUT)
 
-    This statement re-defines the circuit's LS1 connection as a pin
-    output called 'speaker'. Next, add this new 'while True:' function
-    above the existing while True: loop in the program:
+    Next, add this new 'while True:' loop above the existing one
+    in the program:
 
 while True:
   speaker.value(1)
@@ -132,14 +134,14 @@ while True:
     actually doing. Explain what is happening and why you think the
     LEDs are no longer blinking.
 
-5.  There is an easier and more flexible way way to produce sound
+5.  There is an easier and more flexible way to produce sound
     frequencies by using the BEAPER_Nano.py board module's tone() and
     noTone() functions. 
 
-    Remove both the 'speaker' definition statement and the entire
-    'while True:' loop added in the previous activity step. Next,
-    replace the sleep() functions in the existing loop with the
-    tone() functions as shown below:
+    Remove both the 'from machine import Pin' and 'speaker' definition
+    statements, and the entire 'while True:' loop added in the previous
+    activity step. Next, replace the sleep() functions in the existing
+    loop with the tone() functions as shown below:
 
 while True:
   beaper.LED2.value(1)
@@ -150,7 +152,7 @@ while True:
   beaper.LED5.value(1)
   beaper.tone(523, 500)
 
-    The first parameter in the tone function is the frequency in Hz,
+    The first parameter in the tone() function is the frequency in Hz,
     and the second is the tone duration in milliseconds. So, the
     statement 'beaper.tone(440, 500)' plays a 440Hz tone for 500ms.
 
