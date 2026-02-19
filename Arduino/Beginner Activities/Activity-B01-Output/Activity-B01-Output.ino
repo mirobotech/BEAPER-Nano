@@ -1,5 +1,5 @@
 /* ================================================================================
-Beginner Activity 1: Digital Output [Activity-B01-Output]
+Beginner Activity 1: Output [Activity-B01-Output]
 February 2, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
@@ -13,7 +13,7 @@ Requires: BEAPERNano.h header file
 // ---------------------------------------------------------------
 void setup()
 {
-    // Configure ARPS2 LEDs as outputs
+    // Configure BEAPER Nano LEDs as outputs
     pinMode(LED2, OUTPUT);
     pinMode(LED3, OUTPUT);
     pinMode(LED4, OUTPUT);
@@ -47,8 +47,8 @@ Program Analysis Activities
     
     digitalWrite(LED2, HIGH);
     
-    mmakes the output voltage of the LED2 pin either HIGH (5V), or
-    LOW (0V). All of the other ARPS2 LEDs (LED3 - LED5) can be
+    makes the output voltage of the LED2 pin either HIGH (3.3V), or
+    LOW (0V). All of the other BEAPER Nano LEDs (LED3 - LED5) can be
     controlled in exactly the same way. Let's try it!
 
     Add a second LED output statement to light LED3 into your
@@ -66,7 +66,7 @@ Program Analysis Activities
     while program statements in the loop() function are repeated.
     
     In Arduino programs, all program statements must be part of a
-    function, and this can be ensured by placing them inside a the
+    function, and this can be ensured by placing them inside the
     curly braces '{ }' that enclose the function.
     
     In this program, would it make sense to put the digitalWrite
@@ -76,8 +76,8 @@ Program Analysis Activities
 
 3.  Since the loop() function contains no program code, you might
     think it would be possible to simply get rid of it. Instead of
-    deleting it (you can, we'll add a new loop() in next step),
-    let's just comment-out the looop code using double slashes,
+    deleting it (you can try, and we'll add a new loop() in the next
+    step), let's just comment-out the loop code using double slashes,
     like this:
 
 // void loop()
@@ -85,7 +85,7 @@ Program Analysis Activities
     // Nothing here for now
 // }
 
-    Doubld slashes signify the start of a code comment, used by
+    Double slashes signify the start of a code comment, used by
     programmers to explain the meaning or actions of complex code.
     The C compiler ignores anything in the same line following the
     double slashes, so this code will be 'commented-out', or 
@@ -128,9 +128,9 @@ Programming Activities
 3.  Create a program that lights a pattern using at least two of the
     on-board LEDs. Run your program to verify that it works as expected.
 
-4.  The BEAPERNano.h header file refers to the pin definitions for 
-    Arduino Nano's on-board LEDs (it doesn't need to define them
-    since the Arduino IDE already knows that they are part ot the
+4.  The BEAPERNano.h header file refers to the pin definitions for the
+    Arduino Nano ESP32 module's on-board LEDs (it doesn't need to define
+    them since the Arduino IDE already knows that they are part of the
     Arduino Nano ESP32 module).
     
     To use the Arduino Nano ESP32's primary LED, it must first be
@@ -139,7 +139,7 @@ Programming Activities
     pinMode(LED_BUILTIN, OUTPUT);
 
     Then, it can be turned on using the digitalWrite() function,
-    exacltly as with BEAPER Nano's LEDs:
+    exactly as with the BEAPER Nano LEDs:
     
     digitalWrite(LED_BUILTIN, HIGH);
 
@@ -147,7 +147,7 @@ Programming Activities
     LED acts as a status indicator to show you that your program is
     running. Run the program to verify that it works.
 
-    Which other LEDs does the Arduino Nano ESP32 contain? Can you turn
-    them on too?
+    Which other LEDs does the Arduino Nano ESP32 module contain?
+    Can you turn them on too?
 
 */
