@@ -74,7 +74,22 @@ import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
     function without importing the time module first? Comment-out or
     remove the 'import time' statement from your program and try to
     run it. What happens?
-    
+
+    You just used a comment to temporarily disable a line of code -
+    a very common debugging technique. In MicroPython, any text
+    following a '#' character on a line is a comment and is completely
+    ignored by the interpreter. Comments are written for people, not
+    computers: they explain what code does, why it was written a
+    certain way, or leave reminders for future readers - including
+    your future self. The import statement at the top of this program
+    already includes one:
+
+import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
+
+    Notice how the comment adds meaning that the code alone doesn't
+    provide. Good comments explain the purpose or reasoning behind
+    code, not just what it literally does.
+
 2.  Ensure that the 'import time' statement is put back into the
     program code and run the program if you haven't done so already!
     Ooh, look, we can make lights blink by telling the microcontroller
