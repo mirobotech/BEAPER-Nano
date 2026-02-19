@@ -40,6 +40,8 @@ while True:
     beaper.LED5.value(0)
     time.sleep(0.2)
 
+  time.sleep_ms(20)  # Short delay for button debouncing
+
 
 """
 Program Analysis Activities
@@ -56,9 +58,12 @@ Program Analysis Activities
     The inactive potential (when the pushbutton is not pressed) of a
     pull-up circuit will be a high voltage due to the resistor's power
     supply connection, and the active potential (when the pushbutton is
-    pressed) will be 0V. This pull-up circuit arrangment creates what
+    pressed) will be 0V. This pull-up circuit arrangement creates what
     is commonly referred to as an 'active-low' pushbutton switch.
-    
+
+    What value do you expect beaper.SW2.value() to return when SW2 is
+    not pressed? What about when SW2 is pressed?
+
     MicroPython's value() method can be used without an argument
     (the 0, or 1, used to make the pin output low, or high) to read
     the value of an I/O pin, like this:
@@ -71,11 +76,11 @@ Program Analysis Activities
     the condition is true (or, 'True' in the case of MicroPython,
     since capitalization matters). And, in this case the condition
     will be true when the value of the SW2 pin is equal to zero (two
-    equals signs are used to check and compare values, as oppposed to
+    equals signs are used to check and compare values, as opposed to
     one equals sign being used to set a value).
 
     This if condition also includes a complementary 'else:' statement,
-    whcih will logically be the opposite of if. When if is true, else
+    which will logically be the opposite of if. When if is true, else
     will be false, and when if is false, else will become true.
 
     Looking at SW2's if-else condition, explain the program flow when
@@ -94,7 +99,7 @@ Program Analysis Activities
     playing the tone until either: another call to tone() changes the
     frequency, or the noTone() function is called to stop the tone.
 
-    An if-else condition is an ideal way to play the tone while a
+    An if-else condition is an ideal way to play a tone while a
     button is being pressed, and stop it when the button is released.
     Add this code to your program to try it out:
 
@@ -104,8 +109,8 @@ Program Analysis Activities
     beaper.noTone()
 
     What is the advantage of using an 'if-else' structure instead of
-    using two separate if conditions – one to start the tone, and a
-    second to stop the tone – to do the same thing?
+    using two separate if conditions - one to start the tone, and a
+    second to stop the tone - to do the same thing?
 
 4.  Let's try using a combination of two pushbuttons to turn on one
     LED. One way to accomplish this is by nesting one if-else
@@ -135,7 +140,7 @@ Program Analysis Activities
     ways is this solution better than using nested if-else conditions?
 
 6.  The logical 'or' operator can also be used in conditional
-    expressions. Describe the when the LED would be lit if the SW3
+    expressions. Describe when the LED would be lit if the SW3
     and SW4 pushbutton inputs in the activity were combined using a
     logical or operator instead of the and operator in the condition.
     
