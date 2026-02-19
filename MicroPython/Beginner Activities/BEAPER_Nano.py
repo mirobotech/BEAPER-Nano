@@ -1,6 +1,6 @@
 """
 BEAPER_Nano.py
-February 16, 2026
+February 18, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
@@ -37,27 +37,27 @@ LED_RGB_GREEN = PWM(Pin(0), freq=1000, duty_u16=65535)   # Active LOW
 LED_RGB_BLUE  = PWM(Pin(45), freq=1000, duty_u16=65535)  # Active LOW
 
 def nano_led_on():
-  """ Turn the Arduino Nano ESP32 on-board LED on. """
+  # Turn the Arduino Nano ESP32 on-board LED on.
   LED_BUILTIN.value(1)
 
 def nano_led_off():
-  """ Turn the Arduino Nano ESP32 on-board LED off. """
+  # Turn the Arduino Nano ESP32 on-board LED off.
   LED_BUILTIN.value(0)
 
 def nano_led_toggle():
-  """ Toggle the Arduino Nano ESP32 on-board LED. """
+  # Toggle the Arduino Nano ESP32 on-board LED.
   LED_BUILTIN.value(not LED_BUILTIN.value())
 
 def nano_rgb_red(brightness):
-  """ Set the RGB LED red element to brightness (0 - 65535) """
+  # Set the RGB LED red element to brightness (0 - 65535)
   LED_RGB_RED.duty_u16(65535 - brightness)
 
 def nano_rgb_green(brightness):
-  """ Set the RGB LED green element to brightness (0 - 65535) """
+  # Set the RGB LED green element to brightness (0 - 65535)
   LED_RGB_GREEN.duty_u16(65535 - brightness)
 
 def nano_rgb_blue(brightness):
-  """ Set the RGB LED blue element to brightness (0 - 65535) """
+  # Set the RGB LED blue element to brightness (0 - 65535)
   LED_RGB_BLUE.duty_u16(65535 - brightness)
 
 
@@ -78,19 +78,19 @@ SW4 = Pin(SW4_PIN, Pin.IN, Pin.PULL_UP)
 SW5 = Pin(SW5_PIN, Pin.IN, Pin.PULL_UP)
 
 def SW2_pressed():
-  """ Return True if pushbutton 2 is pressed. """
+  # Return True if pushbutton 2 is pressed.
   return SW2.value() == 0
 
 def SW3_pressed():
-  """ Return True if pushbutton 3 is pressed. """
+  # Return True if pushbutton 3 is pressed.
   return SW3.value() == 0
 
 def SW4_pressed():
-  """ Return True if pushbutton 4 is pressed. """
+  # Return True if pushbutton 4 is pressed.
   return SW4.value() == 0
 
 def SW5_pressed():
-  """ Return True if pushbutton 5 is pressed. """
+  # Return True if pushbutton 5 is pressed.
   return SW5.value() == 0
 
 
@@ -162,23 +162,23 @@ def right_motor_stop():
 # BEAPER Nano Piezo Buzzer (BEAPER's beeper!)
 # ---------------------------------------------------------------------
 
-# Piezo beeper
+# Generate tones using PWM (similar to Arduino tone() functions)
+
 LS1_PIN = const(17)
 
-# Generate tones using PWM (similar to Arduino tone() functions)
 LS1 = PWM(Pin(LS1_PIN), freq = 1000, duty_u16 = 0)
 
-# Start a tone at specified frequency (Hz), and optionally stop the
-# tone after duration (ms). Adding duration causes a blocking delay.
 def tone(frequency, duration=None):
+  # Start a tone at specified frequency (Hz), and stop the tone after
+  # an optional duration (ms). Adding duration causes a blocking delay.
   LS1.freq(frequency)
   LS1.duty_u16(32768)
   if duration is not None:
     time.sleep_ms(duration)
     noTone()
 
-# Stop the tone. Optionally pause for the duration (ms). 
 def noTone(duration=None):
+  # Stop the tone. Optionally pause (blocking) for the duration (ms). 
   LS1.duty_u16(0)
   if duration is not None:
     time.sleep_ms(duration)
@@ -213,35 +213,35 @@ ADC3 = ADC(Pin(ADC3_PIN), atten = ADC.ATTN_11DB)
 # ADC7 = ADC(Pin(ADC7_PIN), atten = ADC.ATTN_11DB)
 
 def light_level():
-  """ Read Q4 ambient light sensor value. Set JP1 to Enviro. """
+  # Read Q4 ambient light sensor value. Set JP1 to Enviro.
   return 65535-ADC0.read_u16() # Brighter -> higher values
 
 def temp_level():
-  """ Read U4 analog temperature sensor value. Set JP2 to Enviro. """
+  # Read U4 analog temperature sensor value. Set JP2 to Enviro.
   return ADC1.read_u16()  # Warmer -> higher values
 
 def Q1_level():
-  """ Read floor sensor Q1. Set JP1 to Robot. """
+  # Read floor sensor Q1. Set JP1 to Robot.
   return 65535-ADC0.read_u16()  # Higher reflectivity -> higher values
 
 def Q2_level():
-  """ Read line sensor Q2. Set JP2 to Robot. """
+  # Read line sensor Q2. Set JP2 to Robot.
   return 65535-ADC1.read_u16()  # Higher reflectivity -> higher values
 
 def Q3_level():
-  """ Read floor/line sensor Q3. Set JP3 to Robot. """
+  # Read floor/line sensor Q3. Set JP3 to Robot.
   return 65535-ADC2.read_u16()  # Higher reflectivity -> higher values
 
 def RV1_level():
-  """ Read potentiometer RV1. Set JP3 to Enviro. """
+  # Read potentiometer RV1. Set JP3 to Enviro.
   return ADC2.read_u16()  # Clockwise -> higher values
 
 def RV2_level():
-  """ Read potentiometer RV2. Set JP3 to Enviro. """
+  # Read potentiometer RV2. Set JP3 to Enviro.
   return ADC3.read_u16()  # Clockwise -> higher values
 
 def VDIV_level():
-  """ Read VDIV voltage divider. Set JP3 to Robot. """
+  # Read VDIV voltage divider. Set JP3 to Robot.
   return ADC3.read_u16()
 
 
@@ -266,46 +266,43 @@ SDA = H1_PIN
 SCL = H4_PIN
 QWIIC = I2C(id=I2C_ID, sda=SDA, scl=SCL)
 
-
-# SONAR distance function
-# Returns distance to closest target, up to a user-settable maximum
-# distance. Terminating measurement early requires an added error
-# check for previous ECHO in progress.
+# Ultrasonic SONAR distance measurement function
 
 SONAR_TRIG = Pin(H2_PIN, Pin.OUT, value=0)
 SONAR_ECHO = Pin(H3_PIN, Pin.IN)
 
 def sonar_distance_cm(max=300):
-  """
-  Measure distance using HC-SR04P sonar sensor. Returns distance
-  to the closest target (up to max value) in centimeters, or error
-  code from the time_pulse_us() function if it times out.
+  # Returns either:
+  #  - distance (cm) to the closest target, up to max distance (cm)
+  #  - 0 if no target is detected within max distance
+  #  - error code from the time_pulse_us() function (-1, -2)
+  #  - error code (-3) if a previous ECHO is still in progress
 
-  First, check if previous ECHO has finished:
-  """
   if SONAR_ECHO.value() == 1:
-    return -3   # ECHO in progress (wait 10ms after ECHO ends before re-triggering)
+    # Check if previous ECHO is in progress, return error if so
+    return -3   # (wait 10ms after ECHO ends before re-triggering)
   
-  """ Create a TRIG pulse. """
+  # Create a TRIG pulse.
   SONAR_TRIG.value(1)
   time.sleep_us(10)
   SONAR_TRIG.value(0)
   
-  """
-  Wait 2500us for ECHO pulse to start. Note: HC-SR04P (3.3V-capable
-  modules also labelled RCWL-9610A 2022) delay for approximately
-  2300us after the TRIG pulse ends and the ECHO pulse starts. 
-  """
-  duration = machine.time_pulse_us(SONAR_ECHO, 0, 2500)
-  if duration < 0:
-    return duration # ECHO didn't start. Returns error code (-2, -1).
+  # Wait 2500us for ECHO pulse to start. Note: HC-SR04P (3.3V-capable
+  # modules also labelled as RCWL-9610A 2022) delay for approximately
+  # 2300us after the TRIG pulse ends and the ECHO pulse starts.
   
-  """ Time ECHO pulse. Set time-out value to max range. """
+  duration = machine.time_pulse_us(SONAR_ECHO, 0, 2500)
+
+  if duration < 0:
+    # ECHO didn't start - return error from time_pulse_us() (-2, -1)
+    return duration
+  
+  # Time ECHO pulse. Set time-out value to max range.
   duration = machine.time_pulse_us(SONAR_ECHO, 1, (max + 1) * 58)
   if duration < 0:
     return 0    # Return 0 if distance > max range
   
-  """ Return range to target in cm. """
+  # Return range to target in cm.
   return duration / 58
 
 
