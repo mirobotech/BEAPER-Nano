@@ -81,7 +81,7 @@ const int BLINK_DELAY = 200;
     A program constant is simply an un-changing, named value used
     instead of a number in a program. In this program, 'BLINK_DELAY'
     is defined as an integer constant ('const' meaning constant, and
-    'int' meaning an interger, or whole number) with a value of 200.
+    'int' meaning an integer, or whole number) with a value of 200.
     This value won't change while the program runs. (The names of
     constants are often written in ALL_CAPS to distinguish them
     from variables -- which we'll learn about, below.) 
@@ -98,7 +98,7 @@ const int BLINK_DELAY = 200;
     Run the program and watch its blink rate. Then, change the
     value of the BLINK_DELAY constant to 100 and run the program
     again. Then, change it to 50 and run it again. Imagine how much
-    longer it would have taken change every single delay statement
+    longer it would have taken to change every single delay statement
     instead of just changing the constant.
 
 2.  The second important concept introduced in this program is the
@@ -120,10 +120,10 @@ bool display_pattern = false;
     being true and false as the user interacts with the program.
     
     What's special about Boolean variables is not just that they
-    can change state between true and false, but that that they
-    also enable if conditions to use a clever short-cut. Instead
-    of checking the value of the display_pattern variable with
-    this typical if expression:
+    can change state between true and false, but that they also
+    enable if conditions to use a clever short-cut. Instead of
+    checking the value of the display_pattern variable with this
+    typical if expression:
 
     if (display_pattern == true)
 
@@ -192,13 +192,13 @@ bool display_pattern = false;
 
     if (SW2_pressed)
 
-    This conditional espression is simple, short, meaningful, and
+    This conditional expression is simple, short, meaningful, and
     unambiguous. A programmer trying to understand or add features
     to the code won't have to think about whether the switch is
     active-high or active-low (although somebody had to, earlier),
-    making code maintenace easier. Because this method is so clear
-    and useful, you'll see it used more in future learning activites.
-   
+    making code maintenance easier. Because this method is so clear
+    and useful, you'll see it used more in future learning activities.
+
 5.  Let's make some extensive changes to the program, with the goal
     of replacing the BLINK_DELAY constant with a blink_delay_ms
     variable, defined in the new program as shown:
@@ -211,7 +211,8 @@ int blink_delay_ms = 200;
 
     Replace all of the existing program code with the new program
     code below, starting from the 'Program Constants' comment down 
-    to the end of the program:
+    to the closing brace of the loop() function:
+
 
 // ---- Program Constants ----------------
 const int SLOW_DELAY = 200;
@@ -300,18 +301,17 @@ void loop()
     }
 }
 
-
     Can you predict what the program will do and how it works? 
     Which characteristics of the new program code helped you to
     make your prediction or helped you to understand the code?
 
-7.  How does the compiler know that BLINK_DELAY is a constant,
+6.  How does the compiler know that BLINK_DELAY is a constant,
     and that blink_delay_ms is a variable?
 
-8.  Predict what will happen in the above program if two buttons are
+7.  Predict what will happen in the above program if two buttons are
     pressed at the same time. Try it! Was your prediction correct?
     Explain why you think this happens.
-    
+
 
 Programming Activities
 
@@ -334,6 +334,18 @@ Programming Activities
     to being pressed. Each new press of the toggle button should
     alternately turn a single LED on or off. Ensure that the LED state
     doesn't change if the toggle button is held for any length of time.
+
+    Hint: You will need three variables - one to store the current LED
+    state, one to store the current button state, and one to store the
+    previous button state. Start with something like:
+
+bool LED2_on = false;
+bool SW2_pressed;
+bool SW2_last = false;
+
+    Each loop, save the current SW2_pressed value into SW2_last before
+    reading the new button state. A toggle should only happen when
+    SW2_pressed is true and SW2_last was false (a new press).
 
 3.  Extend the toggle button program you created, above, so that each
     pushbutton on your circuit toggles a corresponding LED, allowing
