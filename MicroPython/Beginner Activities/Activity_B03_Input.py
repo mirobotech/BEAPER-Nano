@@ -147,6 +147,13 @@ Program Analysis Activities
 
 Programming Activities
 
+    From this activity onward, you will be writing programs of your
+    own rather than just modifying provided code. As you write, get
+    into the habit of adding short comments to explain what each
+    section of your code does. A comment that explains *why* code is
+    written a certain way is often more valuable than one that just
+    describes *what* it does - future you will thank present you.
+
 1.  Create a program that simulates the separate 'Start' and 'Stop'
     buttons that would be found on large, industrial machines. The
     machine (simulated by an LED) should turn on when the 'Start'
