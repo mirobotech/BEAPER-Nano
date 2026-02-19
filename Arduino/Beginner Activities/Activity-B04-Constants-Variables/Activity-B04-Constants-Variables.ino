@@ -233,6 +233,15 @@ bool display_pattern = false;
     making code maintenance easier. Because this method is so clear
     and useful, you'll see it used more in future learning activities.
 
+    Notice the connection between meaningful names and meaningful
+    comments - both are forms of communication to future readers.
+    Good variable names and constants can make code nearly
+    self-explanatory, reducing the need for comments. But comments
+    remain valuable for explaining the reasoning behind decisions
+    that aren't obvious from the code itself. Aim for both: names
+    that describe what a value is, and comments that explain why
+    it's used the way it is.
+
 5.  Let's make some extensive changes to the program, with the goal
     of replacing the BLINK_DELAY constant with a blink_delay_ms
     variable, defined in the new program as shown:
