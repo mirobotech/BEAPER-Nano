@@ -75,7 +75,23 @@ Program Analysis Activities
     delay() function actually do? What does the microcontroller do
     while it's executing the delay() function? Why could this be
     a problem for some programs?
-    
+
+    While you have the program open, notice the comments already
+    present in the code. In Arduino C, any text following '//' on
+    a line is a comment and is completely ignored by the compiler.
+    Longer comments spanning multiple lines are enclosed between
+    '/*' and its reverse - like the block containing these words.
+    Comments are written for people, not computers: they explain
+    what code does, why it was written a certain way, or leave
+    reminders for future readers - including your future self.
+    Look at this comment in the starter code:
+
+    delay(500);                 // Wait 0.5 seconds
+
+    Notice how the comment adds meaning that the code alone doesn't
+    fully provide. Good comments explain the purpose or reasoning
+    behind code, not just what it literally does.
+
 2.  Arduino also has a delay function called 'delayMicroseconds()'.
 
     Look up the delayMicroseconds() function in the Language
