@@ -1,6 +1,6 @@
 /* ================================================================================
 Beginner Activity 4: Constants and Variables [Activity-B04-Constants-Variables]
-February 11, 2026
+February 19, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPERNano.h header file
@@ -32,6 +32,8 @@ void setup()
     pinMode(SW3, INPUT_PULLUP);
     pinMode(SW4, INPUT_PULLUP);
     pinMode(SW5, INPUT_PULLUP);
+
+    Serial.begin(9600);     // Initialize serial output for debugging
 }
 
 void loop()
@@ -144,6 +146,38 @@ bool display_pattern = false;
     Explain which part of the program sets the display_pattern
     variable to true, and which part resets it to false.
 
+    LEDs show you what your program is doing, but sometimes you need
+    to see what your program is thinking - that is, the current value
+    of a variable at a specific moment. Arduino's Serial.print() and
+    Serial.println() functions send text to the Serial Monitor in the
+    Arduino IDE (opened from the Tools menu, or Ctrl+Shift+M), making
+    them essential tools for understanding and debugging programs. The
+    Serial.begin(9600) call in setup() initializes the serial
+    connection at 9600 baud - make sure the Serial Monitor is set to
+    the same speed.
+
+    Add this line inside the 'if (SW2_pressed)' block to print the
+    value of display_pattern each time SW2 is pressed:
+
+    if (SW2_pressed)
+    {
+        display_pattern = true;
+        Serial.print("display_pattern: ");
+        Serial.println(display_pattern);
+    }
+
+    Run the program, open the Serial Monitor, and press SW2. Do you
+    see the output you expected? Now try adding a Serial.println()
+    call inside the 'if (display_pattern)' block, just before
+    'display_pattern = false', to show the moment it resets:
+
+        Serial.println("display_pattern reset to: false");
+
+    Using Serial.print() to reveal the state of variables at key
+    points in your program is one of the most useful debugging
+    techniques you will use as a programmer. You'll see it put to
+    use again in the next activity.
+
 3.  The third important concept introduced in this program blends
     the features and benefits of the previous two. The SW2_pressed 
     variable is a Boolean variable, just like display_pattern. It
@@ -213,6 +247,7 @@ int blink_delay_ms = 200;
     code below, starting from the 'Program Constants' comment down 
     to the closing brace of the loop() function:
 
+*/
 
 // ---- Program Constants ----------------
 const int SLOW_DELAY = 200;
@@ -227,6 +262,8 @@ bool fast_button;
 bool ludicrous_button;
 bool display_pattern = false;
 int blink_delay_ms = 200;
+
+/*
 
 void setup()
 {
@@ -304,6 +341,12 @@ void loop()
     Can you predict what the program will do and how it works? 
     Which characteristics of the new program code helped you to
     make your prediction or helped you to understand the code?
+
+    As you test the program, try adding Serial.print() statements to
+    display the values of blink_delay_ms and display_pattern in the
+    Serial Monitor. Which button sets which delay? Can you see
+    display_pattern cycling between 1 (true) and 0 (false) as the
+    pattern runs?
 
 6.  How does the compiler know that BLINK_DELAY is a constant,
     and that blink_delay_ms is a variable?
