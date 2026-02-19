@@ -1,7 +1,7 @@
 """
 ================================================================================
 Beginner Activity 4: Constants and Variables [Activity_B04_Constants_Variables.py]
-February 17, 2026
+February 19, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPER_Nano.py board module file.
@@ -120,6 +120,31 @@ display_pattern = False
 
     Explain which part of the program sets the display_pattern
     variable to True, and which part resets it to False.
+
+    LEDs show you what your program is doing, but sometimes you need
+    to see what your program is thinking - that is, the current value
+    of a variable at a specific moment. MicroPython's built-in print()
+    function sends text output to the console in your editor, making
+    it an essential tool for understanding and debugging programs.
+
+    Add this line inside the 'if SW2_pressed:' block to print the
+    value of display_pattern each time SW2 is pressed:
+
+  if SW2_pressed:
+    display_pattern = True
+    print("display_pattern:", display_pattern)
+
+    Run the program, open the console in your editor, and press SW2.
+    Do you see the output you expected? Now try adding a second print
+    statement inside the 'if display_pattern:' block, just before
+    'display_pattern = False', to show the moment it resets:
+
+    print("display_pattern reset to:", False)
+
+    Using print() to reveal the state of variables at key points in
+    your program is one of the most useful debugging techniques you
+    will use as a programmer. You'll see it put to use again in the
+    next activity.
 
 3.  The third important concept introduced in this program blends
     the features and benefits of the previous two. The SW2_pressed 
@@ -249,6 +274,11 @@ while True:
     Can you predict what the program will do and how it works? 
     Which characteristics of the new program code helped you to
     make your prediction or helped you to understand the code?
+
+    As you test the program, try adding print statements to display
+    the values of blink_delay_ms and display_pattern in the console.
+    Which button sets which delay? Can you see display_pattern cycling
+    between True and False as the pattern runs?
 
 6.  How does MicroPython know that BLINK_DELAY is a constant,
     and that blink_delay_ms is a variable?
