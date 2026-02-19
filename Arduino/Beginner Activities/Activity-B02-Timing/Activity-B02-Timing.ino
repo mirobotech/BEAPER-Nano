@@ -17,7 +17,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);    // Status LED on
 
-    // Configure ARPS2 LEDs as outputs
+    // Configure BEAPER Nano LEDs as outputs
     pinMode(LED2, OUTPUT);
     pinMode(LED3, OUTPUT);
     pinMode(LED4, OUTPUT);
@@ -72,21 +72,21 @@ Program Analysis Activities
 
     Take a look at both the Description, and the Notes and Warnings
     section of the delay() function's documentation. What does the
-    delay() function actually do? What does the micorcontroller do
+    delay() function actually do? What does the microcontroller do
     while it's executing the delay() function? Why could this be
     a problem for some programs?
     
 2.  Arduino also has a delay function called 'delayMicroseconds()'.
 
     Look up the delayMicroseconds() function in the Language
-    Reference. Do you think it would be a good idea to use to
+    Reference. Do you think it would be a good idea to use it to
     replace the 0.5 second delay in this program? Why or why not?
 
 3.  What do you think would happen if the 'delay(500);' statements
     in the program were replaced with 'delayMicroseconds(500);'
-    statements? Try it! Change both delay functions in the
-    program to delayMicroseconds(500) and describe what run the
-    program. Describe what the LEDs are doing.
+    statements? Try it! Change both delay functions to
+    delayMicroseconds(500), run the program, and describe what
+    the LEDs are doing.
     
 4.  While microsecond delays are much too short to see, they can
     be used to make other signals including sound waves! Some
@@ -98,7 +98,7 @@ Program Analysis Activities
 
     pinMode(LS1, OUTPUT);
 
-    This statement dewfines the microcontroller's pin connecting
+    This statement defines the microcontroller's pin connecting
     to piezo speaker LS1 as an output. Next, replace the entire
     loop() function in the existing program with the new loop
     function, below:
@@ -116,8 +116,13 @@ void loop()
     output pin will add up to create the 2272 microsecond time 
     period of a 440Hz sound wave.
 
-5.  There is an easier and more flexible way way to produce sound
-    frequencies by using Arduino's tone() and  noTone() functions. 
+    Hey, are the LEDs still flashing while the sound is playing?
+    Stop the program and then ponder what the program is actually
+    doing. Explain what is happening and why you think the LEDs
+    are no longer blinking.
+
+5.  There is an easier and more flexible way to produce sound
+    frequencies by using Arduino's tone() and noTone() functions. 
 
     Remove all of the loop code added in the previous activity
     step. Next, replace it with this one, which is very much like
@@ -138,8 +143,9 @@ void loop()
 }
 
     Look up the tone() function in the Arduino Language Reference.
-
     What do the three parameters inside its brackets represent?
+    How does the tone duration parameter compare to the separate
+    delay() function used here - do you think both are needed?
 
 
 Programming Activities
