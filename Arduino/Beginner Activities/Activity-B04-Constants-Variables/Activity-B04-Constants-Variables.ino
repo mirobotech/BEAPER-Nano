@@ -34,6 +34,7 @@ void setup()
     pinMode(SW5, INPUT_PULLUP);
 
     Serial.begin(9600);     // Initialize serial output for debugging
+    while (!Serial);        // Wait for the serial port to start
 }
 
 void loop()
