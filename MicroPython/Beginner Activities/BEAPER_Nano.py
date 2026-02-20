@@ -1,6 +1,6 @@
 """
 BEAPER_Nano.py
-February 18, 2026
+February 20, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
@@ -77,21 +77,7 @@ SW3 = Pin(SW3_PIN, Pin.IN, Pin.PULL_UP)
 SW4 = Pin(SW4_PIN, Pin.IN, Pin.PULL_UP)
 SW5 = Pin(SW5_PIN, Pin.IN, Pin.PULL_UP)
 
-def SW2_pressed():
-  # Return True if pushbutton 2 is pressed.
-  return SW2.value() == 0
-
-def SW3_pressed():
-  # Return True if pushbutton 3 is pressed.
-  return SW3.value() == 0
-
-def SW4_pressed():
-  # Return True if pushbutton 4 is pressed.
-  return SW4.value() == 0
-
-def SW5_pressed():
-  # Return True if pushbutton 5 is pressed.
-  return SW5.value() == 0
+SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
 
 
 # ---------------------------------------------------------------------
@@ -110,6 +96,8 @@ LED2 = Pin(LED2_PIN, Pin.OUT)
 LED3 = Pin(LED3_PIN, Pin.OUT)
 LED4 = Pin(LED4_PIN, Pin.OUT)
 LED5 = Pin(LED5_PIN, Pin.OUT)
+
+LEDS = (LED2, LED3, LED4, LED5)  # Tuple of all LED pins
 
 
 # ---------------------------------------------------------------------
@@ -142,8 +130,8 @@ def left_motor_reverse():
   M1B.value(1)
 
 def left_motor_stop():
-    M1A.value(0)
-    M1B.value(0)
+  M1A.value(0)
+  M1B.value(0)
 
 def right_motor_forward():
   M2A.value(0)
@@ -154,8 +142,8 @@ def right_motor_reverse():
   M2B.value(0)
 
 def right_motor_stop():
-    M2A.value(0)
-    M2B.value(0)
+  M2A.value(0)
+  M2B.value(0)
 
 
 # ---------------------------------------------------------------------
