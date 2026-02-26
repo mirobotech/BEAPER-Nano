@@ -1,7 +1,7 @@
 """
 ================================================================================
 Beginner Activity 4: Constants and Variables [Activity_B04_Constants_Variables.py]
-February 19, 2026
+February 26, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPER_Nano.py board module file.
@@ -23,11 +23,11 @@ beaper.nano_led_on()
 
 while True:
   SW2_pressed = (beaper.SW2.value() == 0)
-  
+
   # Start pattern with SW2 press
   if SW2_pressed:
     display_pattern = True
-        
+
   # Show pattern on LEDs
   if display_pattern:
     beaper.LED2.value(1)
@@ -50,93 +50,78 @@ while True:
 
 
 """
-Program Analysis Activities
+Guided Exploration
 
-1.  There are a lot of new and important concepts to cover in this
-    program, so let's start at the top with the simplest one: program
-    constants:
+Good programs are written for two audiences: the computer that runs
+them and the people who read them. Constants, variables, and
+meaningful names are how programmers communicate intent — not just
+what the code does, but why it does it. The concepts introduced in
+this activity will make your programs easier to read, easier to
+change, and easier to debug.
+
+1.  There are several new concepts in this program, so let's start
+    with the simplest one — program constants:
 
 # --- Program Constants ----------------
 BLINK_DELAY = const(200)
 
-    A program constant is simply an un-changing, named value used
-    instead of a number in a program. In this program, 'BLINK_DELAY'
-    is defined as a constant ('const') with a value of 200. This
-    value won't change while the program runs. (The names of
-    constants are often written in ALL_CAPS to distinguish them
-    from variables -- which we'll learn about, below.)
+    A program constant is a named, unchanging value used in place of
+    a number in a program. Here, 'BLINK_DELAY' is defined as a
+    constant with a value of 200. This value will not change while
+    the program runs. (The names of constants are written in
+    ALL_CAPS by convention, to distinguish them from variables.)
 
-    The extra work of writing BLINK_DELAY instead of 200 provides
-    two important benefits. First, the name 'BLINK_DELAY' is
-    descriptive, and provides more meaning to anyone reading the
-    program than the number 200 would.
+    Using a named constant instead of a bare number provides two
+    important benefits. First, the name 'BLINK_DELAY' is descriptive
+    — it tells anyone reading the program what 200 actually means.
+    Second, every part of the program that uses BLINK_DELAY can be
+    updated simply by changing one line at the top.
 
-    Second, all of the parts of the program that make use of the
-    BLINK_DELAY constant can now be changed simply by editing one
-    line at the top of the program. 
+    Run the program and observe the blink rate. Then change
+    BLINK_DELAY to 100 and run it again, then try 50. Think about
+    how much longer it would take to update every sleep_ms() call
+    individually.
 
-    Run the program and watch its blink rate. Then, change the
-    value of the BLINK_DELAY constant to 100 and run the program
-    again. Then, change it to 50 and run it again. Imagine how much
-    longer it would have taken to change every single sleep statement
-    instead of just changing the constant.
+    BLINK_DELAY holds an integer value — a whole number, positive or
+    negative. The SW2_pressed variable (introduced below) will hold
+    a Boolean value — either True or False. A third common type,
+    float, is used for numbers with decimal parts (for example,
+    3.1415927). MicroPython infers the type of a constant or variable
+    from the value assigned to it, while many other languages require
+    the type to be declared explicitly.
 
-    BLINK_DELAY is a 'type' of constant known as an 'int' - short for
-    integer - which simply refers to any positive or negative whole
-    number. The SW2_pressed variable will be assigned a 'bool' type,
-    referring to Boolean logic's use of True (1) or False (0) values.
-    A third numeric type (not use here) is a 'float', used to encode
-    floating point numbers with decimal parts (PI = 3.1415927 would
-    be an example of a float). MicroPython infers the numeric types
-    of constants and variables for you (and lets you change them
-    later), while many other computer languages require programmers
-    to specify each constant or variable's type as it is created.
-
-2.  The second important concept introduced in this program is the
-    use of variables to store simple true/false values. Variables
-    are named, just like constants, but their values are expected to
-    change as the program runs. This program defines two variables:
+2.  The second concept introduced here is the use of Boolean
+    variables. Variables are named like constants, but their values
+    are expected to change as the program runs. This program defines
+    two:
 
 # --- Program Variables ----------------
 SW2_pressed = False
 display_pattern = False
 
-    Both of these variables have been set to be 'False' but, unlike
-    constants, they won't remain that way. Both of these variables
-    will switch between being True and False while the program runs.
-    Variables that use the 'True' and 'False' states are known as
-    Boolean variables, referring to their use in Boolean logic.
-    
-    What's special about Boolean variables is not just that they
-    can change state between True and False, but that they also
-    enable if conditions to use a clever short-cut. Instead of
-    checking the value of the display_pattern variable with this
-    typical if expression:
+    Both start as False, but will switch between True and False while
+    the program runs. Boolean variables have a useful shortcut in if
+    conditions. Instead of writing:
 
-    if display_pattern == True:
+  if display_pattern == True:
 
-    The program instead uses this shorter if condition:
-    
-    if display_pattern:
+    the program uses:
 
-    In the first case the MicroPython interpreter needs to evaluate
-    the 'display_pattern == True' expression to produce either a true
-    or false result that will determine the program flow either into
-    or around the code inside the if structure.
+  if display_pattern:
 
-    Since the expression 'display_pattern == True' can only be true
-    if the display_pattern variable itself is True, the second case
-    simply uses the state of the display_pattern variable itself
-    (True/False) to determine the path of program execution.
+    Both mean the same thing — the second simply uses the variable's
+    own True or False state to determine the path of program execution,
+    without needing to compare it to anything. This works because a
+    Boolean variable already is the result of a True/False test.
 
-    Explain which part of the program sets the display_pattern
-    variable to True, and which part resets it to False.
+    Explain which part of the program sets display_pattern to True,
+    and which part resets it to False.
 
-    LEDs show you what your program is doing, but sometimes you need
-    to see what your program is thinking - that is, the current value
-    of a variable at a specific moment. MicroPython's built-in print()
-    function sends text output to the console in your editor, making
-    it an essential tool for understanding and debugging programs.
+3.  Sometimes you need to see what your program is thinking — the
+    current value of a variable at a specific moment in time.
+    MicroPython's built-in print() function sends text to the console
+    in your editor, making it one of the most useful tools for
+    understanding and debugging programs.
 
     Add this line inside the 'if SW2_pressed:' block to print the
     value of display_pattern each time SW2 is pressed:
@@ -146,221 +131,103 @@ display_pattern = False
     print("display_pattern:", display_pattern)
 
     Run the program, open the console in your editor, and press SW2.
-    Do you see the output you expected? Now try adding a second print
-    statement inside the 'if display_pattern:' block, just before
-    'display_pattern = False', to show the moment it resets:
+    Do you see the output you expected?
+
+    Now add a second print statement inside the 'if display_pattern:'
+    block, just before 'display_pattern = False', to show the moment
+    it resets:
 
     print("display_pattern reset to:", False)
 
-    Using print() to reveal the state of variables at key points in
-    your program is one of the most useful debugging techniques you
-    will use as a programmer. You'll see it put to use again in the
-    next activity.
+    You'll see print() used again in the next activity. Get comfortable
+    with it — revealing variable state at key moments is one of the
+    most practical debugging techniques you'll use.
 
-3.  The third important concept introduced in this program blends
-    the features and benefits of the previous two. The SW2_pressed 
-    variable is a Boolean variable, just like display_pattern. It
-    is assigned a value using this statement:
-    
-    SW2_pressed = (beaper.SW2.value() == 0)
-  
-    The SW2 pin is read and compared with 0 because SW2 is connected
-    in an active-low resistor pull-up circuit. If the SW2 pin is 0,
-    the SW2_pressed variable will be True, enabling it to determine
-    the path of any if condition it's used in.
+4.  The SW2_pressed variable is assigned using this statement:
 
-    And, just like the name BLINK_DELAY, the variable name SW2_pressed
-    also carries meaning. The variable SW2_pressed will be True only
-    when SW2 is actually pressed.
+  SW2_pressed = (beaper.SW2.value() == 0)
 
-    Could the program use a similar statement to check for a pushbutton
-    being released? Create both an appropriate variable name and an
-    expression that could be used to detect if the SW2 pushbutton is
-    in an un-pressed state.
-    
-4.  The last new concept introduced in this program demonstrates a
-    method of ensuring that input state remains consistent for the
-    duration of each main loop cycle in the program.
+    SW2 is read and compared with 0 because it is wired as an
+    active-low input. If SW2 reads 0, the expression evaluates to
+    True and SW2_pressed becomes True — enabling it to be used
+    directly in any if condition.
 
-    Doing this is not a critical requirement for this program, but it
-    does become important in a large, complex program loop. Imagine if
-    the state of SW2 needs to be evaluated multiple times, and each
-    time SW2 is read using a typical input expression: 
-    
-    if beaper.SW2.value() == 0:
+    The name SW2_pressed carries meaning: it will be True only when
+    SW2 is actually being pressed. This makes the if condition that
+    follows it clear and unambiguous:
 
-    There is no guarantee that every read of SW2 during the same
-    program loop will produce the same, consistent value. A solution
-    to this problem is to store SW2's state in a variable just once
-    during each program cycle, and then to have any other parts of
-    the program that need to use SW2's state read the value of the
-    variable instead of the switch itself:
-    
-    SW2_pressed = (beaper.SW2.value() == 0)
-    
-    The SW2 state now remains consistent for the duration of each main
-    loop cycle and, as a bonus, conditional expressions reading the 
-    variable now read logically and can be more helpful to anyone
-    trying to understand the code:
+  if SW2_pressed:
 
-    if SW2_pressed:
+    A programmer reading this code doesn't need to know whether the
+    switch is active-high or active-low — that detail is handled once,
+    at the top of the loop, and hidden behind a meaningful name.
 
-    This conditional expression is simple, short, meaningful, and
-    unambiguous. A programmer trying to understand or add features
-    to the code won't have to think about whether the switch is
-    active-high or active-low (although somebody had to, earlier),
-    making code maintenance easier. Because this method is so clear
-    and useful, you'll see it used more in future learning activities.
+    Could the program use a similar approach to detect a button being
+    released? Write an appropriate variable name and expression that
+    would be True only when SW2 is not being pressed.
 
-    Notice the connection between meaningful names and meaningful
-    comments - both are forms of communication to future readers.
-    Good variable names and constants can make code nearly
-    self-explanatory, reducing the need for comments. But comments
-    remain valuable for explaining the reasoning behind decisions
-    that aren't obvious from the code itself. Aim for both: names
-    that describe what a value is, and comments that explain why
-    it's used the way it is.
-    
-5.  Let's make some extensive changes to the program, with the goal
-    of replacing the BLINK_DELAY constant with a blink_delay_ms
-    variable, defined in the new program as shown:
+5.  The program so far uses a single constant and two Boolean
+    variables. The next file, B04_Constants_Variables_Exploration.py,
+    extends these ideas with multiple constants, multiple named button
+    variables, and a variable delay that changes at runtime.
 
-blink_delay_ms = 200
+    Before loading and running that program, read through its code
+    and try to predict what each button will do and how the program
+    works. Which parts of the code made your prediction easier?
 
-    The blink_delay_ms variable is defined as having a value of 200,
-    but the lack of a 'const' qualifier means that it will be able
-    to change as the program runs.
 
-    Replace all of the existing program code with the new program
-    code below, starting from the 'Program Constants' comment down 
-    to the end of the program's while True: loop:
+Extension Activities
 
-# --- Program Constants ----------------
-SLOW_DELAY = const(200)
-MEDIUM_DELAY = const(100)
-FAST_DELAY = const(50)
-LUDICROUS_DELAY = const(25)
+The programs you write from here on should use named constants and
+variables from the start — choose names that describe what a value
+represents, not just what type it is. A name like 'SW2_pressed' tells
+a reader far more than 'button' or 'b2'. Treat naming as part of the
+design, not an afterthought.
 
-# --- Program Variables ----------------
-SW2_pressed = False
-display_pattern = False
-blink_delay_ms = 200
+1.  Re-create the Start-Stop pushbutton program from Activity 3
+    using named button variables and a logical variable for the
+    machine state.
 
-beaper.nano_led_on()
+    Create a program that simulates the 'Start' and 'Stop' buttons
+    found on large industrial machines. The machine (simulated by an
+    LED) should turn on when the 'Start' button is pressed and remain
+    on until the 'Stop' button is pressed. Ensure that the machine
+    cannot be turned on while the Stop button is being pressed.
 
-while True:
-  # Check pushbuttons
-  slow_button = (beaper.SW2.value() == 0)
-  medium_button = (beaper.SW3.value() == 0)
-  fast_button = (beaper.SW4.value() == 0)
-  ludicrous_button = (beaper.SW5.value() == 0)
-  
-  if slow_button:
-    blink_delay_ms = SLOW_DELAY
-    display_pattern = True
+2.  Create the code for a toggle button — a type of switch behaviour
+    that uses a single button to alternately turn a device on and off.
+    The output should only change when the button transitions from
+    not pressed to pressed, so holding the button should not cause
+    repeated toggling.
 
-  if medium_button:
-    blink_delay_ms = MEDIUM_DELAY
-    display_pattern = True
-    
-  if fast_button:
-    blink_delay_ms = FAST_DELAY
-    display_pattern = True
-
-  if ludicrous_button:
-    blink_delay_ms = LUDICROUS_DELAY
-    display_pattern = True
-
-  # Show the pattern
-  if display_pattern:
-    beaper.LED2.value(1)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED3.value(1)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED4.value(1)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED5.value(1)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED2.value(0)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED3.value(0)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED4.value(0)
-    time.sleep_ms(blink_delay_ms)
-    beaper.LED5.value(0)
-    time.sleep_ms(blink_delay_ms)
-    display_pattern = False
-
-    Can you predict what the program will do and how it works? 
-    Which characteristics of the new program code helped you to
-    make your prediction or helped you to understand the code?
-
-    As you test the program, try adding print statements to display
-    the values of blink_delay_ms and display_pattern in the console.
-    Which button sets which delay? Can you see display_pattern cycling
-    between True and False as the pattern runs?
-
-6.  How does MicroPython know that BLINK_DELAY is a constant,
-    and that blink_delay_ms is a variable?
-
-7.  Predict what will happen in the above program if two buttons are
-    pressed at the same time. Try it! Was your prediction correct?
-    Explain why you think this happens.
-    
-
-Programming Activities
-
-1.  Re-create the Start-Stop pushbutton program from Activity B03
-    using named buttons and logical variables. (The details are
-    repeated below.)
-
-    Create a program that simulates the separate 'Start' and 'Stop'
-    buttons that would be found on large, industrial machines. The
-    machine (simulated by an LED) should turn on when the 'Start'
-    button is pressed, and remain on until the 'Stop' button is
-    pressed. Ensure that the machine cannot be turned on while the
-    Stop button is being pressed.
-
-2.  Create the code for a 'toggle' button, a type of switch behaviour
-    that uses a single button to alternately turn a device or feature
-    on and off. In order to do this, the previous state of the button
-    must be compared with its current state, and the output should
-    only change when the button state changes from not being pressed
-    to being pressed. Each new press of the toggle button should
-    alternately turn a single LED on or off. Ensure that the LED state
-    doesn't change if the toggle button is held for any length of time.
-
-    Hint: You will need three variables - one to store the current LED
-    state, one to store the current button state, and one to store the
-    previous button state. Start with something like:
+    You will need three variables: one for the current LED state, one
+    for the current button state, and one for the previous button
+    state. Start a new program with something like:
 
 LED2_on = False
-SW2_pressed = False
-SW2_last = False
+toggle_pressed = False
+toggle_last = False
 
-    Each loop, save the current SW2_pressed value into SW2_last before
-    reading the new button state. A toggle should only happen when
-    SW2_pressed is True and SW2_last was False (a new press).
+    Each loop, save the current value of toggle_pressed into
+    toggle_last before reading the new button state. A toggle should
+    only happen when toggle_pressed is True and toggle_last was False
+    — meaning a new press has just occurred.
 
-3.  Extend the toggle button program you created, above, so that each
-    pushbutton on your circuit toggles a corresponding LED, allowing
-    a user to set any light pattern on the circuit simply by repeatedly
-    pressing the individual buttons.
+3.  Extend the toggle button program from EA2 so that each pushbutton
+    toggles its corresponding LED, allowing any combination of LEDs
+    to be set simply by pressing the individual buttons.
 
-4.  Re-create the bicycle turn signal circuit from Activity B03 using
-    named buttons and logical variables. (The details are repeated
-    below.)
+4.  Re-create the bicycle turn signal circuit from Activity 3 using
+    named button variables and logical variables for the turn signal
+    state.
 
-    Imagine that you're creating a turn signal circuit for a bicycle.
-    The circuit design uses four LEDs mounted in a horizontal row
-    under the rider's seat, and these will be controlled by two
-    pushbuttons mounted on the bicycle's handlebars. Write a program
-    to simulate the operation of the turn signal circuit using one
-    or more of the LEDs to indicate a turn while its corresponding
-    direction button is being held.
+    The circuit uses four LEDs in a row, controlled by two pushbuttons
+    on the handlebars. Write a program to simulate the turn signal
+    using one or more of BEAPER Nano's LEDs to indicate a left or
+    right turn while the corresponding button is held.
 
     For an extra challenge, add brake functionality or a bell/horn
     feature. Can you make the brake or horn operate while the turn
-    signal is in operation? 
-    
+    signal is active? What makes doing this so difficult?
+
 """
