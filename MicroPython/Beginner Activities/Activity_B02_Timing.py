@@ -1,7 +1,7 @@
 """
 ================================================================================
 Beginner Activity 2: Timing (Blocking) [Activity_B02_Timing.py]
-February 2, 2026
+February 26, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPER_Nano.py board module file.
@@ -25,113 +25,101 @@ while True:
   
 
 """
-Program Analysis Activities
+Guided Exploration
 
-1.  The previous output activity (Activity_B01_Output.py) imported a
-    board module file (BEAPER_Nano.py) to define all of BEAPER Nano's
-    I/O devices using this import statement at the top of the code:
+Timing is fundamental to microcontroller programs. Without delays, a
+microcontroller executes instructions in microseconds — far too fast
+for people to perceive. The time between actions is what makes blinking
+LEDs, musical tones, and responsive controls possible, and managing
+that time well is one of the most important skills in microcontroller
+programming.
+
+1.  Activity 1 imported the BEAPER_Nano.py board module to make
+    BEAPER Nano's I/O devices available to this program:
 
 import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
 
     If you open the BEAPER_Nano.py module in the editor, you'll see
-    that it consists of ordinary MicroPython program code, and the
-    import statement simply includes all of its code into the current
-    program - invisibly. That is, the contents of the BEAPER_Nano.py
-    file won't be visible in this program's editor window, but all
-    of the file's code will be fully accessible by this program.
+    that it consists of ordinary MicroPython program code. The import
+    statement includes all of its code into the current program — the
+    contents of BEAPER_Nano.py won't be visible in this program's
+    editor window, but everything it defines will be fully accessible.
 
-    The 'import time' statement in this program does a similar thing -
-    it imports the functions built into MicroPython's time module into
-    this program. We can't open the time module to view its functions
-    as we can with the BEAPER_Nano.py board module, but we can look up
-    the time module's functions in the MicroPython documentation, here:
-    
-    https://docs.micropython.org/en/latest/
+    The 'import time' statement works the same way — it imports the
+    functions built into MicroPython's time module into this program.
+    Unlike the board module, we can't open the time module to view its
+    source code, but we can look up its functions in the MicroPython
+    documentation. We'll do that in GE2.
 
-    Open the MicroPython documentation website in a browser and search
-    for 'time'. Then, click the link 'time - time related functions' -
-    or, use this URL to navigate there directly:
-    
-    https://docs.micropython.org/en/latest/library/time.html#module-time )
-    
-    Glancing through the time module's functions, you will see that
-    there are a number of different time functions available, including
-    the 'time.sleep()' function called by this program.
-    
-    It's important to recognize that whenever a dot '.' appears in a
-    MicroPython program statement, it simply means that it's using
-    some function or class or method in a module (we'll learn more
-    about all of these specific terms in later activities). For now,
-    just realize that:
-    
-    beaper.LED2.value(1) - sets the value of LED2 in the beaper module
-    
-    and
-    
-    time.sleep(0.5) - sets the duration of sleep in the time module.
-    
-    What do you think will happen if a program tries to use the sleep()
-    function without importing the time module first? Comment-out or
-    remove the 'import time' statement from your program and try to
-    run it. What happens?
+    It's useful to recognize that whenever a dot '.' appears in a
+    MicroPython statement, it means the program is using something
+    defined in a module. For now, just notice that:
 
-    You just used a comment to temporarily disable a line of code -
-    a very common debugging technique. In MicroPython, any text
-    following a '#' character on a line is a comment and is completely
-    ignored by the interpreter. Comments are written for people, not
-    computers: they explain what code does, why it was written a
-    certain way, or leave reminders for future readers - including
-    your future self. The import statement at the top of this program
-    already includes one:
+beaper.LED2.value(1)  - sets the value of LED2 in the beaper module
 
-import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
+time.sleep(0.5)       - calls the sleep function in the time module
 
-    Notice how the comment adds meaning that the code alone doesn't
-    provide. Good comments explain the purpose or reasoning behind
-    code, not just what it literally does.
+    We'll explore modules, classes, and methods in more detail in
+    later activities.
 
-2.  Ensure that the 'import time' statement is put back into the
-    program code and run the program if you haven't done so already!
-    Ooh, look, we can make lights blink by telling the microcontroller
-    to sleep for a short time between changing its LED values!
-    
-    Look up the time.sleep() function in the MicroPython documentation.
-    Is it working as expected? Does the microcontroller sleep for 0.5
-    seconds after turning one of the LEDs on or off?
-    
-    There is another way to accomplish the same thing by using the
-    'time.sleep_ms()' function. Replace the time.sleep(0.5) function
+    What do you think will happen if a program tries to use sleep()
+    without importing the time module first? Comment-out the
+    'import time' statement and try to run the program. What happens?
+    Restore the statement before moving on.
+
+2.  Open the MicroPython documentation in a browser using this URL:
+
+    https://docs.micropython.org/en/latest/library/time.html#module-time
+
+    Look up the time.sleep() function. Read its description — what
+    does the parameter passed to sleep() represent? What units does
+    it use?
+
+    Glancing through the page, you'll also see the other time
+    functions available in MicroPython, including sleep_ms() and
+    sleep_us(), which we'll use shortly. Getting comfortable finding
+    and reading documentation like this is an important skill —
+    most MicroPython modules and functions are documented here.
+
+3.  Run the program if you haven't done so already. The LEDs should
+    be alternating on and off with a short delay between each change.
+    How long does each LED stay on? Does it match the delay value in
+    the code?
+
+    There is another way to accomplish the same result using the
+    'time.sleep_ms()' function. Replace both time.sleep(0.5) calls
     in your program with:
-    
+
     time.sleep_ms(500)
-    
+
     and run the program again. The result should be exactly the same.
-    Is it? Is there any advantage to using the time.sleep_ms() function
-    instead of the time.sleep() function?
-    
-3.  Stop the program from running. When the program stops, do all of
+    Is it? Expressing the delay as an integer number of milliseconds
+    rather than a decimal number of seconds is less error-prone —
+    can you think of a mistake that would be easy to make with
+    time.sleep() that couldn't happen with time.sleep_ms()?
+
+4.  Stop the program from running. When the program stops, do all of
     the LEDs turn off, including the Arduino Nano ESP32's built-in LED?
 
-    When stopping future programs controlling different kinds of
-    output devices, what might we need to be careful of? 
-    
-4.  'sleep_us()' is another sleep function that delays for the number
-    of microseconds provided. While microsecond delays are much too
-    short to see, they can be used to make other signals including
-    sound waves! Some piezo speakers make a sound when powered on,
-    but the speaker used on BEAPER Nano needs to be rapidly turned on
-    and off to create audible frequencies. Let's try it!
+    When stopping future programs that control different kinds of
+    output devices, what might we need to be careful of?
+
+5.  'sleep_us()' delays for the number of microseconds provided.
+    While microsecond delays are much too short to see, they can be
+    used to generate signals at audible frequencies — including sound
+    waves! Some piezo speakers make a sound when powered on, but the
+    speaker on BEAPER Nano needs to be rapidly switched on and off to
+    create sound. Let's try it!
 
     First, add these two lines between the import statements and the
     main 'while True:' loop. The first imports Pin from the machine
-    module, and the second re-defines the circuit's LS1 connection
+    module, and the second configures the circuit's LS1 connection
     as a pin output called 'speaker':
 
 from machine import Pin
 speaker = Pin(beaper.LS1_PIN, Pin.OUT)
 
-    Next, add this new 'while True:' loop above the existing one
-    in the program:
+    Next, add this new 'while True:' loop above the existing one:
 
 while True:
   speaker.value(1)
@@ -139,24 +127,22 @@ while True:
   speaker.value(0)
   time.sleep_us(1136)
 
-    Run the program. It should be producing a 440Hz tone because the
-    two time delays between changing the value of the speaker output
-    pin will add up to create the 2272 microsecond time period of a
-    440Hz sound wave.
-    
-    Hey, are the LEDs still flashing while the sound is playing? Stop
-    the program to stop the tone, and then ponder what the program is
-    actually doing. Explain what is happening and why you think the
-    LEDs are no longer blinking.
+    Run the program. It should produce a 440Hz tone. Each half-cycle
+    of the sound wave lasts 1136 microseconds, so the full period is
+    1136 + 1136 = 2272 microseconds. Since frequency = 1 ÷ period,
+    that gives 1,000,000 ÷ 2272 ≈ 440Hz — the musical note A4.
 
-5.  There is an easier and more flexible way to produce sound
-    frequencies by using the BEAPER_Nano.py board module's tone() and
-    noTone() functions. 
+    Are the LEDs still flashing while the sound is playing? Stop the
+    program to stop the tone, then think about what the program is
+    actually doing. Explain what is happening and why the LEDs are
+    no longer blinking.
 
-    Remove both the 'from machine import Pin' and 'speaker' definition
-    statements, and the entire 'while True:' loop added in the previous
-    activity step. Next, replace the sleep() functions in the existing
-    loop with the tone() functions as shown below:
+6.  There is an easier and more flexible way to produce tones using
+    the BEAPER_Nano.py board module's tone() and noTone() functions.
+
+    Remove the 'from machine import Pin' statement, the 'speaker'
+    definition, and the entire 'while True:' loop added in GE5.
+    Then replace the sleep() calls in the original loop as shown:
 
 while True:
   beaper.LED2.value(1)
@@ -167,30 +153,41 @@ while True:
   beaper.LED5.value(1)
   beaper.tone(523, 500)
 
-    The first parameter in the tone() function is the frequency in Hz,
-    and the second is the tone duration in milliseconds. So, the
-    statement 'beaper.tone(440, 500)' plays a 440Hz tone for 500ms.
+    The first parameter in tone() is the frequency in Hz, and the
+    second is the duration in milliseconds. So, 'beaper.tone(440, 500)'
+    plays a 440Hz tone for 500ms. Notice that tone() also acts as a
+    delay — the program waits for the tone to finish before moving to
+    the next statement, just as sleep() did before.
 
-    When you stop the program, the tone may continue playing. Press
-    the reset button to stop the tone from playing.
+    You can also call 'beaper.noTone()' at any point to stop a tone
+    immediately. When you stop the program, the tone may continue
+    playing because it runs on a hardware timer that keeps going
+    independently of the program loop. Press the reset button, or
+    call noTone(), to silence it.
 
 
-Programming Activities
+Extension Activities
+
+Notice that this program has two distinct sections: statements that
+run once when the program starts, followed by statements inside the
+'while True:' loop that repeat forever. This setup-then-loop pattern
+appears in virtually every microcontroller program you will write —
+use the setup section for anything that should happen only once at
+startup, and the loop for everything that should keep running.
 
 1.  Simulate a machine's start-up and operation by lighting one LED
-    for two seconds after the program starts. After the two second
-    delay finishes, have the program blink a second LED once per
-    second.
+    for two seconds after the program starts. After the two-second
+    delay, have the program blink a second LED once per second.
 
 2.  Create an animated light pattern using the four on-board LEDs. It
-    could light and extinguish the four LEDs in sequence, or chase a
-    lit LED across the four positions in sequence or back-and-forth,
-    or make a more unique or artistic pattern - it's up to you!
+    could light and extinguish the four LEDs in sequence, chase a lit
+    LED across the four positions or back-and-forth, or make a more
+    unique or artistic pattern — it's up to you!
 
 3.  Really old computers used lights to show binary values. Try to
     simulate a binary counting sequence using BEAPER Nano's LEDs.
-    
+
 4.  Create a musical sequence of tones or a short song that repeats
-    after a 10 second pause. 
-    
+    after a short pause.
+
 """
