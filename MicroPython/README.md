@@ -16,6 +16,7 @@ This repository contains MicroPython programs for BEAPER Nano:
 * Activity_B02_Timing.py - Output with timing (blocking)
 * Activity_B03_Input.py - Input programming activity, including logic states
 * Activity_B04_Constants_Variables.py - Constants and Variables activity
+* Activity_B05_Decision_Structures.py - Decision structures and comparison operators
 
 
 ## Introductory Programming Activities - Older beginner programming activities
