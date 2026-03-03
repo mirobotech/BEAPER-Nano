@@ -18,7 +18,7 @@ This repository contains MicroPython programs for BEAPER Nano:
 * Activity_B04_Constants_Variables.py - Constants and Variables activity
 * B04_Constants_Variables_Exploration.py - Constants and Variables extension project
 * Activity_B05_Decision_Structures.py - Decision structures and comparison operators
-
+* Activity_B06_Conditional_Loops.py - Conditional while loops
 
 ## Introductory Programming Activities - Older beginner programming activities
 
