@@ -1,6 +1,6 @@
 """
 BEAPER_Nano.py
-February 20, 2026
+March 1, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
@@ -259,7 +259,7 @@ QWIIC = I2C(id=I2C_ID, sda=SDA, scl=SCL)
 SONAR_TRIG = Pin(H2_PIN, Pin.OUT, value=0)
 SONAR_ECHO = Pin(H3_PIN, Pin.IN)
 
-def sonar_distance_cm(max=300):
+def sonar_range(max=300):
   # Returns either:
   #  - distance (cm) to the closest target, up to max distance (cm)
   #  - 0 if no target is detected within max distance
@@ -302,47 +302,38 @@ def sonar_distance_cm(max=300):
 # pins with 3.3V I/O headers H1-H4 and I2C/QWIIC connector!
 
 # 5V Digital output headers (output only, designed for servos)
-H5_PIN = H1_PIN
+H5_PIN = H1_PIN  # Pin aliases - H5-H8 are shared with H1-H4
 H6_PIN = H4_PIN
 H7_PIN = H2_PIN
 H8_PIN = H3_PIN
 
-# IMPORTANT: Servo outputs are disabled by default. Disable I2C or
-# SONAR pin configuration before enabling SERVOx pin configuration.
-# SERVO1 = PWM(Pin(H5_PIN), freq=50, duty_u16=4916)
-# SERVO2 = PWM(Pin(H6_PIN), freq=50, duty_u16=4916)
-# SERVO3 = PWM(Pin(H7_PIN), freq=50, duty_u16=4916)
-# SERVO4 = PWM(PIN(H8_PIN), freq=50, duty_u16=4916)
+# IMPORTANT: Disable I2C or SONAR pin configuration before enabling
+# servo outputs - servo pins share GPIO with headers H1-H4 and I2C.
 
-def SERVO1_angle(angle):
-  """
-  Set servo 1 to angle (0–90 degrees).
-  
-  90 degree servo pulses range from 1-2 ms. Servo pulse is created
-  using PWM, so pulse length is derived from duty cycle of the frame:
-  
-  1ms pulse / 20ms frame * 65536 (16-bit PWM range) = 3276.8 (use 3277)
-  2ms pulse / 20ms frame * 65536 = 6554
-  
-  Duty cycles from 3277 to 6554 correspond to 0-90 degrees of motion.
-  """
-  angle = max(0, min(90, 90-angle))
-  duty = int(3277 + (angle / 90) * 3277)
-  SERVO1.duty_u16(duty)
+# Servo pulse width constants (microseconds). Adjust for your servo.
+# Standard 90-degree servo: 1000us to 2000us
+SERVO_MIN_US = const(1000)   # Pulse width at 0 degrees
+SERVO_MAX_US = const(2000)   # Pulse width at maximum angle
+SERVO_RANGE  = const(90)     # Maximum servo angle (degrees)
 
-"""
-def SERVO2_angle(angle):
-  angle = max(0, min(90, 90-angle))
-  duty = int(3277 + (angle / 90) * 3277)
-  SERVO2.duty_u16(duty)
+# Servos are initialized to centre position (duty_u16=4915 ≈ 1.5ms).
+# This value is calculated from: 
+#   - pulse period: 1 / 50Hz pulse frequency = 20ms period
+#   - 1.5ms pulse: duty_u16 = (1.5 / 20.0) * 65535 = 4915
+# Modify the duty_u16 value if the centre position is not safe for
+# your application before connecting servos to the circuit.
+SERVO1 = PWM(Pin(H5_PIN), freq=50, duty_u16=4915)
+SERVO2 = PWM(Pin(H6_PIN), freq=50, duty_u16=4915)
+SERVO3 = PWM(Pin(H7_PIN), freq=50, duty_u16=4915)
+SERVO4 = PWM(Pin(H8_PIN), freq=50, duty_u16=4915)
 
-def SERVO3_angle(angle):
-  angle = max(0, min(90, 90-angle))
-  duty = int(3277 + (angle / 90) * 3277)
-  SERVO3.duty_u16(duty)
+SERVOS = (SERVO1, SERVO2, SERVO3, SERVO4)  # Tuple of all servo PWM outputs
 
-def SERVO4_angle(angle):
-  angle = max(0, min(90, 90-angle))
-  duty = int(3277 + (angle / 90) * 3277)
-  SERVO4.duty_u16(duty)
-"""
+def set_servo(servo, angle):
+  # Set a servo to angle (0 to SERVO_RANGE degrees).
+  # Pass the servo object as the first argument: set_servo(SERVO1, 45)
+  angle = max(0, min(SERVO_RANGE, angle))
+  pulse_us = SERVO_MIN_US + int(angle / SERVO_RANGE * (SERVO_MAX_US - SERVO_MIN_US))
+  servo.duty_ns(pulse_us * 1000)
+  return angle
+
