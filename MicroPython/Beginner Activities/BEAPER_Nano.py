@@ -1,12 +1,14 @@
 """
 BEAPER_Nano.py
-March 1, 2026
+March 8, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
 This module configures Arduino Nano ESP32's GPIO pins for BEAPER
 Nano's on-board circuits and provides simple helper functions to
-enable beginners to focus on programming concepts first.
+enable beginners to focus on learning programming concepts first.
+(Note that BEAPER Nano also has an Arduino C header file available -
+it provides similar functionality to this MicroPython board module.)
 
 Before getting started with it you should know:
 - nothing here is hidden, or * magic *, or requires special libraries
@@ -50,34 +52,18 @@ def nano_led_toggle():
 
 def nano_rgb_red(brightness):
   # Set the RGB LED red element to brightness (0 - 65535)
+  # 65535 is full brightness
   LED_RGB_RED.duty_u16(65535 - brightness)
 
 def nano_rgb_green(brightness):
   # Set the RGB LED green element to brightness (0 - 65535)
+  # 65535 is full brightness
   LED_RGB_GREEN.duty_u16(65535 - brightness)
 
 def nano_rgb_blue(brightness):
   # Set the RGB LED blue element to brightness (0 - 65535)
+  # 65535 is full brightness
   LED_RGB_BLUE.duty_u16(65535 - brightness)
-
-
-# ---------------------------------------------------------------------
-# BEAPER Nano Pushbutton Switches
-# ---------------------------------------------------------------------
-
-# All pushbutton switches use internal pull-up resistors (active LOW)
-
-SW2_PIN = const(44)  # SW2
-SW3_PIN = const(43)  # SW3
-SW4_PIN = const(5)   # SW4
-SW5_PIN = const(6)   # SW5
-
-SW2 = Pin(SW2_PIN, Pin.IN, Pin.PULL_UP)
-SW3 = Pin(SW3_PIN, Pin.IN, Pin.PULL_UP)
-SW4 = Pin(SW4_PIN, Pin.IN, Pin.PULL_UP)
-SW5 = Pin(SW5_PIN, Pin.IN, Pin.PULL_UP)
-
-SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
 
 
 # ---------------------------------------------------------------------
@@ -98,6 +84,38 @@ LED4 = Pin(LED4_PIN, Pin.OUT)
 LED5 = Pin(LED5_PIN, Pin.OUT)
 
 LEDS = (LED2, LED3, LED4, LED5)  # Tuple of all LED pins
+# Useful for iterating through all LEDS - see leds_on(), below:
+
+def leds_on():
+  # Turn all four LEDs on
+  for led in LEDS:
+    led.value(1)
+        
+def leds_off():
+  # Turn all four LEDs off
+  for led in LEDS:
+    led.value(0)
+
+
+# ---------------------------------------------------------------------
+# BEAPER Nano Pushbutton Switches
+# ---------------------------------------------------------------------
+
+# All pushbutton switches use internal pull-up resistors (active LOW)
+
+SW2_PIN = const(44)  # SW2
+SW3_PIN = const(43)  # SW3
+SW4_PIN = const(5)   # SW4
+SW5_PIN = const(6)   # SW5
+# Note: const() stores fixed values in ROM to save RAM
+
+SW2 = Pin(SW2_PIN, Pin.IN, Pin.PULL_UP)
+SW3 = Pin(SW3_PIN, Pin.IN, Pin.PULL_UP)
+SW4 = Pin(SW4_PIN, Pin.IN, Pin.PULL_UP)
+SW5 = Pin(SW5_PIN, Pin.IN, Pin.PULL_UP)
+
+SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
+# Useful for iterating through all SWITCHES - see LEDS example, above.
 
 
 # ---------------------------------------------------------------------
@@ -171,6 +189,10 @@ def noTone(duration=None):
   if duration is not None:
     time.sleep_ms(duration)
 
+def beep(duration=100):
+  # Play a short beep (100ms by default)
+  tone(1000, duration)
+
 
 # ---------------------------------------------------------------------
 # BEAPER Nano Analog Inputs
@@ -225,11 +247,11 @@ def RV1_level():
   return ADC2.read_u16()  # Clockwise -> higher values
 
 def RV2_level():
-  # Read potentiometer RV2. Set JP3 to Enviro.
+  # Read potentiometer RV2. Set JP4 to Enviro.
   return ADC3.read_u16()  # Clockwise -> higher values
 
 def VDIV_level():
-  # Read VDIV voltage divider. Set JP3 to Robot.
+  # Read VDIV voltage divider. Set JP4 to Robot.
   return ADC3.read_u16()
 
 
@@ -261,10 +283,11 @@ SONAR_ECHO = Pin(H3_PIN, Pin.IN)
 
 def sonar_range(max=300):
   # Returns either:
-  #  - distance (cm) to the closest target, up to max distance (cm)
-  #  - 0 if no target is detected within max distance
-  #  - error code (-1, -2) from the time_pulse_us() function
-  #  - error code (-3) if a previous ECHO is still in progress
+  #  distance (cm) - target detected within max range
+  #  0             - no target within max range
+  #  -1            - time-out waiting for ECHO to end
+  #  -2            - time-out waiting for ECHO to start
+  #  -3            - previous ECHO still in progress
 
   if SONAR_ECHO.value() == 1:
     # Check if previous ECHO is in progress, return error if so
