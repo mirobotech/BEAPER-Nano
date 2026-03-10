@@ -1,11 +1,13 @@
 /* =============================================================================
 BEAPERNano.h
-February 20, 2026
+March 9, 2026
 
 Board header file for the mirobo.tech BEAPER Nano circuit.
 
-This header file defines all of the BEAPER Nano I/O devices allowing
+This header defines Arduino Nano ESP32's GPIO pins for BEAPER Nano's
+on-board circuits and provides simple helper functions to enable
 beginners to focus on learning programming concepts more quickly.
+(A similar MicroPython board module is also available for BEAPER Nano.)
 
 BEAPER Nano hardware notes:
 - Button switches use internal pull-up resistors (so pressed == LOW)
@@ -20,24 +22,15 @@ BEAPER Nano hardware notes:
 #ifndef BEAPERNANO_H
 #define BEAPERNANO_H
 
-// Pre-defined Arduino Nano ESP32 LEDs
+/* =====================================
+ * Arduino Nano ESP32 Module LEDs
+ * ====================================*/
+// Arduino Nano ESP32 LEDs pre-defined in the Arduino ESP32 boards package.
+
 // LED_BUILTIN (D13)      // On-board LED (shared as SPI SCK pin)
 // LED_BLUE               // RGB LED blue element (active-LOW)
 // LED_GREEN              // RGB LED green element (active-LOW)
 // LED_RED                // RGB LED red element (active-LOW)
-
-
-/* =====================================
- * Pushbutton Pins (Active LOW)
- * ====================================*/
-
-const uint8_t SW2 = 0;
-const uint8_t SW3 = 1;
-const uint8_t SW4 = 2;
-const uint8_t SW5 = 3;
-
-const uint8_t SWITCHES[] = {SW2, SW3, SW4, SW5};  // Array of all switch pins
-const uint8_t NUM_SWITCHES = 4;
 
 
 /* =====================================
@@ -54,11 +47,41 @@ const uint8_t LED5 = 7;   // M2B
 const uint8_t LEDS[] = {LED2, LED3, LED4, LED5};  // Array of all LED pins
 const uint8_t NUM_LEDS = 4;
 
+inline void leds_on()
+{
+    digitalWrite(LED2, HIGH);
+    digitalWrite(LED3, HIGH);
+    digitalWrite(LED4, HIGH);
+    digitalWrite(LED5, HIGH);
+}
+
+inline void leds_off()
+{
+    digitalWrite(LED2, LOW);
+    digitalWrite(LED3, LOW);
+    digitalWrite(LED4, LOW);
+    digitalWrite(LED5, LOW);
+}
+
+
+/* =====================================
+ * Pushbutton Pins (Active LOW)
+ * ====================================*/
+
+const uint8_t SW2 = 0;
+const uint8_t SW3 = 1;
+const uint8_t SW4 = 2;
+const uint8_t SW5 = 3;
+
+const uint8_t SWITCHES[] = {SW2, SW3, SW4, SW5};  // Array of all switch pins
+const uint8_t NUM_SWITCHES = 4;
+
 
 /* =====================================
  * Motor Pins
  * ====================================*/
-// BEAPER Nano motor output pin definitions (redefines same I/O pins as LEDs)
+// IMPORTANT: Motor output pins aare shared with the LEDs. Using the LEDs
+// while driving the motors will affect motor behaviour!
 
 const uint8_t M1A = 4;    // Left motor terminal A
 const uint8_t M1B = 5;    // Left motor terminal B
@@ -66,8 +89,8 @@ const uint8_t M2A = 6;    // Right motor terminal A
 const uint8_t M2B = 7;    // Right motor terminal B
 
 // Motor helper functions
-// IMPORTANT: Call pinMode() for all motor pins in setup() before using
-// these functions. Motor pins share I/O with LED pins, so a single set
+// Call pinMode() for all motor pins in setup() before using these
+// functions. Motor pins share I/O with LED pins, so a single set
 // of pinMode() calls covers both LEDs and motors.
 //
 // Suggested setup() pinMode calls:
@@ -127,6 +150,10 @@ inline void right_motor_stop()
 
 const uint8_t LS1 = 8;    // BEAPER Nano Piezo beeper LS1
 
+inline void beep()
+{
+    tone(LS1, 1000, 100);  // Make a short beep
+}
 
 /* =====================================
  * 3.3V I/O Expansion Header Pins
@@ -169,8 +196,8 @@ const uint8_t RV1 = A2;   // Potentiometer RV1 (JP3 - Enviro.)
 const uint8_t VDIV = A3;  // Resistor voltage divider (JP4 - Robot)
 const uint8_t RV2 = A3;   // Potentiometer RV2 (JP4 - Enviro.)
 
-// NOTE: Arduino Nano ESP32 supports 10-bit (default,
-// 0-1023) and 12-bit (0-4095) resolutions via analogReadResolution(12)
+// NOTE: Arduino Nano ESP32 supports 10-bit (default 0-1023) or
+// 12-bit (0-4095) ADC resolution - via analogReadResolution(12)
 // in setup(). See intermediate activities for higher resolution use.
 
 // Analog helper functions: these analog helper functions return 10-bit
@@ -189,7 +216,7 @@ inline int VDIV_level()  { return analogRead(VDIV); }         // Voltage divider
 /* =====================================
  * TFT LCD (SPI Interface) Pins
  * ====================================*/
-// NOTE: TFT LCD pins are only relevant when using the optional display accessory.
+// NOTE: TFT LCD pins are only relevant when using the optional TFT LCD display.
 
 const uint8_t TFT_DC = 9;   // TFT Data/Command pin
 const uint8_t TFT_CS = 10;  // TFT CS pin
