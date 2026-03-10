@@ -1,14 +1,13 @@
 """
 BEAPER_Nano.py
-March 8, 2026
+March 9, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
 This module configures Arduino Nano ESP32's GPIO pins for BEAPER
 Nano's on-board circuits and provides simple helper functions to
 enable beginners to focus on learning programming concepts first.
-(Note that BEAPER Nano also has an Arduino C header file available -
-it provides similar functionality to this MicroPython board module.)
+(A similar Arduino C header file is also available for BEAPER Nano.)
 
 Before getting started with it you should know:
 - nothing here is hidden, or * magic *, or requires special libraries
