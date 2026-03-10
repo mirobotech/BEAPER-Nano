@@ -152,7 +152,7 @@ const uint8_t LS1 = 8;    // BEAPER Nano Piezo beeper LS1
 
 inline void beep()
 {
-    tone(LS1, 1000, 100);  // Make a short beep
+    tone(LS1, 1000, 100); // Make a short beep
 }
 
 /* =====================================
