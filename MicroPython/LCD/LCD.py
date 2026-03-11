@@ -1,36 +1,40 @@
 """
 LCD.py
-Updated: May 27, 2025
+Updated: March 11, 2026
 
-Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver library.
-(https://github.com/russhughes/st7789py_mpy)
+Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver
+library. (https://github.com/russhughes/st7789py_mpy)
 
-This module implements an ST7789 LCD driver for the 240x240 pixel TFT LCD
-display panel used on mirobo.tech BEAPER Nano and BEAPER Pico circuits. It
-merges the MicroPython FrameBuffer class and parts of Russ Hughes driver to
-implement a comprehensive set of stylistically common LCD display functions.
+This module implements an ST7789 LCD driver for the 240x240 pixel TFT
+LCD display panel optionally installed on mirobo.tech BEAPER Nano and
+BEAPER Pico circuits. It merges the MicroPython FrameBuffer class and
+parts of Russ Hughes driver to implement a comprehensive set of
+stylistically common LCD display functions.
 
 LCD control functions:
 
     init() - initialize the LCD panel
     
-    hard_reset() - hardware reset the LCD panel (not used for BEAPER Nano or
-        BEAPER Pico since each of their LCD RESET pins are connected to the
-        hardware reset button circuits and cannot be controlled by software)
+    hard_reset() - hardware reset the LCD panel (not used on BEAPER
+        Nano or BEAPER Pico since each of their LCD RESET pins are
+        connected to hardware reset button circuit and cannot be
+        controlled by software)
     
     soft_reset() - software reset the LCD panel
     
     invert_mode(m) - invert image if m=True
     
-    sleep_mode(m) - sleep LCD controller and turn off backlight if m=True
+    sleep_mode(m) - sleep LCD controller and turn off backlight if
+        m=True
     
-    rotation(r) - rotate image to one of 4 orientations (r=0-3, 3 is upright)
+    rotation(r) - rotate image to one of 4 orientations (r=0-3, 3 is
+        upright for LCD mounted on BEAPER Nano and BEAPER Pico)
     
-    blit_buffer(b, x, y, w, h) - copy memory buffer b to LCD display memory at
-        location x, y, using width w, and height h
+    blit_buffer(b, x, y, w, h) - copy memory buffer b to LCD display
+        memory at location x, y, using width w, and height h
     
-    update() - update the LCD display memory with the entire contents of the
-        MicroPython frame buffer
+    update() - update the LCD display memory with the entire contents
+        of the MicroPython frame buffer
 
 LCD graphics functions:
 
@@ -41,56 +45,57 @@ LCD graphics functions:
     pixel(x, y [, c]) - draw pixel at x, y in the color c. If c is not
         supplied, return the color of the pixel at the x, y coordinate.
     
-    hline(x, y, w, c) - draw a horizontal line starting at x, y, width w,
-        using color c
+    hline(x, y, w, c) - draw a horizontal line starting at x, y, 
+        width w, using color c
     
-    vline(x, y, h, c) - draw a vertical line starting at x, y, height h,
-        using color c
+    vline(x, y, h, c) - draw a vertical line starting at x, y, 
+        height h, using color c
     
-    line(x1, y1, x2, y2, c) - draw a line starting at x1, y1, and ending
-        at x2, y2, using color c
+    line(x1, y1, x2, y2, c) - draw a line starting at x1, y1, and
+        ending at x2, y2, using color c
     
-    rect(x, y, w, h, c, [, f]) - draw a rectange at x, y, width w, height
-        h, using color c, and optionally fill the rectangle if f=True
+    rect(x, y, w, h, c, [, f]) - draw a rectange at x, y, width w,
+        height h, using color c, and optionally fill the rectangle
+        if f=True
     
-    round_rect(x, y, w, h, r, c [, f]) - draw a rounded rectange at x, y,
-        width w, height h, having corner radius r, using color c, and
-        optionally fill the rectangle if f=True
+    round_rect(x, y, w, h, r, c [, f]) - draw a rounded rectange at
+        x, y, width w, height h, having corner radius r, using color
+        c, and optionally fill the rectangle if f=True
     
-    ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x, y,
-        with x radius xr, y radius yr, using color c, and optionally fill
-        the ellipse if f=True. Optional m parameter enables drawing only
-        one quadrant of the ellipse: 1=top right, 2=top left, 3=bottom
-        left, 4=bottom right
+    ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at
+        x, y, with x radius xr, y radius yr, using color c, and
+        optionally fill the ellipse if f=True. Optional m parameter
+        enables drawing only one quadrant of the ellipse: 1=top right,
+        2=top left, 3=bottom left, 4=bottom right
     
-    poly(x, y, coords, c [, f]) - draw a polygon at x, y, from an array of
-        integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]),
+    poly(x, y, coords, c [, f]) - draw a polygon at x, y, from array
+        of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]),
         using color c, and optionally fill the polygon if f=True
     
-    polygon(x, y, points, color [, angle, center_x, center_y) - draw a
-        rotatable polygon at x, y, from a list of coordinates points,
+    polygon(x, y, points, color [, angle, center_x, center_y) - draw
+        a rotatable polygon at x, y, from a list of coordinates points,
         using color c, at an optional rotation angle (radians) and at
         optional offset center_x and center_y
     
     scroll(xstep, ystep) - scroll the contents of the frame buffer by
         xstep and ystep
     
-    bitmap(bitmap, x, y [, index}) - draw a converted bitmap file at x, y,
-        from an optional index (currently only draws bitmaps with size equal
-        to the display size)
+    bitmap(bitmap, x, y [, index}) - draw a converted bitmap file at
+        x, y, from an optional index (currently only draws bitmaps
+        with size equal to the display size)
 
 Text functions:
 
-    text(s, x, y, [, c]) - write text string s (in a fixed 8x8 pixel font)
-        at location x, y, using color c
+    text(s, x, y, [, c]) - write text string s (in a fixed 8x8 pixel
+        font) at location x, y, using color c
     
-    write(s, x, y, font, fg [, bg]) - write text string s at location x, y,
-        in font font (a font object converted from a TTF font file), using
-        color fg, on a transparent background or using optional background
-        color bg
+    write(s, x, y, font, fg [, bg]) - write text string s at location
+        x, y, in font 'font' (a font object converted from a TTF font
+        file), using color fg, on a transparent background or using 
+        optional background color bg
     
-    write_width(s, font) - return the width of string s, written in converted
-        font font
+    write_width(s, font) - return the width of string s, written in
+        font 'font' (a font object converted from a TTF font file)
 
 Pre-defined colors:
 
@@ -120,12 +125,12 @@ Pre-defined colors:
 
 Example use:
 
-    import LCDconfig_Nano as lcd_config     # Custom config for BEAPER Nano I/O
-    # import LCDconfig_Pico as lcd_config     # Use this config for BEAPER Pico
+    # import LCDconfig_Pico as lcd_config     # Custom config for BEAPER Pico I/O
+    import LCDconfig_Nano as lcd_config     # Use this config for BEAPER Nano
     import NotoSansDisplay_24 as notosans24 # Load converted display font
 
-    # Create an lcd object. Rotation=3 is the normal BEAPER Nano LCD orientation.
-    lcd = lcd_config.config(rotation=3)
+    # Rotation=3 is the normal BEAPER Nano LCD orientation.
+    lcd = lcd_config.config(rotation=3)     # Create an lcd object
 
     lcd.fill(lcd.BLACK)     # Fill framebuffer with black
     lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # Draw filled blue round rect
@@ -256,7 +261,7 @@ _WIDTH = const(0)
 _HEIGHT = const(1)
 _XSTART = const(2)
 _YSTART = const(3)
-_NEEDS_SWAP = const(4)
+_NEEDS_SWAP = const(5)  # (madctl, width, height, xstart, ystart, needs_swap)
 
 # Supported displays (physical width, physical height, rotation table)
 _SUPPORTED_DISPLAYS = (
@@ -291,19 +296,25 @@ _ST7789_INIT_CMDS = (
 
 class Canvas(framebuf.FrameBuffer):
     """
-    Canvas class inherits and extends MicroPython Framebuffer primitives with:
-        color565 - convert 8-bit RGB value to 16-bit RGB565 format
-        round_rect - draw rounded rectangle
-        write - write string using converted TrueType font
+    Canvas class inherits and extends MicroPython's Framebuffer
+    primitives with:
+        color565    - convert 8-bit RGB values to 16-bit RGB565 format
+        round_rect  - draw rounded rectangle
+        write       - write string using converted TrueType font
         write_width - find width of string using converted TrueType font
-        bitmap - draw bitmap
-        polygon - draw polygon with rotation
+        bitmap      - draw bitmap
+        polygon     - draw polygon with rotation
         
     """
     
     def __init__(self, buffer, width, height, format):
         self.display_buffer = buffer
         super().__init__(self.display_buffer, width, height, format)
+        # Character buffer and canvas for write() - allocated once and reused.
+        # Reallocated only when the font changes (fonts differ in MAX_WIDTH/HEIGHT).
+        self._char_font = None      # Font module currently sized for
+        self._char_buffer = None    # bytearray backing _char_canvas
+        self._char_canvas = None    # FrameBuffer wrapping _char_buffer
         
     def color565(self, red, green, blue):
         """
@@ -338,7 +349,7 @@ class Canvas(framebuf.FrameBuffer):
         y1 = y + r
         y2 = y + h - 1 - r
         
-        if fill == False:
+        if not fill:
             vseg = h-r2     # Draw vertical line segments if longer than 0
             if vseg > 0:
                 self.vline(x, y1, vseg, color)
@@ -359,18 +370,20 @@ class Canvas(framebuf.FrameBuffer):
 
     def write(self, string, x, y, font, fg=0xFFFF, bg=None):
         """
-        Writes a string to the MicroPython FrameBuffer using a converted True-Type
-        font. Each character in the string is created in a one character width *
-        height sized memory buffer and blitted to the display FrameBuffer starting
-        at the x and y coordinates marking the top left of the string bounding box.
-        The string is written in white (default) or in an optional foreground (fg)
-        color, onto either a transparent background (None) or an optional
-        background (bg) color.
+        Writes a string to the MicroPython FrameBuffer using a converted
+        True-Type font. Each character in the string is created in a
+        one character width * height sized memory buffer and blitted
+        to the display FrameBuffer starting at the x and y coordinates
+        marking the top left of the string bounding box. The string is
+        written in white (default) or in an optional foreground (fg)
+        color, onto either a transparent background (None) or onto an
+        optional background (bg) color.
 
         Use https://github.com/russhughes/st7789py_mpy/utils/text_font_converter.py
-        to convert the TTF font files into python-formattedd font data files. Upload
-        the converted fonts into the on-board memory of your device and import the
-        font file(s) into your program. e.g.:
+        to convert the TTF font files into python-formattedd font data
+        files. Upload the converted fonts into the on-board memory of
+        your device and import the font file(s) into your program as
+        shown:
         
         import NotoSansDisplay_24 as notosans24
         lcd.write("Hello, world!", 10, 10, notosans24)
@@ -382,20 +395,36 @@ class Canvas(framebuf.FrameBuffer):
             font (font): The module containing the converted true-type font
             fg (int): foreground color (RGB565, optional), defaults to WHITE
             bg (int): background color (RGB565, optional), defaults to transparent
-                      (None) which is internally represented as 0x0020
         """
-        char_size = font.MAX_WIDTH * font.HEIGHT * 2
-        char_buffer = bytearray(char_size)
-        char_canvas = framebuf.FrameBuffer(
-            char_buffer, font.MAX_WIDTH, font.HEIGHT, framebuf.RGB565
-        )
+        # Reallocate the character buffer and canvas only when the font changes.
+        # The same bytearray is used for both direct byte writes and char_canvas
+        # blitting, so both references must stay in sync.
+        if font is not self._char_font:
+            char_size = font.MAX_WIDTH * font.HEIGHT * 2
+            self._char_buffer = bytearray(char_size)
+            self._char_canvas = framebuf.FrameBuffer(
+                self._char_buffer, font.MAX_WIDTH, font.HEIGHT, framebuf.RGB565
+            )
+            self._char_font = font
+        char_buffer = self._char_buffer
+        char_canvas = self._char_canvas
+        char_size = len(char_buffer)  # Avoids recomputing MAX_WIDTH * HEIGHT * 2
 
         fg_hi = fg >> 8
         fg_lo = fg & 0xFF
 
-        if bg is not None:
+        if bg is None:
+            # Choose a transparency key value that is guaranteed not to
+            # equal fg colour, so # blit()  never treats a foreground
+            # pixel as transparent. Flipping all bits ensures the key
+            # value always differs from fg; the one edge case
+            # (fg == 0xFFFF) falls back to 0x0000.
+            transparent = (fg ^ 0xFFFF) if fg != 0xFFFF else 0x0000
+            fill_colour = transparent
+        else:
             bg_hi = bg >> 8
             bg_lo = bg & 0xFF
+            fill_colour = bg
 
         for character in string:
             try:
@@ -404,16 +433,15 @@ class Canvas(framebuf.FrameBuffer):
                 bs_bit = font.OFFSETS[offset]
                 if font.OFFSET_WIDTH > 1:
                     bs_bit = (bs_bit << 8) + font.OFFSETS[offset + 1]
-
                 if font.OFFSET_WIDTH > 2:
                     bs_bit = (bs_bit << 8) + font.OFFSETS[offset + 2]
 
                 char_width = font.WIDTHS[char_index]
 
-                if bg is not None:
-                    char_canvas.fill(bg)
-                else:
-                    char_canvas.fill(0x0020)  # fill buffer with transparency value
+                # Pre-fill the buffer with the background or transparency
+                # key value. The pixel loop writes only foreground pixels,
+                # since off-pixels are already set correctly by the fill.
+                char_canvas.fill(fill_colour)
 
                 char_col = 0
                 for i in range(0, char_size, 2):
@@ -421,21 +449,16 @@ class Canvas(framebuf.FrameBuffer):
                         if font.BITMAPS[bs_bit // 8] & 1 << (7 - (bs_bit % 8)) > 0:
                             char_buffer[i] = fg_lo
                             char_buffer[i + 1] = fg_hi
-                        else:
-                            if bg is not None:
-                                char_buffer[i] = bg_lo
-                                char_buffer[i + 1] = bg_hi
-
                         bs_bit += 1
-  
+
                     char_col += 1
                     if char_col == font.MAX_WIDTH:
                         char_col = 0
 
-                if bg is not None:
-                    self.blit(char_canvas, x, y)
+                if bg is None:
+                    self.blit(char_canvas, x, y, transparent)
                 else:
-                    self.blit(char_canvas, x, y, 0x0020)
+                    self.blit(char_canvas, x, y)
 
                 x += char_width
 
@@ -444,7 +467,8 @@ class Canvas(framebuf.FrameBuffer):
 
     def write_width(self, string, font):
         """
-        Returns the width of the string written in the specified font in pixels.
+        Returns the width of the string written in the specified font
+        in pixels.
 
         Parameters:
             string (string): The string to measure
@@ -466,8 +490,8 @@ class Canvas(framebuf.FrameBuffer):
 
     def bitmap(self, bitmap, x, y, index=0):
         """
-        Draws a converted bitmap image into the MicroPython FrameBuffer. (Currently,
-        bitmap size must equal display size.)
+        Draws a converted bitmap image into the MicroPython FrameBuffer.
+        (Currently, bitmap size must equal display size.)
         
         Use https://github.com/russhughes/st7789py_mpy/tree/master/utils to convert
         the image file into a Python-formatted data file and upload it into the
@@ -548,6 +572,7 @@ class Canvas(framebuf.FrameBuffer):
                 rotated[i][1],
                 color,
             )
+        self.line(rotated[-1][0], rotated[-1][1], rotated[0][0], rotated[0][1], color)
 
 class LCD(Canvas):
     """
@@ -686,6 +711,7 @@ class LCD(Canvas):
         if backlight is not None:
             backlight.value(1)
 
+    @staticmethod
     def _find_rotations(width, height):
         for display in _SUPPORTED_DISPLAYS:
             if display[0] == width and display[1] == height:
@@ -702,7 +728,7 @@ class LCD(Canvas):
 
     def hard_reset(self):
         """
-        Hardware reset display (if LCD reset line is controllable).
+        Hardware reset display (Useable only if LCD reset line is controllable).
         """
         if self.cs:
             self.cs.value(0)
@@ -819,8 +845,8 @@ class LCD(Canvas):
         if data is not None:
             self.dc.value(1)
             self.spi.write(data)
-            if self.cs:
-                self.cs.value(1)
+        if self.cs:
+            self.cs.value(1)
 
     def _set_window(self, x0, y0, x1, y1):
         """
@@ -842,5 +868,4 @@ class LCD(Canvas):
                 struct.pack(_ENCODE_POS, y0 + self.ystart, y1 + self.ystart),
             )
             self._write(_ST7789_RAMWR)
-
 
