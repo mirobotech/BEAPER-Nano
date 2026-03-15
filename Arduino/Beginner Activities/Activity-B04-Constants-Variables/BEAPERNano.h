@@ -1,6 +1,6 @@
 /* =============================================================================
 BEAPERNano.h
-March 9, 2026
+March 14, 2026
 
 Board header file for the mirobo.tech BEAPER Nano circuit.
 
@@ -152,7 +152,7 @@ const uint8_t LS1 = 8;    // BEAPER Nano Piezo beeper LS1
 
 inline void beep()
 {
-    tone(LS1, 1000, 100); // Make a short beep
+    tone(LS1, 1000, 100); // Play a short beep
 }
 
 /* =====================================
@@ -180,6 +180,66 @@ const uint8_t H5 = A4;    // H1
 const uint8_t H6 = A5;    // H4
 const uint8_t H7 = A6;    // H2
 const uint8_t H8 = A7;    // H3
+
+
+/* =====================================
+ * SONAR Distance Sensor Functions
+ * ====================================*/
+ 
+// Call sonar_setup() once in setup() to configure the SONAR pins.
+inline void sonar_setup()
+{
+    pinMode(TRIG, OUTPUT);
+    digitalWrite(TRIG, LOW);
+    pinMode(ECHO, INPUT);
+}
+
+// sonar_range(max_range) - Returns the distance to the nearest
+//     target within max_range in cm (defaults to 1m)
+//
+// Returns either:
+//     distance (cm) - closest target within max_range
+//     0             - no target detected within max_range
+//     -1            - time-out waiting for ECHO to start
+//     -2            - previous ECHO is still in progress
+
+inline float sonar_range(int max_range = 100)
+{
+    // Return -2 if a previous ECHO pulse is still in progress
+    if (digitalRead(ECHO) == HIGH)
+        return -2;
+ 
+    // Make a 10 us TRIG pulse to start a range measurement
+    digitalWrite(TRIG, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG, LOW);
+
+    // Convert max_range plus 1cm margin to round trip time
+    // in microseconds (~29us/cm one way)
+    unsigned long max_us = (max_range + 1) * 58;
+
+    // Wait up to 2500us for ECHO to go HIGH after TRIG.
+    // (Necessary for 3.3V HC-SR04P/RCWL-9610A SONAR modules.)
+    unsigned long start_us = micros();
+    while (digitalRead(ECHO) == LOW)
+    {
+        if (micros() - start_us > 2500)
+            return -1;      // ECHO did not start
+    }
+
+    // Measure ECHO pulse duration. 
+    start_us = micros();
+    while (digitalRead(ECHO) == 1)
+    {
+        if (micros() - start_us > max_us)
+        {
+            return 0;       // No target within max_range
+        }
+    }
+
+    // Convert ECHO duration to distance. (~29us/cm one way)
+    return (micros() - start_us) / 58.0f;
+}
 
 
 /* =====================================
