@@ -1,6 +1,6 @@
 """
 BEAPER_Nano.py
-March 9, 2026
+March 14, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
@@ -83,7 +83,7 @@ LED4 = Pin(LED4_PIN, Pin.OUT)
 LED5 = Pin(LED5_PIN, Pin.OUT)
 
 LEDS = (LED2, LED3, LED4, LED5)  # Tuple of all LED pins
-# Useful for iterating through all LEDS - see leds_on(), below:
+# Useful for iterating through all LEDS - see below:
 
 def leds_on():
   # Turn all four LEDs on
@@ -114,7 +114,7 @@ SW4 = Pin(SW4_PIN, Pin.IN, Pin.PULL_UP)
 SW5 = Pin(SW5_PIN, Pin.IN, Pin.PULL_UP)
 
 SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
-# Useful for iterating through all SWITCHES - see LEDS example, above.
+# Useful for iterating through all SWITCHES - see LEDS examples, above.
 
 
 # ---------------------------------------------------------------------
@@ -275,45 +275,46 @@ SDA = H1_PIN
 SCL = H4_PIN
 QWIIC = I2C(id=I2C_ID, sda=SDA, scl=SCL)
 
-# Ultrasonic SONAR distance measurement function
+# Ultrasonic SONAR distance measurement function. Returns the distance
+# to the nearest target within max_range in cm (defaults to 1m).
 
 SONAR_TRIG = Pin(H2_PIN, Pin.OUT, value=0)
 SONAR_ECHO = Pin(H3_PIN, Pin.IN)
 
-def sonar_range(max=300):
+def sonar_range(_max_range=100):
   # Returns either:
-  #  distance (cm) - target detected within max range
-  #  0             - no target within max range
-  #  -1            - time-out waiting for ECHO to end
-  #  -2            - time-out waiting for ECHO to start
-  #  -3            - previous ECHO still in progress
-
-  if SONAR_ECHO.value() == 1:
-    # Check if previous ECHO is in progress, return error if so
-    return -3   # (wait 10ms after ECHO ends before re-triggering)
+  #  distance (cm) - closest target within _max_range
+  #  0             - no target detected within _max_range
+  #  -1            - time-out waiting for ECHO to start
+  #  -2            - previous ECHO is still in progress
   
-  # Create a TRIG pulse
+  # Return -2 if a previous ECHO pulse is still in progress
+  if SONAR_ECHO.value() == 1:
+    return -2   # (wait 10ms after ECHO ends before re-triggering)
+  
+  # Make a 10us TRIG pulse to start a range measurement
   SONAR_TRIG.value(1)
   time.sleep_us(10)
   SONAR_TRIG.value(0)
   
-  # Wait 2500us for ECHO pulse to start. Note: HC-SR04P (3.3V-capable
-  # modules also labelled as RCWL-9610A 2022) delay for approximately
-  # 2300us after the TRIG pulse ends and the ECHO pulse starts.
-  
+  # Wait up to 2500us for ECHO pin to go high after TRIG.
+  # (Necessary for 3.3V HC-SR04P/RCWL-9610A SONAR modules.)
   duration = machine.time_pulse_us(SONAR_ECHO, 0, 2500)
-
+  # time_pulse_us returns -2 if ECHO pin never goes low or -1 if
+  # ECHO is low for > 2500us. Either way, ECHO did not start.
   if duration < 0:
-    # ECHO didn't start - return time_pulse_us() error (-2, -1)
-    return duration
+    return -1
   
-  # Time ECHO pulse. Set time-out value to max range.
-  duration = machine.time_pulse_us(SONAR_ECHO, 1, (max + 1) * 58)
+  # Measure ECHO pulse duration. Time-out value is set to round-trip
+  # time for max_range plus 1cm, in microseconds. (~29us/cm one way)
+  duration = machine.time_pulse_us(SONAR_ECHO, 1, (_max_range + 1) * 58)
+  
+  # time_pulse_us returns -1 if ECHO times out (no target within max_range)
   if duration < 0:
-    return 0    # Distance > max range
+    return 0
   
-  # Calculate target distance in cm
-  return duration / 58
+  # Convert round trip ECHO time to distance
+  return int(duration / 58)
 
 
 # ---------------------------------------------------------------------
