@@ -314,7 +314,7 @@ def sonar_range(_max_range=100):
     return 0
   
   # Convert round trip ECHO time to distance
-  return int(duration / 58)
+  return duration / 58
 
 
 # ---------------------------------------------------------------------
