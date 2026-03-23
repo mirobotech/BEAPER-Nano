@@ -1,6 +1,6 @@
 """
 LCD.py
-Updated: March 11, 2026
+Updated: March 22, 2026
 
 Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver
 library. (https://github.com/russhughes/st7789py_mpy)
@@ -8,7 +8,7 @@ library. (https://github.com/russhughes/st7789py_mpy)
 This module implements an ST7789 LCD driver for the 240x240 pixel TFT
 LCD display panel optionally installed on mirobo.tech BEAPER Nano and
 BEAPER Pico circuits. It merges the MicroPython FrameBuffer class and
-parts of Russ Hughes driver to implement a comprehensive set of
+parts of Russ Hughes' driver to implement a comprehensive set of
 stylistically common LCD display functions.
 
 LCD control functions:
@@ -28,13 +28,17 @@ LCD control functions:
         m=True
     
     rotation(r) - rotate image to one of 4 orientations (r=0-3, 3 is
-        upright for LCD mounted on BEAPER Nano and BEAPER Pico)
+        upright for the LCD mounted on BEAPER Nano and BEAPER Pico)
     
     blit_buffer(b, x, y, w, h) - copy memory buffer b to LCD display
         memory at location x, y, using width w, and height h
     
-    update() - update the LCD display memory with the entire contents
-        of the MicroPython frame buffer
+    update([x, y, w, h]) - update the LCD display memory with the
+        contents of the MicroPython frame buffer. Without arguments,
+        updates the entire display. With x, y, w, h arguments, updates
+        only the specified rectangular region (dirty rectangle update),
+        which results in faster updates when only a small area of the
+        frame buffer has changed.
 
 LCD graphics functions:
 
@@ -62,6 +66,10 @@ LCD graphics functions:
         x, y, width w, height h, having corner radius r, using color
         c, and optionally fill the rectangle if f=True
     
+    triangle(x0, y0, x1, y1, x2, y2, c [, f]) - draw a triangle with
+        vertices at x0,y0, x1,y1, and x2,y2, using color c, and
+        optionally fill the triangle if f=True
+    
     ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at
         x, y, with x radius xr, y radius yr, using color c, and
         optionally fill the ellipse if f=True. Optional m parameter
@@ -80,9 +88,15 @@ LCD graphics functions:
     scroll(xstep, ystep) - scroll the contents of the frame buffer by
         xstep and ystep
     
-    bitmap(bitmap, x, y [, index}) - draw a converted bitmap file at
-        x, y, from an optional index (currently only draws bitmaps
-        with size equal to the display size)
+    bitmap(bitmap, x, y [, index, transparent]) - draw a palette-compressed
+        bitmap at x, y. Supports any size, clipped to the display bounds.
+        Optional index selects from a multi-bitmap module. Optional
+        transparent palette index causes those pixels to be skipped,
+        allowing the framebuffer background to show through.
+
+    bitmap_to_buffer(bitmap [, index]) - convert a palette-compressed
+        bitmap module to a raw RGB565 bytearray for fast repeated drawing
+        using blit_buffer().
 
 Text functions:
 
@@ -96,6 +110,9 @@ Text functions:
     
     write_width(s, font) - return the width of string s, written in
         font 'font' (a font object converted from a TTF font file)
+
+    write_height(font) - return the height of characters in font 'font'
+        (a font object converted from a TTF font file)
 
 Pre-defined colors:
 
@@ -125,8 +142,8 @@ Pre-defined colors:
 
 Example use:
 
-    # import LCDconfig_Pico as lcd_config     # Custom config for BEAPER Pico I/O
-    import LCDconfig_Nano as lcd_config     # Use this config for BEAPER Nano
+    import LCDconfig_Pico as lcd_config     # Custom config for BEAPER Pico I/O
+    # import LCDconfig_Nano as lcd_config     # Use this config for BEAPER Nano
     import NotoSansDisplay_24 as notosans24 # Load converted display font
 
     # Rotation=3 is the normal BEAPER Nano LCD orientation.
@@ -169,6 +186,7 @@ https://github.com/devbis/st7789py_mpy.
 """
 
 import framebuf
+from array import array
 from time import sleep_ms
 from math import sin, cos
 import struct
@@ -199,36 +217,24 @@ _ST7789_MADCTL_ML = const(0x10)
 _ST7789_MADCTL_BGR = const(0x08)
 _ST7789_MADCTL_MH = const(0x04)
 
-RGB = 0x00
-BGR = 0x08
-
-# Color modes - not needed
-# _COLOR_MODE_65K = const(0x50)
-# _COLOR_MODE_262K = const(0x60)
-# _COLOR_MODE_12BIT = const(0x03)
-# _COLOR_MODE_16BIT = const(0x05)
-# _COLOR_MODE_18BIT = const(0x06)
-# _COLOR_MODE_16M = const(0x07)
-
-_ENCODE_PIXEL = const(">H")
-_ENCODE_PIXEL_SWAPPED = const("<H")
 _ENCODE_POS = const(">HH")
-_ENCODE_POS_16 = const("<HH")
-
-# must be at least 128 for 8 bit wide fonts
-# must be at least 256 for 16 bit wide fonts
-# _BUFFER_SIZE = const(256)
-
-# _BIT7 = const(0x80)
-# _BIT6 = const(0x40)
-# _BIT5 = const(0x20)
-# _BIT4 = const(0x10)
-# _BIT3 = const(0x08)
-# _BIT2 = const(0x04)
-# _BIT1 = const(0x02)
-# _BIT0 = const(0x01)
 
 # fmt: off
+
+# ---------------------------------------------------------------------
+# Display panel support
+#
+# The ST7789 controller supports multiple panel sizes. The rotation
+# tables below cover the most common variants. Each entry defines:
+#   (MADCTL, width, height, xstart, ystart, needs_swap)
+# for each of the four rotation settings (0-3).
+#
+# BEAPER Nano and BEAPER Pico both use 240x240 panels with
+# custom_rotations supplied by their LCDconfig files, so
+# _find_rotations() and _SUPPORTED_DISPLAYS are only used if you are
+# adapting this driver for a different panel without supplying your
+# own rotation table.
+# ---------------------------------------------------------------------
 
 # Rotation tables
 #   (madctl, width, height, xstart, ystart, needs_swap)[rotation % 4]
@@ -256,13 +262,6 @@ _DISPLAY_128x128 = (
     (0xc0, 128, 128, 2, 1, False),
     (0xa0, 128, 128, 1, 2, False))
 
-# index values into rotation table
-_WIDTH = const(0)
-_HEIGHT = const(1)
-_XSTART = const(2)
-_YSTART = const(3)
-_NEEDS_SWAP = const(5)  # (madctl, width, height, xstart, ystart, needs_swap)
-
 # Supported displays (physical width, physical height, rotation table)
 _SUPPORTED_DISPLAYS = (
     (240, 320, _DISPLAY_240x320),
@@ -270,8 +269,11 @@ _SUPPORTED_DISPLAYS = (
     (135, 240, _DISPLAY_135x240),
     (128, 128, _DISPLAY_128x128))
 
-# Default init from st7789mpy.py library - overridden by LCDconfig_Nano.py or LCDconfig_Pico.py
-# init tuple format (b'command', b'data', delay_ms)
+# Default initialization commands from the st7789mpy.py library.
+# BEAPER programs always supply custom_init via their LCDconfig file,
+# so this fallback is only used if LCD() is called without custom_init
+# (e.g. when adapting the driver for use outside of BEAPER circuits).
+# init tuple format: (b'command', b'data', delay_ms)
 _ST7789_INIT_CMDS = (
     ( b'\x11', b'\x00', 120),               # Exit sleep mode
     ( b'\x13', b'\x00', 0),                 # Turn on the display
@@ -368,6 +370,24 @@ class Canvas(framebuf.FrameBuffer):
         self.ellipse(x1, y2, r, r, color, fill, 4)  # Quadrant 3 - bottom left
         self.ellipse(x2, y2, r, r, color, fill, 8)  # Quadrant 4 - bottom right
 
+    def triangle(self, x0, y0, x1, y1, x2, y2, color, fill=False):
+        """
+        Draw a triangle defined by three vertices, in the given color.
+
+        Parameters:
+            x0, y0 (int): first vertex
+            x1, y1 (int): second vertex
+            x2, y2 (int): third vertex
+            color (int): triangle color (RGB565)
+            fill (bool): outline (default), or optional fill (True) with color
+        """
+        if not fill:
+            self.line(x0, y0, x1, y1, color)
+            self.line(x1, y1, x2, y2, color)
+            self.line(x2, y2, x0, y0, color)
+        else:
+            self.poly(0, 0, array('h', [x0, y0, x1, y1, x2, y2]), color, True)
+
     def write(self, string, x, y, font, fg=0xFFFF, bg=None):
         """
         Writes a string to the MicroPython FrameBuffer using a converted
@@ -380,7 +400,7 @@ class Canvas(framebuf.FrameBuffer):
         optional background (bg) color.
 
         Use https://github.com/russhughes/st7789py_mpy/utils/text_font_converter.py
-        to convert the TTF font files into python-formattedd font data
+        to convert the TTF font files into python-formatted font data
         files. Upload the converted fonts into the on-board memory of
         your device and import the font file(s) into your program as
         shown:
@@ -408,62 +428,75 @@ class Canvas(framebuf.FrameBuffer):
             self._char_font = font
         char_buffer = self._char_buffer
         char_canvas = self._char_canvas
-        char_size = len(char_buffer)  # Avoids recomputing MAX_WIDTH * HEIGHT * 2
+
+        # Build a character index cache on the font module the first time it
+        # is used. This makes MAP lookups O(1) instead of O(n) per character.
+        # The cache is stored on the font module object itself so it persists
+        # across calls and is shared between write() and write_width().
+        if not hasattr(font, '_map_cache'):
+            font._map_cache = {c: i for i, c in enumerate(font.MAP)}
+        map_cache = font._map_cache
+
+        # Bind frequently accessed font attributes to locals. Local variable
+        # access is faster than repeated module attribute lookups in MicroPython,
+        # particularly for values used inside the inner pixel loop.
+        bitmaps     = font.BITMAPS
+        offsets     = font.OFFSETS
+        widths      = font.WIDTHS
+        max_width   = font.MAX_WIDTH
+        height      = font.HEIGHT
+        offset_width = font.OFFSET_WIDTH
 
         fg_hi = fg >> 8
         fg_lo = fg & 0xFF
 
         if bg is None:
             # Choose a transparency key value that is guaranteed not to
-            # equal fg colour, so # blit()  never treats a foreground
-            # pixel as transparent. Flipping all bits ensures the key
-            # value always differs from fg; the one edge case
-            # (fg == 0xFFFF) falls back to 0x0000.
+            # equal fg colour, so blit() never treats a foreground pixel
+            # as transparent. Flipping all bits ensures the key value always
+            # differs from fg; the one edge case (fg == 0xFFFF) falls back
+            # to 0x0000.
             transparent = (fg ^ 0xFFFF) if fg != 0xFFFF else 0x0000
             fill_colour = transparent
         else:
-            bg_hi = bg >> 8
-            bg_lo = bg & 0xFF
             fill_colour = bg
 
         for character in string:
-            try:
-                char_index = font.MAP.index(character)
-                offset = char_index * font.OFFSET_WIDTH
-                bs_bit = font.OFFSETS[offset]
-                if font.OFFSET_WIDTH > 1:
-                    bs_bit = (bs_bit << 8) + font.OFFSETS[offset + 1]
-                if font.OFFSET_WIDTH > 2:
-                    bs_bit = (bs_bit << 8) + font.OFFSETS[offset + 2]
+            char_index = map_cache.get(character)
+            if char_index is None:
+                continue                    # Character not in font, skip it
 
-                char_width = font.WIDTHS[char_index]
+            offset = char_index * offset_width
+            bs_bit = offsets[offset]
+            if offset_width > 1:
+                bs_bit = (bs_bit << 8) + offsets[offset + 1]
+            if offset_width > 2:
+                bs_bit = (bs_bit << 8) + offsets[offset + 2]
 
-                # Pre-fill the buffer with the background or transparency
-                # key value. The pixel loop writes only foreground pixels,
-                # since off-pixels are already set correctly by the fill.
-                char_canvas.fill(fill_colour)
+            char_width = widths[char_index]
 
-                char_col = 0
-                for i in range(0, char_size, 2):
-                    if char_col < char_width:
-                        if font.BITMAPS[bs_bit // 8] & 1 << (7 - (bs_bit % 8)) > 0:
-                            char_buffer[i] = fg_lo
-                            char_buffer[i + 1] = fg_hi
-                        bs_bit += 1
+            # Pre-fill the buffer with the background or transparency key.
+            # The pixel loop writes only foreground pixels.
+            char_canvas.fill(fill_colour)
 
-                    char_col += 1
-                    if char_col == font.MAX_WIDTH:
-                        char_col = 0
+            # Iterate only over the char_width active columns per row.
+            # The font bitmap stores exactly char_width bits per row with no
+            # padding, so bs_bit advances char_width times per row naturally.
+            # Uses bitwise ops (>> 3, & 7) instead of // and % for speed.
+            for row in range(height):
+                for col in range(char_width):
+                    if bitmaps[bs_bit >> 3] & 1 << (7 - (bs_bit & 7)):
+                        idx = (row * max_width + col) * 2
+                        char_buffer[idx]     = fg_lo
+                        char_buffer[idx + 1] = fg_hi
+                    bs_bit += 1
 
-                if bg is None:
-                    self.blit(char_canvas, x, y, transparent)
-                else:
-                    self.blit(char_canvas, x, y)
+            if bg is None:
+                self.blit(char_canvas, x, y, transparent)
+            else:
+                self.blit(char_canvas, x, y)
 
-                x += char_width
-
-            except ValueError:
-                pass
+            x += char_width
 
     def write_width(self, string, font):
         """
@@ -478,51 +511,137 @@ class Canvas(framebuf.FrameBuffer):
             int: The width of the string in pixels
 
         """
+        if not hasattr(font, '_map_cache'):
+            font._map_cache = {c: i for i, c in enumerate(font.MAP)}
+        map_cache = font._map_cache
+
         width = 0
         for character in string:
-            try:
-                char_index = font.MAP.index(character)
+            char_index = map_cache.get(character)
+            if char_index is not None:
                 width += font.WIDTHS[char_index]
-            except ValueError:
-                pass
 
         return width
 
-    def bitmap(self, bitmap, x, y, index=0):
+    def write_height(self, font):
         """
-        Draws a converted bitmap image into the MicroPython FrameBuffer.
-        (Currently, bitmap size must equal display size.)
-        
-        Use https://github.com/russhughes/st7789py_mpy/tree/master/utils to convert
-        the image file into a Python-formatted data file and upload it into the
-        memory of your device.
- 
+        Returns the height of characters written in the specified font
+        in pixels. All characters in a converted TrueType font share the
+        same height.
+
         Parameters:
-            bitmap (bitmap_module): The module containing the bitmap to draw
-            x (int): column to start drawing at
-            y (int): row to start drawing at
-            index (int): Optional index of bitmap to draw from multiple bitmap
-                module
+            font (font): The module containing the converted true-type font
+
+        Returns:
+            int: The height of the font in pixels
 
         """
- 
-        width = bitmap.WIDTH
-        height = bitmap.HEIGHT
-        bitmap_size = height * width * 2
-        bpp = bitmap.BPP
-        bs_bit = bpp * bitmap_size * index  # if index > 0 else 0
+        return font.HEIGHT
+
+    def bitmap(self, bitmap, x=0, y=0, index=0, transparent=None):
+        """
+        Draw a palette-compressed bitmap at position x, y. The bitmap can be
+        any size and is clipped to the display bounds. Supports an optional
+        transparent palette index to skip drawing those pixels, allowing the
+        existing framebuffer background to show through.
+
+        Use image_converter.py to convert image files into bitmap modules:
+            python image_converter.py image.png bits_per_pixel > bitmap.py
+
+        Parameters:
+            bitmap (module): The module containing the bitmap to draw
+            x (int): Left edge of the bitmap on the display (default 0)
+            y (int): Top edge of the bitmap on the display (default 0)
+            index (int): Index of bitmap to draw from a multi-bitmap module
+                         (default 0)
+            transparent (int): Palette index to treat as transparent; pixels
+                         with this index are not drawn (default None)
+        """
+        bm_w    = bitmap.WIDTH
+        bm_h    = bitmap.HEIGHT
+        bpp     = bitmap.BPP
         palette = bitmap.PALETTE
-        for px in range(0, bitmap_size, 2):
+        bm_data = bitmap.BITMAP
+
+        # Starting bit offset for the requested index — WIDTH * HEIGHT * BPP
+        # bits per image (not bytes, fixing the original byte-based calculation)
+        bs_bit  = bm_w * bm_h * bpp * index
+
+        # Clip bitmap bounds to display area
+        x0 = max(x, 0)
+        y0 = max(y, 0)
+        x1 = min(x + bm_w, self.width)
+        y1 = min(y + bm_h, self.height)
+
+        stride = self.width * 2     # Bytes per display row in the framebuffer
+
+        for row in range(bm_h):
+            for col in range(bm_w):
+                # Extract BPP bits MSB-first to form the palette index
+                color_index = 0
+                for _ in range(bpp):
+                    color_index = (color_index << 1) | (
+                        (bm_data[bs_bit >> 3] >> (7 - (bs_bit & 7))) & 1
+                    )
+                    bs_bit += 1
+
+                # Write pixel only if within clipped bounds and not transparent
+                px = x + col
+                py = y + row
+                if x0 <= px < x1 and y0 <= py < y1:
+                    if color_index != transparent:
+                        color = palette[color_index]
+                        buf_idx = (py * stride) + px * 2
+                        self.display_buffer[buf_idx]     = color & 0xFF
+                        self.display_buffer[buf_idx + 1] = color >> 8
+
+    def bitmap_to_buffer(self, bitmap, index=0):
+        """
+        Convert a palette-compressed bitmap module to a raw RGB565 bytearray.
+        Decode once at startup, then use the returned buffer with
+        blit_buffer(buf, x, y, width, height) during every update loop.
+        
+        Typical usage:
+            import sprite
+            sprite_buf = lcd.bitmap_to_buffer(sprite)
+            del sys.modules['sprite']; del sprite   # free module RAM
+            import gc; gc.collect()
+
+            # In game loop:
+            lcd.blit_buffer(sprite_buf, x, y, sprite.WIDTH, sprite.HEIGHT)
+
+        Parameters:
+            bitmap (module): The module containing the bitmap to convert
+            index (int): Index of bitmap to convert from a multi-bitmap module
+                         (default 0)
+
+        Returns:
+            bytearray: Raw RGB565 pixel data, WIDTH * HEIGHT * 2 bytes,
+                       ready to pass to blit_buffer()
+        """
+        bm_w    = bitmap.WIDTH
+        bm_h    = bitmap.HEIGHT
+        bpp     = bitmap.BPP
+        palette = bitmap.PALETTE
+        bm_data = bitmap.BITMAP
+        bs_bit  = bm_w * bm_h * bpp * index
+
+        buf = bytearray(bm_w * bm_h * 2)
+        buf_idx = 0
+
+        for _ in range(bm_w * bm_h):
             color_index = 0
             for _ in range(bpp):
-                color_index <<= 1
-                color_index |= (
-                    bitmap.BITMAP[bs_bit // 8] & 1 << (7 - (bs_bit % 8))
-                ) > 0
+                color_index = (color_index << 1) | (
+                    (bm_data[bs_bit >> 3] >> (7 - (bs_bit & 7))) & 1
+                )
                 bs_bit += 1
             color = palette[color_index]
-            self.display_buffer[px] = color & 0xFF
-            self.display_buffer[px + 1] = color >> 8 & 0xFF
+            buf[buf_idx]     = color & 0xFF
+            buf[buf_idx + 1] = color >> 8
+            buf_idx += 2
+
+        return buf
         
     def polygon(self, x, y, points, color, angle=0, center_x=0, center_y=0):
         """
@@ -595,8 +714,8 @@ class LCD(Canvas):
 
         color_order (int):
 
-          - RGB: Red, Green Blue, default
-          - BGR: Blue, Green, Red
+          - LCD.RGB: Red, Green, Blue (default)
+          - LCD.BGR: Blue, Green, Red
 
         custom_init (tuple): custom initialization commands
 
@@ -614,7 +733,7 @@ class LCD(Canvas):
         init() - send initialization commands
         hard_reset() - hardware reset using reset pin
         soft_reset() - software reset
-        inversion mode(bool) - invert display when True
+        invert_mode(bool) - invert display when True
         sleep_mode(bool) - display sleep (True), display on (False)
         rotation(int) - set display rotation (0-3)
         update() - blit framebuffer to LCD
@@ -627,6 +746,10 @@ class LCD(Canvas):
             )   
 
     """
+
+    # Color order constants for color_order parameter in __init__()
+    RGB = 0x00  # Red, Green, Blue (default)
+    BGR = 0x08  # Blue, Green, Red
 
     # Color definitions - includes color, 75% color brightness, 50% color brightness
     WHITE = const(0xFFFF)
@@ -664,7 +787,7 @@ class LCD(Canvas):
         cs=None,
         backlight=None,
         rotation=0,
-        color_order=RGB,
+        color_order=None,
         custom_init=None,
         custom_rotations=None,
         format=framebuf.RGB565,
@@ -673,6 +796,8 @@ class LCD(Canvas):
         """
         Initialize LCD.
         """
+        if color_order is None:
+            color_order = LCD.RGB
         if display_buffer is None:
             display_buffer = bytearray(width * height * 2)
         super().__init__(display_buffer, width, height, format)
@@ -702,7 +827,8 @@ class LCD(Canvas):
         self.color_order = color_order
         self.init_cmds = custom_init or _ST7789_INIT_CMDS
         self.soft_reset()
-        # yes, twice, once is not always enough
+        # Initialize twice: some ST7789 panels don't reliably complete
+        # all settings in a single pass after a soft reset.
         self.init(self.init_cmds)
         self.init(self.init_cmds)
         self.rotation(self._rotation)
@@ -728,7 +854,7 @@ class LCD(Canvas):
 
     def hard_reset(self):
         """
-        Hardware reset display (Useable only if LCD reset line is controllable).
+        Hardware reset display (Usable only if LCD reset line is controllable).
         """
         if self.cs:
             self.cs.value(0)
@@ -806,7 +932,7 @@ class LCD(Canvas):
             self.needs_swap,
         ) = self.rotations[rotation]
 
-        if self.color_order == BGR:
+        if self.color_order == LCD.BGR:
             madctl |= _ST7789_MADCTL_BGR
         else:
             madctl &= ~_ST7789_MADCTL_BGR
@@ -827,11 +953,51 @@ class LCD(Canvas):
         self._set_window(x, y, x + width - 1, y + height - 1)
         self._write(None, buffer)
 
-    def update(self):
+    def update(self, x=0, y=0, w=None, h=None):
         """
-        Blit entire framebuffer to LCD display memory.
+        Blit framebuffer to LCD display memory.
+
+        Without arguments, updates the entire display. With x, y, w, h
+        arguments, updates only the specified rectangular region. This
+        dirty-rectangle update is faster when only a small area of the
+        framebuffer has changed, since fewer bytes are sent over SPI.
+
+        The region is clamped to the display bounds automatically.
+
+        Parameters:
+            x (int): Left edge of update region (default 0)
+            y (int): Top edge of update region (default 0)
+            w (int): Width of update region (default: full display width)
+            h (int): Height of update region (default: full display height)
         """
-        self.blit_buffer(self.display_buffer, 0, 0, self.width, self.height)
+        if w is None:
+            w = self.width
+        if h is None:
+            h = self.height
+
+        # Clamp region to display bounds
+        x = max(0, min(x, self.width))
+        y = max(0, min(y, self.height))
+        w = max(0, min(w, self.width - x))
+        h = max(0, min(h, self.height - y))
+
+        if w == 0 or h == 0:
+            return
+
+        if x == 0 and y == 0 and w == self.width and h == self.height:
+            # Full update: send the entire framebuffer in one operation
+            self.blit_buffer(self.display_buffer, 0, 0, self.width, self.height)
+        else:
+            # Partial update: assemble the sub-region row by row into a
+            # temporary buffer, then send it in a single blit_buffer() call.
+            row_bytes = w * 2                           # Bytes per row in the region
+            stride = self.width * 2                     # Bytes per row in the framebuffer
+            region = bytearray(row_bytes * h)
+            for row in range(h):
+                src = (y + row) * stride + x * 2
+                dst = row * row_bytes
+                region[dst:dst + row_bytes] = self.display_buffer[src:src + row_bytes]
+            self.blit_buffer(region, x, y, w, h)
 
     def _write(self, command=None, data=None):
         """
@@ -868,4 +1034,3 @@ class LCD(Canvas):
                 struct.pack(_ENCODE_POS, y0 + self.ystart, y1 + self.ystart),
             )
             self._write(_ST7789_RAMWR)
-
