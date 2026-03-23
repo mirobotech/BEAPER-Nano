@@ -1,6 +1,6 @@
 """
-BEAPER Pico LCD demo program
-Updated: March 11, 2026
+BEAPER Nano LCD demo program
+Updated: March 22, 2026
 
 Displays the time taken by various LCD operations and draws multiple screens
 of graphics primitives using MicroPython's framebuffer. Records and displays
@@ -25,13 +25,12 @@ Required files:
 frames_per_sec = 30                         # Target frames per second
 frame_period = 1000000 // frames_per_sec    # Frame period in microseconds
 
-from machine import Pin, PWM, ADC
-import array
+from machine import Pin, PWM, ADC, SPI
 import random
 import time
 
 import LCDconfig_Nano as lcd_config        # Customized for BEAPER Nano I/O pins
-# import LCDconfig_Nano as lcd_config        # Customized for BEAPER Pico I/O pins
+# import LCDconfig_Pico as lcd_config        # Customized for BEAPER Pico I/O pins
 
 import NotoSansDisplay_24 as notosans24
 
@@ -57,8 +56,6 @@ Q1 = Q4 = ADC(1, atten = ADC.ATTN_11DB)
 Q2 = U4 = ADC(2, atten = ADC.ATTN_11DB)
 Q3 = RV1 = ADC(3, atten = ADC.ATTN_11DB)
 VDIV = RV2 = ADC(4, atten = ADC.ATTN_11DB)
-
-triangle = array.array('b', [0, -20, -20, 10, 20, 10])
 
 rainbow240 = (
     b"\x00\x00\x01\x01\x02\x03\x04\x05"
@@ -153,7 +150,9 @@ def run_benchmark(label, draw_fn):
     prompt = "< back    next >"
     prompt_x = (240 - lcd.write_width(prompt, notosans24)) // 2
     lcd.write(prompt, prompt_x, 210, notosans24, lcd.WHITE)
-    lcd.update()
+    font_h = lcd.write_height(notosans24)
+    lcd.update(0, 108, lcd.width, font_h)   # result line
+    lcd.update(0, 210, lcd.width, font_h)   # prompt line
 
     return count
 
@@ -252,7 +251,8 @@ lcd.update()
 cbars_time = time.ticks_diff(time.ticks_us(), start_time)
 
 # Display all timings. show_timings() draws the first four results and the
-# prompt, and is itself timed to measure write().
+# prompt, and is itself timed to measure write(). A partial update of a
+# single row is then timed and displayed as 'part.up:' for comparison.
 def show_timings():
     """Draw the LCD timing results screen (shown once at startup)."""
     msg_x = 120 - lcd.write_width("config( ): ", notosans24)
@@ -277,6 +277,17 @@ write_time = time.ticks_diff(time.ticks_us(), start_time)
 msg_x = 120 - lcd.write_width("write( ): ", notosans24)
 lcd.write("write( ): " + str(write_time) + "us", msg_x, 106, notosans24, lcd.WHITE)
 lcd.update()
+
+# Time a single-row partial update and display the result on the next line.
+# Write the label first so the partial update has real content to push.
+part_up_y = 130
+msg_x = 120 - lcd.write_width("part.up: ", notosans24)
+lcd.write("part.up: ", msg_x, part_up_y, notosans24, lcd.WHITE)
+start_time = time.ticks_us()
+lcd.update(0, part_up_y, lcd.width, lcd.write_height(notosans24))
+part_up_time = time.ticks_diff(time.ticks_us(), start_time)
+lcd.write("part.up: " + str(part_up_time) + "us", msg_x, part_up_y, notosans24, lcd.WHITE)
+lcd.update(0, part_up_y, lcd.width, lcd.write_height(notosans24))
 
 # Wait for SW4 ( > ) before entering the benchmark loop. SW3 is ignored
 # since there is no previous screen to go back to.
@@ -358,17 +369,23 @@ def draw_filled_round_rect():
     )
 
 def draw_triangle():
-    lcd.poly(
-        random.randint(0, lcd.width - 40) + 20, random.randint(0, lcd.height - 30) + 20,
-        triangle,
+    cx = random.randint(20, lcd.width - 20)
+    cy = random.randint(20, lcd.height - 20)
+    lcd.triangle(
+        cx, cy - 20,
+        cx - 20, cy + 10,
+        cx + 20, cy + 10,
         lcd.color565(random.getrandbits(8), random.getrandbits(8), random.getrandbits(8)),
         False,
     )
 
 def draw_filled_triangle():
-    lcd.poly(
-        random.randint(0, lcd.width - 40) + 20, random.randint(0, lcd.height - 30) + 20,
-        triangle,
+    cx = random.randint(20, lcd.width - 20)
+    cy = random.randint(20, lcd.height - 20)
+    lcd.triangle(
+        cx, cy - 20,
+        cx - 20, cy + 10,
+        cx + 20, cy + 10,
         lcd.color565(random.getrandbits(8), random.getrandbits(8), random.getrandbits(8)),
         True,
     )
@@ -383,18 +400,18 @@ BENCHMARKS = (
     ("fld-ellipses/s",  draw_filled_ellipse),
     ("rnd-rects/s",     draw_round_rect),
     ("fld-rnd-rects/s", draw_filled_round_rect),
-    ("polys/s",         draw_triangle),
-    ("fld-polys/s",     draw_filled_triangle),
+    ("triangles/s",      draw_triangle),
+    ("fld-triangles/s",  draw_filled_triangle),
 )
 
 # ---------------------------------------------------------------------
 # Main navigation loop
 #
-# Runs the current benchmark, then waits for navigation. 
+# Runs the current benchmark, then waits for navigation.
 # Wraps through all benchmark screens in both directions.
 # ---------------------------------------------------------------------
 
-NUM_SCREENS = len(BENCHMARKS)    # One screen per benchmark
+NUM_SCREENS = len(BENCHMARKS)   # One screen per benchmark
 screen = 0                       # Start at first benchmark
 
 while True:
