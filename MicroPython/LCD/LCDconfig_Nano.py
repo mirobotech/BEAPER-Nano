@@ -1,10 +1,9 @@
 """
 BEAPER Nano LCD Configuration for 1.54" 240x240 LCD
+Updated: March 22, 2026
 
 Adapted from st7789py_mpy by Russ Hughes:
 https://github.com/russhughes/st7789py_mpy
-
-Updated: May 27, 2025
 """
 
 from machine import Pin, SPI
