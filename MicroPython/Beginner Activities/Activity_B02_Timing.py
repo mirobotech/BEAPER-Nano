@@ -1,7 +1,7 @@
 """
 ================================================================================
 Beginner Activity 2: Timing (Blocking) [Activity_B02_Timing.py]
-February 26, 2026
+March 30, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPER_Nano.py board module file.
@@ -14,6 +14,7 @@ import time
 
 beaper.nano_led_on()
 
+# Main loop - code indented below while True: repeats forever
 while True:
   beaper.LED2.value(1)
   beaper.LED5.value(0)
