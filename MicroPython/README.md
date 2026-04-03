@@ -20,6 +20,8 @@ This repository contains MicroPython programs for BEAPER Nano:
 * Activity_B05_Decision_Structures.py - Decision structures and comparison operators
 * Activity_B06_Conditional_Loops.py - Conditional while loops
 * Activity_B07_Counted_Loops.py - For loops
+* Activity_B08_Functions.py - Creating and using functions
+* Activity_B09_Analog_Input.py - Reading and processing analog input values
 
 ## Introductory Programming Activities - Older beginner programming activities
 
