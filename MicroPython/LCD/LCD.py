@@ -159,8 +159,7 @@ Example use:
     # import LCDconfig_Nano as lcd_config     # Use this config for BEAPER Nano
     import NotoSansDisplay_24 as font24     # Load converted display font
 
-    # Rotation=3 is the normal BEAPER Pico and Nano LCD orientation.
-    lcd = lcd_config.config(rotation=3)     # Create an lcd object
+    lcd = lcd_config.config()               # Create an lcd object
 
     lcd.fill(lcd.BLACK)     # Fill framebuffer with black
     lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # Draw filled blue round rect
