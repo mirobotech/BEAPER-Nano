@@ -1,6 +1,6 @@
 /* ================================================================================
-Beginner Activity 1: Output [Activity-B01-Output]
-February 25, 2026
+Beginner Activity 1: Output [BEAPERNano-Activity-B01-Output]
+March 30, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPERNano.h header file
@@ -37,67 +37,80 @@ Guided Exploration
 Guided exploration questions and activities help learners further
 investigate and expand on the key concepts introduced in the activity.
 
-1.  Most computer programs contain text comments to help anyone
-    reading the program code to understand it, as well as the actual
+1.  Most computer programs contain both text comments (which help
+    anyone reading the program code to understand it) and the actual
     program statements that the computer will compile and run.
 
     Single line comments in Arduino C follow double slashes '//'.
-    The compiler ignores everything in a single line that follows
-    double slashes.
+    The compiler ignores everything that follows double slashes in
+    a single line of text.
 
-    Multi-line comments ignore all text between an opening slash-star
-    marker and a closing star-slash marker.
+    Multi-line comments ignore all of the text between an opening
+    slash-star marker and a closing star-slash marker.
 
     Look at the program, above. How does the Arduino IDE treat the
     comments differently from the actual program code?
 
-2.  The 'included' BEAPERNano.h header file helps you start
-    programming more quickly. It does this by defining each BEAPER
-    Nano I/O device, and the pin of the Arduino Nano ESP32
-    microcontroller that it connects to.
+2.  The first real statement in this program includes a 'header file'
+    for your BEAPER Nano circuit:
 
-    For example, the program statement:
+#include "BEAPERNano.h"
+
+    The 'BEAPERNano.h' header file must be accessible as a tab in the
+    same Arduino project as this program before this program compiles.
+    The header file contains ordinary Arduino C code that defines and
+    configures BEAPER Nano's I/O devices and microcontroller pins for
+    you, helping you to start writing programs for it more quickly.
+    (You can click the BEAPERNano.h tab in the IDE to see the code it
+    contains!)
+
+    This include statement makes the contents of BEAPERNano.h available
+    to this program, which enables the next statements to use device
+    LED2 (since LED2 is defined inside the header file):
 
     pinMode(LED2, OUTPUT);
-
-    first configures LED2 as an OUTPUT. Then, the statement:
-
     digitalWrite(LED2, HIGH);
 
-    sets the output voltage of the LED2 pin to either HIGH (3.3V)
-    or LOW (0V), turning the LED on or off. All of the other BEAPER
-    Nano LEDs (LED3 - LED5) can be controlled in exactly the same
-    way. Let's try it!
+    Let's break these statements down: 'LED2' is one of the pin
+    constants defined in BEAPERNano.h. The pinMode() statement
+    configures the LED2 pin as an OUTPUT, and the digitalWrite()
+    statement sets its output voltage to either HIGH (3.3V) or LOW
+    (0V). Setting it HIGH turns LED2 on!
 
-    Add a second LED output statement to light LED3 into your program
-    below the existing statement that lights LED2. Run the updated
-    program to verify that it works as expected.
+    All of BEAPER Nano's other LEDs (LED3 - LED5) can be controlled
+    in exactly the same way. Let's try it!
+
+    Add statements to configure LED3 as an output and then turn it on.
+    Run the updated program to verify that it works as expected.
 
 3.  Arduino runs every program by reading and executing each program
     statement, in order, from the top of the program code to the
     bottom.
 
-    So, if you added a statement to light LED3 below the existing
+    So, after adding a statement to light LED3 below the existing
     statement that lights LED2 in the previous GE2 activity, LED2
     would turn on first, followed by LED3. Though this happens
-    sequentially, it happens so fast it looks like both LEDs turn
-    on simultaneously to us.
+    sequentially, it happens so fast that, to us at least, it looks
+    like both LEDs turn on simultaneously!
 
-    Most microcontroller programs don't end, but continue doing the
-    thing they were designed to do over and over again in a program
-    loop. In Arduino C, program statements inside the setup() function
-    run once at power-up, while program statements inside the loop()
-    function are repeated forever.
+4.  If all that we wanted the program to do was to turn two LEDs on,
+    it could end after these two statements have run. In reality,
+    microcontroller programs usually don't end. Instead, they continue
+    running the task they were designed to do over and over again in
+    what is called a main program loop.
 
-    All program statements must be enclosed within the curly braces
-    '{ }' of a function. Would it make sense to move the digitalWrite
-    statement that turns LED2 on into the loop()? Why or why not?
-    What would the program be doing if it was moved there?
+    In Arduino C, program statements inside the setup() function run
+    once at power-up, while program statements inside the loop()
+    function are repeated forever. All program statements must be
+    enclosed within the curly braces '{ }' of either setup() or loop().
 
-4.  Since the loop() function contains no program code, you might
-    think it would be possible to simply get rid of it. Instead of
-    deleting it (you can try!), let's comment it out using double
-    slashes, like this:
+    Would it make sense to move the digitalWrite() statement that turns
+    LED2 on into loop()? Why or why not? What would the program be doing
+    if the statement used to turn LED2 on was moved into loop()?
+
+5.  Since loop() contains no program code, you might think it would
+    be possible to simply get rid of it. Instead of deleting it,
+    let's comment it out using double slashes, like this:
 
 // void loop()
 // {
@@ -106,11 +119,12 @@ investigate and expand on the key concepts introduced in the activity.
 
     The compiler ignores anything following double slashes, so this
     code will be commented-out and ignored. Try to compile the program
-    and describe the result. Why do you think this is?
+    and describe the result. Why do you think this is? What role does
+    the empty loop() serve? How might it be useful to us later?
 
-5.  Let's try to blink LED3 on and off. Replace the contents of the
-    main loop() function with two LED statements, one to turn the LED
-    on followed by a second one to turn the LED off:
+6.  Let's try to blink LED3 on and off. Replace the contents of the
+    loop() function with two statements, one to turn the LED on
+    followed by a second one to turn the LED off:
 
 void loop()
 {
@@ -139,8 +153,8 @@ of the concepts introduced in the activity.
     happening and why you think this happens.
 
 2.  Predict what will happen if the order of the two LED2 statements
-    in EA1, above, is reversed so that LED2 is turned off first,
-    and then turned on.
+    in EA1, above, is reversed so that LED2 is turned off first, and
+    then turned on.
 
     Try it! Does the state of LED2 match your prediction?
 
@@ -153,14 +167,12 @@ of the concepts introduced in the activity.
     define them since the Arduino IDE already knows that they are part
     of the Arduino Nano ESP32 module).
 
-    To use the Arduino Nano ESP32's primary LED, it must first be
-    configured as an output using the pinMode() function:
+    One of the Arduino Nano ESP32's on-board LEDs is called
+    LED_BUILTIN. To use it, first configure it as an output, then
+    turn it on using digitalWrite(), exactly as with BEAPER Nano's
+    other LEDs:
 
     pinMode(LED_BUILTIN, OUTPUT);
-
-    Then, it can be turned on using the digitalWrite() function,
-    exactly as with the BEAPER Nano LEDs:
-
     digitalWrite(LED_BUILTIN, HIGH);
 
     Add these statements to your program so that the Arduino Nano
