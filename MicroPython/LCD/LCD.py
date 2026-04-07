@@ -1,15 +1,20 @@
 """
 MicroPython LCD Driver [LCD.py]
-Updated: April 2, 2026
+Updated: April 6, 2026
 
 Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver
 library. (https://github.com/russhughes/st7789py_mpy)
 
-This module implements a MicroPython driver for the optional 240x240
-pixel 1.54" LCD display module used with BEAPER Nano and BEAPER Pico
-circuits. It merges Russ Hughes' MicroPyton ST7789 LCD driver with
-MicroPython's FrameBuffer while adding additional functionality in
-a stylistically common way. 
+This module implements a MicroPython driver for ST7789-based LCD
+displays. It merges Russ Hughes' MicroPyton ST7789 LCD driver with
+MicroPython's FrameBuffer class while adding additional features
+and functionality in a stylistically common way. The included
+configuration files have been designed to drive the optional 1.54",
+240x240 pixel LCD displays that can be mounted on BEAPER Nano and
+BEAPER Pico circuits, and it should be simple to adapt the config
+files and driver for other sizes and resolutions of ST7789-based
+LCDs displays.
+
 
 LCD control functions:
 
@@ -71,8 +76,10 @@ LCD graphics functions:
     ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at
         x,y, with x radius xr, y radius yr, using color c, and
         optionally fill the ellipse if f=True. Optional m parameter
-        enables drawing only one quadrant of the ellipse: 1=top right,
-        2=top left, 3=bottom left, 4=bottom right
+        enables drawing only one quadrant of the ellipse - quadrants
+        are encoded using 4 LS bits: bit 0 (value 1) = top right,
+        bit 1 (value 2) = top left, bit 2 (value 4) = bottom left,
+        bit 3 (value 8) = bottom right.
     
     poly(x, y, coords, c [, f]) - draw a polygon at x,y, from array
         of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]),
@@ -312,14 +319,15 @@ _ST7789_INIT_CMDS = (
 # Default colour for text() and text16() when no colour is specified
 _TEXT_COLOR = const(0xBDF7)     # 75% white
 
+
 # ---------------------------------------------------------------------
-# Built-in 10x16 pixel font for text16()
+# Built-in 10x16 pixel 'mirobo16' font for text16()
 #
 # Each character is encoded in 16 bytes (16 rows × 1 byte per row), as
-# a full 8 x 16 pixel glyph without inter-character spaces. The text16()
-# function displays characters 10 pixels apart, giving a 2-pixel space
-# between characters and resulting in 24 characters/line on a 240-pixel
-# wide display.
+# a full 8x16 pixel glyph without inter-character spaces. The text16()
+# function displays characters 10 pixels apart, providing a 2-pixel gap
+# between characters which results in 24 characters displayed/line on a
+# 240 pixel wide display.
 #
 # Characters cover printable ASCII 0x20 (space) through 0x7e (~).
 # Character index = ord(char) - 0x20
@@ -699,9 +707,9 @@ class Canvas(framebuf.FrameBuffer):
     def text(self, string, x, y, color=None):
         """
         Write a text string using MicroPython's built-in 8x8 pixel font.
-        No font file is required. If color is not given, text is drawn
-        in 75% white. Each character is 8 pixels wide and 8 pixels tall,
-        giving up to 30 characters per row on a 240-pixel wide display.
+        If color is not given, text is drawn using 75% white. Each
+        character is 8 pixels wide and 8 pixels tall, giving up to 30
+        characters per row on a 240-pixel wide display.
 
         Parameters:
             string (str): The string to write
@@ -715,10 +723,11 @@ class Canvas(framebuf.FrameBuffer):
 
     def text16(self, string, x, y, color=None):
         """
-        Write a text string using the built-in 10x16 pixel font. No
-        font file is required. If color is not given, text is drawn in
-        75% white. Each character is 10 pixels wide and 16 pixels tall,
-        giving up to 24 characters per row on a 240-pixel wide display.
+        Write a text string using the mirobo16 font built into this
+        module. If color is not given, text is drawn using 75% white.
+        Each character 16 pixels tall and 8 pixels wide (without gaps)
+        and is drawn in a 10 pixel wide by 16 pixel tall grid giving
+        up to 24 characters per row on a 240-pixel wide display.
 
         Parameters:
             string (str): The string to write
