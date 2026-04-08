@@ -2,5 +2,5 @@
 
 ## BEAPER Nano – Beginner Electronics and Programming Educational Robot for Arduino Nano ESP32
 
-This repository contains programs and beginner programming activities for the [mirobo.tech BEAPER Nano](https://mirobo.tech/beaper) circuit in both Arduino C and MicroPython.
+This repository contains example programs and programming activities for the [mirobo.tech BEAPER Nano](https://mirobo.tech/beaper) circuit written in both Arduino C/C++ and MicroPython.
 
