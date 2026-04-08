@@ -1,18 +1,19 @@
 """
 BEAPER Nano I/O Test project
-March 10, 2025
+April 8, 2026
 
-Functional test of all on-board BEAPER Nano I/O devices.
+Functional test program for on-board BEAPER Nano I/O devices. Tests:
+  - inputs (pushbuttons, ambient light sensor Q4, temperature sensor U4,
+    potentiometers RV1 and RV2)
+  - outputs (LEDs, piezo speaker, motor driver, servo header outputs)
+  - SONAR module (connect a 3.3V HC-SR04P to H1-H4)
 
-This program includes a SONAR range function designed to test an optional 3.3V
-HC-SR04P ultrasonic distance sensor module plugged into headers H1-H4, as well
-as servo position functions to control two servos connected to H5 and H6 from
-potentiometers RV1 and RV2.
-
-The program displays the SONAR range and analog input values from the ambient
-light sensor, temperature sensor and both on-board potentiometers. Set the
-jumpers to select the environmental inputs (labelled Enviro.) on the BEAPER
-Nano PCB.
+Jumper settings:
+  - set JP1-JP4 to Enviro. to select analog input devices Q4, U4, RV1,
+    and RV2. If floor sensors and voltage divider resistors are
+    installed, jumpers can be moved to Robot to test Q1, Q2, Q3, inputs.
+    Testing VDIV requires an external power supply to be attached to
+    VDC In inputs on CON1.
 
 See the https://mirobo.tech/beaper webpage for additional BEAPER Nano starter
 progams and beginner programming activities.
@@ -23,10 +24,10 @@ from machine import Pin, PWM, ADC
 import time
 
 # Built-in Arduino Nano ESP32 LEDs
-LED_BUILTIN = Pin(48, Pin.OUT, value = 0)   # Active High
-LED_BLUE = Pin(45, Pin.OUT, value = 1)      # Active Low
-LED_GREEN = Pin(0, Pin.OUT, value = 1)      # Active Low
-LED_RED = Pin(46, Pin.OUT, value = 0)       # Active Low
+LED_BUILTIN = Pin(48, Pin.OUT, value = 1)   # Active High
+LED_RGB_BLUE = Pin(45, Pin.OUT, value = 1)  # Active Low
+LED_RGB_GREEN = Pin(0, Pin.OUT, value = 1)  # Active Low
+LED_RGB_RED = Pin(46, Pin.OUT, value = 1)   # Active Low
 
 # BEAPER Nano Educational Starter I/O devices
 SW2 = Pin(44, Pin.IN, Pin.PULL_UP)
@@ -37,7 +38,7 @@ LED2 = M1A = Pin(7, Pin.OUT)
 LED3 = M1B = Pin(8, Pin.OUT)
 LED4 = Pin(9, Pin.OUT)
 LED5 = Pin(10, Pin.OUT)
-BEEPER = PWM(Pin(17), freq = 1000, duty_u16 = 0)
+LS1 = PWM(Pin(17), freq = 1000, duty_u16 = 0)
 
 # BEAPER Nano analog input devices
 Q1 = Q4 = ADC(1, atten = ADC.ATTN_11DB)
@@ -57,43 +58,40 @@ H3IN = ECHO = Pin(14 , Pin.IN, Pin.PULL_UP)
 # H4OUT = H6OUT = Pin(12 , Pin.OUT)
 SERVO2 = PWM(Pin(12), freq=50, duty_u16=4916)
 
-# Tone functions. The tone() function creates sound at the specficied frequency
-# using PWM output. The tone plays until stopped using the noTone() function, or
-# for the optional specified duration (in seconds). Playing a tone blocks using
-# duration blocks other operations for the specified duration.
+# Start a tone at specified frequency (Hz), and stop the tone after
+# an optional duration (ms)
 def tone(frequency, duration=None):
-    BEEPER.freq(frequency)
-    BEEPER.duty_u16(32768)
+    LS1.freq(frequency)
+    LS1.duty_u16(32768)
     if duration is not None:
-        time.sleep(duration)
+        time.sleep_ms(duration)
         noTone()
 
-# Stops the tone. Specifying an optional duration pauses for the duration of
-# time specified (in seconds, and blocks other operations for the duration).
+# Stop the tone. Optionally pause for duration (ms)
 def noTone(duration=None):
-    BEEPER.duty_u16(0)
+    LS1.duty_u16(0)
     if duration is not None:
         time.sleep(duration)
 
-# Map function. Maps a value within the input range to the output range.
-def map(value, in_min, in_max, out_min, out_max):
+# Map a value within the input range to the output range
+def map_range(value, in_min, in_max, out_min, out_max):
     return int((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
-# Servo position functions. Creates continuous servo pulses using PWM. Maps input
+# Create continuous servo pulses using PWM. Maps input
 # degree values to PWM puslewidths. Un-comment the appropriate duty_u16 duty cycle
 # to map input the required input range (0-90 or 0-180 degrees) to the output pulse
 # length appopriate for your type of servo.
 def servo1_position(deg):
-    SERVO1.duty_u16(map(deg, 0, 90, 3277, 6554))  # 1-2ms pulses for a 90 deg. servo
-    # SERVO1.duty_u16(map(deg, 0, 180, 3277, 6554))  # 1-2ms pulses for 180 deg. input to a 90 deg. servo
-    # SERVO1.duty_u16(map(deg, 0, 180, 1782, 8192))  # 544us-2500us pulses for a 180 deg. servo
-    # SERVO1.duty_u16(map(deg, 0, 180, 1638, 8192))  # 500us-2500us pulses for a 180 deg. servo
+    SERVO1.duty_u16(map_range(deg, 0, 90, 3277, 6554))  # 1-2ms pulses for a 90 deg. servo
+    # SERVO1.duty_u16(map_range(deg, 0, 180, 3277, 6554))  # 1-2ms pulses for 180 deg. input to a 90 deg. servo
+    # SERVO1.duty_u16(map_range(deg, 0, 180, 1782, 8192))  # 544us-2500us pulses for a 180 deg. servo
+    # SERVO1.duty_u16(map_range(deg, 0, 180, 1638, 8192))  # 500us-2500us pulses for a 180 deg. servo
 
 def servo2_position(deg):
-    SERVO2.duty_u16(map(deg, 0, 90, 3277, 6554))  # 1-2ms pulses for a 90 deg. servo
-    # SERVO2.duty_u16(map(deg, 0, 180, 3277, 6554))  # 1-2ms pulses for 180 deg. input to a 90 deg. servo
-    # SERVO2.duty_u16(map(deg, 0, 180, 1782, 8192))  # 544us-2500us pulses for a 180 deg. servo
-    # SERVO2.duty_u16(map(deg, 0, 180, 1638, 8192))  # 500us-2500us pulses for a 180 deg. servo
+    SERVO2.duty_u16(map_range(deg, 0, 90, 3277, 6554))  # 1-2ms pulses for a 90 deg. servo
+    # SERVO2.duty_u16(map_range(deg, 0, 180, 3277, 6554))  # 1-2ms pulses for 180 deg. input to a 90 deg. servo
+    # SERVO2.duty_u16(map_range(deg, 0, 180, 1782, 8192))  # 544us-2500us pulses for a 180 deg. servo
+    # SERVO2.duty_u16(map_range(deg, 0, 180, 1638, 8192))  # 500us-2500us pulses for a 180 deg. servo
 
 # SONAR range function with maximum range limit and ECHO pin error checking.
 # Returns the range of the closest target in cm. The 'max' parameter limits
@@ -132,7 +130,7 @@ def sonar_range(max):
 LED_BUILTIN.value(1)
 
 # Start-up sound
-tone(1000,0.1)
+tone(1000,100)
 
 # Brief instructions
 print("Starting BEAPER Nano")
@@ -176,19 +174,19 @@ while True:
         time.sleep(0.1)
 
     if SW3.value() == 0:
-        LED_RED.value(0)
+        LED_RGB_RED.value(0)
     else:
-        LED_RED.value(1)
+        LED_RGB_RED.value(1)
     
     if SW4.value() == 0:
-        LED_GREEN.value(0)
+        LED_RGB_GREEN.value(0)
     else:
-        LED_GREEN.value(1)
+        LED_RGB_GREEN.value(1)
     
     if SW5.value() == 0:
-        LED_BLUE.value(0)
+        LED_RGB_BLUE.value(0)
     else:
-        LED_BLUE.value(1)
+        LED_RGB_BLUE.value(1)
     
     # Update servo inputs every 20ms
     if time.ticks_diff(time.ticks_ms(), servo_timer) > 20:
@@ -196,10 +194,10 @@ while True:
         servo_timer = time.ticks_ms()
         # Update servos
         rv1_pos = RV1.read_u16()
-        rv1_angle = map(rv1_pos, 0, 65535, 0, 90)
+        rv1_angle = map_range(rv1_pos, 0, 65535, 0, 90)
         servo1_position(rv1_angle)
         rv2_pos = RV2.read_u16()
-        rv2_angle = map(rv2_pos, 0, 65535, 0, 90)
+        rv2_angle = map_range(rv2_pos, 0, 65535, 0, 90)
         servo2_position(rv2_angle)
 
     # Update SONAR range and analog input every 500ms
