@@ -46,7 +46,7 @@ This LCD.py driver is extended from Russ Hughes' extensive and excellent [st7789
     
 * triangle(x1, y1, x2, y2, x3, y3, c [, f]) - draw a triangle with vertices at x1,y1, x2,y2, and x3,y3, using color c, and optionally fill the triangle if f=True
     
-* ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x,y, with x radius xr, y radius yr, using color c, and optionally fill the ellipse if f=True. Optional m parameter  enables drawing only one quadrant of the ellipse: 1=top right, 2=top left, 3=bottom left, 4=bottom right
+* ellipse(x, y, xr, yr, c, [, f, m]) - draw an ellipse centred at x,y, with x radius xr, y radius yr, using color c, and optionally fill the ellipse if f=True. Optional m parameter enables drawing only one quadrant of the ellipse - quadrants are encoded using 4 LS bits: bit 0 (value 1) = top right, bit 1 (value 2) = top left, bit 2 (value 4) = bottom left, bit 3 (value 8) = bottom right.
     
 * poly(x, y, coords, c [, f]) - draw a polygon at x,y, from array of integer coords (e.g. array('h', [x0, y0, x1, y1, ... xn, yn]), using color c, and optionally fill the polygon if f=True
     
