@@ -7,7 +7,6 @@
 This repository contains MicroPython programs for BEAPER Nano:
 * Beginner Activities - example programs comprising a complete beginner course for teaching Arduino Nano ESP32 programming in MicroPython using BEAPER nano
 * LCD - a MicroPython ST7789 LCD driver module and example programs
-* VL53L0X - a VL53L0X ToF (Time of Flight) distance sensor driver module and example programs
 
 ## Beginner Activities - New beginner learning activities
 
@@ -23,11 +22,14 @@ This repository contains MicroPython programs for BEAPER Nano:
 * Activity_B08_Functions.py - Creating and using functions
 * Activity_B09_Analog_Input.py - Reading and processing analog input values
 * Activity_B10_Analog_Output.py - Controlling real-world outputs
-* B10_Motor_Controller_Project.py - PWM motor output
-* B10_Servo_Controller_Project.py - Servo output
-* B10_Sound_Controller_Project.py - Sound output
-* B10_RGB_Controller_Project.py - RGB LED output
-* B11_Timed_Analog_Output.py - Non-blocking timing
+* B10_Motor_Controller_Project.py - PWM motor output project
+* B10_Servo_Controller_Project.py - Servo output project
+* B10_Sound_Controller_Project.py - Sound output project
+* B10_RGB_Controller_Project.py - RGB LED output project
+* Activity_B11_Non-Blocking_Timing.py - Multiple concurrent timers
+* B11_Timed_Analog_Output.py - Non-blocking timing project
+* Activity_B12_State_Machines.py - A new way to structure programs
+* B12_Combination_Lock_Project.py - Digital safe project
 
 ## LCD - MicroPython ST7789 LCD Driver Module
 
