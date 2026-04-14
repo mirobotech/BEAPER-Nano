@@ -77,9 +77,9 @@ def noTone(duration=None):
 def map_range(value, in_min, in_max, out_min, out_max):
     return int((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
-# Create continuous servo pulses using PWM. Maps input
-# degree values to PWM puslewidths. Un-comment the appropriate duty_u16 duty cycle
-# to map input the required input range (0-90 or 0-180 degrees) to the output pulse
+# Create continuous servo pulses using PWM. Maps input degree values to
+# PWM puslewidths. Un-comment the appropriate duty_u16 duty cycle to map
+# the required input range (0-90 or 0-180 degrees) to the output pulse
 # length appopriate for your type of servo.
 def servo1_position(deg):
     SERVO1.duty_u16(map_range(deg, 0, 90, 3277, 6554))  # 1-2ms pulses for a 90 deg. servo
