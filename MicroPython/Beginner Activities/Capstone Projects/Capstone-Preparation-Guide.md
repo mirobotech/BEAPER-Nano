@@ -29,8 +29,8 @@ right level of detail.
 
 ## Part 1 — Project Description
 
-Write two or three sentences describing your project works **from the
-perspective of someone using it** — not how it works internally.
+Write two or three sentences describing how your project works **from
+the perspective of someone using it** — not how it works internally.
 
 Describe what users would see and how they would interact with it – what 
 does it control, how would it be used, and what problem does it solve?
@@ -58,7 +58,7 @@ plain language, the design is not yet clear enough to code.
 ## Part 2 — Hardware Inventory
 
 List every input and output your project uses. Be specific — name the
-sensor or component, the type fo signal it uses (digital or analog), 
+sensor or component, the type of signal it uses (digital or analog), 
 and the pin or connector it connects to.
 
 Working through this list often reveals problems before any code is
@@ -353,21 +353,19 @@ otherwise `GREEN_TIME`.
 ### Part 5 — State Diagram
 
 ```
-                      ┌──────────────────────────────────────────────┐
-                      │  elapsed >= ADV_GREEN_TIME                   │
-                      ▼                                              │
-  ┌─────┐  car_waiting  ┌───────────┐                    ┌───────────┴──┐
-  │ RED │ ────────────> │ ADV_GREEN │                    │    GREEN     │
-  │     │               └───────────┘                    │              │
-  │     │  not car_waiting                               │              │
-  │     │ ──────────────────────────────────────────────>│              │
-  └─────┘                                                └──────────────┘
-    ▲                                                           │
-    │  elapsed >= YELLOW_TIME            elapsed >= effective_green
-    │                                                           │
-  ┌─────────┐ ◄────────────────────────────────────────────────-┘
-  │ YELLOW  │
-  └─────────┘
+    elapsed >= RED_TIME
+  +-----+             +-----------+ elapsed >= ADV_GREEN_TIME +-------+
+  | RED | ----------> | ADV_GREEN | ------------------------> | GREEN |
+  |     | car_waiting +-----------+                           |       |
+  |     |                                                     |       |
+  |     | --------------------------------------------------> |       |
+  +-----+    not car_waiting                                  +-------+
+     ^                                                            |
+     | elapsed >= YELLOW_TIME          elapsed >= effective_green |
+     |                                                            |
+  +--------+                                                      |
+  | YELLOW | <----------------------------------------------------+
+  +--------+
 ```
 
 Car and walk requests are recorded during `RED` and applied at the
