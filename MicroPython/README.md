@@ -2,7 +2,7 @@
 
 ## Beginner Electronics and Programming Educational Robot (BEAPER) for Arduino Nano ESP32
 
-[BEAPER nano](https://mirobo.tech/beaper) is a beginner circuit kit for learning and teaching microcontroller programming and robotics using Arduino Nano ESP32 microcontrollers.
+[BEAPER nano](https://mirobo.tech/beaper) is a beginner circuit kit for learning and teaching microcontroller programming and robotics using the Arduino Nano ESP32 microcontroller and either Arduino C/C++ code or MicroPython.
 
 This repository contains MicroPython programs for BEAPER Nano:
 * Beginner Activities - a complete MicroPython beginner curriculum for BEAPER Pico in the form of lesson activities, extension projects, and capstone project templates
