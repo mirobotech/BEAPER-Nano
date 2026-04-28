@@ -352,6 +352,7 @@ otherwise `GREEN_TIME`.
 
 ### Part 5 — State Diagram
 
+
 ```
     elapsed >= RED_TIME
   +-----+             +-----------+ elapsed >= ADV_GREEN_TIME +-------+
