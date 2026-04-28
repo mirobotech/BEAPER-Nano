@@ -1,6 +1,6 @@
 """
 BEAPER Nano Text Comparison
-Updated: April 2, 2026
+Updated: April 28, 2026
 
 Compares the time taken to write text using text16() with the built-in
 display font and write() using converted TrueType fonts while allowing
