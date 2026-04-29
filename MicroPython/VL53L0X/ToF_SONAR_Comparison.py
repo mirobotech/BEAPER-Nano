@@ -1,7 +1,7 @@
 """
 ================================================================================
 SONAR_ToF_Comparison.py
-April 22, 2026
+April 29, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit
 Requires: BEAPER_Nano.py board support module file
@@ -26,7 +26,7 @@ import LCDconfig_Nano as lcd_config
 # VL53L0X module
 from vl53l0x_nb import VL53L0X
 
-# BEAPER Pico support module
+# BEAPER Nano support module
 import BEAPER_Nano as beaper
 
 # --- Program Constants ----------------
@@ -45,7 +45,7 @@ volt_mult = 24 / VOLT_DIV
 
 # --- Start SONAR ranging, time SONAR TRIG -> ECHO delay
 def sonar_range_trig():
-    # Make a 10us TRIG pulse to start a range measurement
+    # Make a 10us TRIG pulse and measure delay until ECHO starts.
     beaper.SONAR_TRIG.value(1)
     time.sleep_us(10)
     beaper.SONAR_TRIG.value(0)
@@ -57,8 +57,7 @@ def sonar_range_trig():
     
 # ---- Get SONAR range by timing ECHO pulse ---------------
 def sonar_range_echo():
-    # Measure ECHO pulse duration. Time-out value is set to round-trip
-    # time for max_range plus 1cm, in microseconds. (~29us/cm one way)
+    # Measure ECHO pulse duration.
     echo_start = time.ticks_us()
     while beaper.SONAR_ECHO.value() == 1:
         time.sleep_us(1)
@@ -112,29 +111,30 @@ while True:
     lcd.text16(text, 120, 20, lcd.WHITE75)
     text = f"Time:{tof_time_us}us"
     lcd.text16(text, 120, 40, lcd.WHITE75)
-    
+
+    # Draw oscilloscope grid
     lcd.vline(0, 96, 144, lcd.GREY)
     for x in range(24, 241, 24):
         lcd.vline(x-1, 96, 144, lcd.GREY)
     for y in range(96, 241, 24):
         lcd.hline(0, y-1, 240, lcd.GREY)
     
-    # Set up virtual scope
+    # Virtual scope parameters
     trace = 0  # trace time 0
     ch1 = 144  # Channel 1 GND reference pixel row
     ch2 = 216  # Channel 2 GND reference pixel row
 
-    # TRIG pulse
+    # Draw TRIG pulse
     sig = int(3.3 * volt_mult) 
     lcd.vline(trace, ch1 - sig, sig, lcd.CYAN)
     lcd.hline(trace, ch1, 240, lcd.CYAN)
     
-    # TRIG delay
+    # Draw TRIG delay
     h = int(trig_time_us * time_mult)
     lcd.hline(trace, ch2, h, lcd.YELLOW)
     trace += h
     
-    # ECHO pulse
+    # Draw ECHO pulse
     lcd.vline(trace, ch2-sig, sig, lcd.YELLOW)
     h = int((sonar_time_us - trig_time_us) * time_mult)
     lcd.hline(trace, ch2 - sig, h, lcd.YELLOW)
