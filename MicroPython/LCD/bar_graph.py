@@ -1,12 +1,12 @@
 """
 bar_graph.py
-April 3, 2026
+April 29, 2026
 
-Bar graph functions for creating continuous and segmented bar graphs
-using the LCD.py driver module on BEAPER Pico and BEAPER Nano.
+Bar graph functions using using the LCD.py driver module. Creates
+horizontal or vertical, continuous or segmented bar graphs.
 
 Requires:
-    LCD.py - LCD driver module that extends the MicroPython framebuffer
+    LCD.py - LCD driver module (extends MicroPython framebuffer)
 
 Functions:
     vertical        - Continuous vertical bar graph
@@ -20,30 +20,29 @@ Continuous bar graphs (vertical, horizontal) - draw a value on a
         - minimum and maximum bar graph values (default 0-100)
         - an optional background color (to prevent persistence and/or
           enable partial LCD updates) or over a transparent background
-          (requires background to be re-drawn each bar graph update)
         - an optional border color and width, incuding optional
           padding to inset the bar from the border
 
 Segmented bar graphs (seg_vertical, seg_horizontal) - draw a value on
-    a segmented vertical or horizontal bar graph (like simulated LEDs,
+    a segmented vertical or horizontal bar graph (like simulated LEDs -
     segments are fully lit at the mid-point of their sub-range), with:
         - a specified color
         - minimum and maximum bar graph values (default 0-100)
-        - optional background color (to prevent persistence and
-          enable partial LCD updates) or a transparent background
-          (requires background to be re-drawn each bar graph update)
+        - an optional background color (to prevent persistence and/or
+          enable partial LCD updates) or over a transparent background
         - an optional border using specified color and width
         - optional padding to inset the segments from the border and
           space segments from each other 
-        - the selectable numbers of segments (default 10)
+        - a selectable number of segments (default 10)
 
 Border behaviour:
-    If border > 0, a border is drawn. If not supplied, border_color
+    If border > 0, draws a border. If not supplied, border_color
     defaults to lcd.BLACK. 
 
 Padding behaviour:
     The padding parameter controls the inset of the bar from the inner
-    edges of the border on all sides. A padding of 0 fills the bar flush
+    edges of the border on all sides and attempts to center a segmented
+    bar graph within the borders. A padding of 0 fills the bar flush
     to the border, and padding > 0 floats the bar within the border. In
     segmented graphs, padding also controls the spacing between segments.
 
@@ -103,7 +102,7 @@ def vertical(lcd, x, y, width=BAR_SHORT, length=BAR_LONG,
              padding=0):
     """
     Draw a continuous vertical bar graph, growing upward from the bottom.
-    Bar is drawn over the background (or bg_color fill).
+    Bar is drawn over the background (or optional bg_color).
 
     Parameters:
         lcd          - LCD canvas object (from LCD.py)
@@ -111,8 +110,8 @@ def vertical(lcd, x, y, width=BAR_SHORT, length=BAR_LONG,
         width        - Width of the bar graph in pixels
         length       - Length (height) of the bar graph in pixels
         value        - Current value to display
-        min_val      - Value corresponding to an empty bar
-        max_val      - Value corresponding to a full bar
+        min_val      - Value corresponding to an empty bar (default = 0)
+        max_val      - Value corresponding to a full bar (default = 100)
         color        - Colour of the filled bar (defaults to lcd.WHITE)
         bg_color     - Colour of the bar interior; if None (default), only
                        the filled portion is drawn and the caller manages
@@ -158,7 +157,7 @@ def horizontal(lcd, x, y, width=BAR_LONG, length=BAR_SHORT,
                padding=0):
     """
     Draw a continuous horizontal bar graph, growing rightward from the left.
-    Bar is drawn over the background (or bg_color fill).
+    Bar is drawn over the background (or optional bg_color).
 
     Parameters:
         lcd          - LCD canvas object (from LCD.py)
@@ -231,7 +230,8 @@ def seg_vertical(lcd, x, y, width=BAR_SHORT, length=BAR_LONG,
         border_color - Colour of border; defaults to lcd.BLACK if
                        border > 0 and border_color is not supplied
         padding      - Gap between segments and inset from side edges
-        segments     - Number of LED-style segments (1 = single on/off block)
+        segments     - Number of LED-style segments (default = 10,
+                       1 = single on/off block)
     """
     if color is None:
         color = lcd.WHITE
@@ -295,7 +295,8 @@ def seg_horizontal(lcd, x, y, width=BAR_LONG, length=BAR_SHORT,
         border_color - Colour of border; defaults to lcd.BLACK if
                        border > 0 and border_color is not supplied
         padding      - Gap between segments and inset from top/bottom edges
-        segments     - Number of LED-style segments (1 = single on/off block)
+        segments     - Number of LED-style segments (default = 10,
+                       1 = single on/off block)
     """
     if color is None:
         color = lcd.WHITE
