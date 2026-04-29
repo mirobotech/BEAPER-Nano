@@ -1,8 +1,8 @@
 """
 BEAPER Nano Bar Graph Demo
-Updated: April 8, 2026
+Updated: April 29, 2026
 
-Demonstrates the bar_graph module using BEAPER Pico's two potentiometers
+Demonstrates the bar_graph module using BEAPER Nano's two potentiometers
 (RV1, RV2), ambient light sensor (Q4), and temperature sensor (U4).
 
 RV1 and temperature drive continuous vertical bar graphs, while
@@ -18,7 +18,7 @@ Hardware:
     Set JP1, JP2, JP3, and JP4 jumpers to Enviro. to connect Q4, U4, RV1, and RV2.
 """
 
-from machine import SPI
+from machine import SPI, Pin
 import BEAPER_Nano as beaper         # BEAPER Nano board module
 import LCDconfig_Nano as lcd_config  # LCD configuration file (calls LCD.py driver)
 import bar_graph                     # Bar graph module
@@ -69,6 +69,11 @@ LABEL_Q4    = "Light"
 LABEL_TMP   = "Temp"
 LABEL_COLOR = lcd.WHITE75
 
+# Map a value from one range to another, returning a float result.
+def map_range(value, in_min, in_max, out_min, out_max):
+  # Use int(map_range(...)) when an integer result is required.
+  return out_min + (value - in_min) * (out_max - out_min) / (in_max - in_min)
+
 # Write a centred text string under a bar
 def write_centred(text, bar_x, bar_w, y, color):
     tx = bar_x + (bar_w - lcd.text16_width(text)) // 2
@@ -76,35 +81,36 @@ def write_centred(text, bar_x, bar_w, y, color):
 
 while True:
     # Read sensor values
-    rv1_val = beaper.RV1_level()
+    rv1_val = int(map_range(beaper.RV1_level(), 0, 65535, 0, 100))
     rv2_val = beaper.RV2_level()
     q4_val  = beaper.light_level()
     amb_temp = (beaper.temp_level() / 19.859 - 500) / 10
 
+    # Background fill
     lcd.fill(lcd.BLUE50)
     
-    # RV1 continuous bar with border and custom background color
+    # RV1 0-100 continuous bar with border and background color
     bar_graph.vertical(lcd, BAR1_X, BAR_TOP, BAR_W, BAR_L,
-                       rv1_val, 0, 65535,
+                       rv1_val, 0, 100,
                        RV1_COLOR, lcd.color565(16,0,0),
                        BORDER, BORDER_COL,
                        PADDING)
 
-    # RV2 segmented bar with 16 segments and transparent background
+    # RV2 10 segment bar with no border over transparent background
     bar_graph.seg_vertical(lcd, BAR2_X, BAR_TOP, BAR_W, BAR_L,
                            rv2_val, 0, 65535,
                            RV2_COLOR, None,
                            0, BORDER_COL,
-                           PADDING, SEGMENTS)
+                           4)
 
-    # Q4 (light level) 10 segment bar with border and background
+    # Q4 (light level) 16 segment bar with border and background
     bar_graph.seg_vertical(lcd, BAR3_X, BAR_TOP, BAR_W, BAR_L,
                            q4_val, 0, 65535,
                            Q4_COLOR, BG_COLOR,
                            2, lcd.WHITE75,
-                           PADDING)
+                           PADDING, SEGMENTS)
     
-    # U4 (temperature) continuous bar with transparent background
+    # U4 (temperature) continuous bar over transparent background
     bar_graph.vertical(lcd, BAR4_X, BAR_TOP, BAR_W, BAR_L,
                        amb_temp, 0, 50,
                        TMP_COLOR)
