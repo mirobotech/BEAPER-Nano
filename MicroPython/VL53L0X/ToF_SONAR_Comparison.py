@@ -1,12 +1,12 @@
 """
 ================================================================================
-SONAR_ToF_Comparison.py
-April 29, 2026
+ToF_SONAR_Comparison.py
+May 4, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit
 Requires: BEAPER_Nano.py board support module file
           vl53l0x_nb.py non-blocking VL53L0X driver module
-          LCDconfig_Nano.py LCD driver module
+          LCDconfig_Pico.py LCD driver module
 
 Compares distance results and ranging acquisition time between
 HC-SR04(P) SONAR and VL53L0X ToF (Time of Flight) modules using
