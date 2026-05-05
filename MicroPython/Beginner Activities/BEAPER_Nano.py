@@ -1,6 +1,6 @@
 """
 BEAPER_Nano.py
-March 22, 2026
+May 4, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
@@ -296,25 +296,28 @@ def sonar_range(_max_range=100):
   SONAR_TRIG.value(1)
   time.sleep_us(10)
   SONAR_TRIG.value(0)
+
+  # Pre-calculate max ECHO time-out as round trip time + 1cm, in
+  # microseconds (~29.1us/cm one-way)
+  _max_echo = int((_max_range + 1) * 58.2)
   
-  # Wait up to 2500us for ECHO pin to go high after TRIG.
+  # Wait up to 2500us for ECHO input to go high after TRIG.
   # (Necessary for 3.3V HC-SR04P/RCWL-9610A SONAR modules.)
   duration = machine.time_pulse_us(SONAR_ECHO, 0, 2500)
   # time_pulse_us() returns a negative value if ECHO did not start.
   if duration < 0:
     return -1
   
-  # Measure ECHO pulse duration. Time-out value is set to round-trip
-  # time for max_range plus 1cm, in microseconds. (~29us/cm one way)
-  duration = machine.time_pulse_us(SONAR_ECHO, 1, (_max_range + 1) * 58)
+  # Measure ECHO pulse duration using pre-calculated time-out value.
+  duration = machine.time_pulse_us(SONAR_ECHO, 1, _max_echo)
   
   # time_pulse_us returns a negative value if ECHO times out (no
-  # target within max_range)
+  # target within max_range), so return 0 instead.
   if duration < 0:
     return 0
   
-  # Convert round trip ECHO time to distance
-  return duration / 58
+  # Convert round-trip ECHO duration to distance in cm.
+  return duration / 58.2
 
 
 # ---------------------------------------------------------------------
@@ -339,18 +342,18 @@ SERVO_MIN_US = const(1000)   # Pulse width at 0 degrees
 SERVO_MAX_US = const(2000)   # Pulse width at maximum angle
 SERVO_RANGE  = const(90)     # Maximum servo angle (degrees)
 
-# Servos are initialized to centre position (duty_u16=4915 ≈ 1.5ms).
+# Servos are initialized to centre position (duty_u16=4915 ~ 1.5ms).
 # This value is calculated from: 
 #   - pulse period: 1 / 50Hz pulse frequency = 20ms period
 #   - 1.5ms pulse: duty_u16 = (1.5 / 20.0) * 65535 = 4915
 # Modify the duty_u16 value if the centre position is not safe for
 # your application before connecting servos to the circuit.
-SERVO1 = PWM(Pin(H5_PIN), freq=50, duty_u16=4915)
-SERVO2 = PWM(Pin(H6_PIN), freq=50, duty_u16=4915)
-SERVO3 = PWM(Pin(H7_PIN), freq=50, duty_u16=4915)
-SERVO4 = PWM(Pin(H8_PIN), freq=50, duty_u16=4915)
+# SERVO1 = PWM(Pin(H5_PIN), freq=50, duty_u16=4915)
+# SERVO2 = PWM(Pin(H6_PIN), freq=50, duty_u16=4915)
+# SERVO3 = PWM(Pin(H7_PIN), freq=50, duty_u16=4915)
+# SERVO4 = PWM(Pin(H8_PIN), freq=50, duty_u16=4915)
 
-SERVOS = (SERVO1, SERVO2, SERVO3, SERVO4)  # Tuple of all servo PWM outputs
+# SERVOS = (SERVO1, SERVO2, SERVO3, SERVO4)  # Tuple of all servo PWM outputs
 
 def set_servo(servo, angle):
   # Set a servo to angle (0 to SERVO_RANGE degrees).
