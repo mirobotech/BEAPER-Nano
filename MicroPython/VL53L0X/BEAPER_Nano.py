@@ -1,6 +1,6 @@
 """
 BEAPER_Nano.py
-March 22, 2026
+May 4, 2026
 
 Board support module for the mirobo.tech BEAPER Nano circuit.
 
@@ -296,25 +296,28 @@ def sonar_range(_max_range=100):
   SONAR_TRIG.value(1)
   time.sleep_us(10)
   SONAR_TRIG.value(0)
+
+  # Pre-calculate max ECHO time-out as round trip time + 1cm, in
+  # microseconds (~29.1us/cm one-way)
+  _max_echo = int((_max_range + 1) * 58.2)
   
-  # Wait up to 2500us for ECHO pin to go high after TRIG.
+  # Wait up to 2500us for ECHO input to go high after TRIG.
   # (Necessary for 3.3V HC-SR04P/RCWL-9610A SONAR modules.)
   duration = machine.time_pulse_us(SONAR_ECHO, 0, 2500)
   # time_pulse_us() returns a negative value if ECHO did not start.
   if duration < 0:
     return -1
   
-  # Measure ECHO pulse duration. Time-out value is set to round-trip
-  # time for max_range plus 1cm, in microseconds. (~29us/cm one way)
-  duration = machine.time_pulse_us(SONAR_ECHO, 1, (_max_range + 1) * 58)
+  # Measure ECHO pulse duration using pre-calculated time-out value.
+  duration = machine.time_pulse_us(SONAR_ECHO, 1, _max_echo)
   
   # time_pulse_us returns a negative value if ECHO times out (no
-  # target within max_range)
+  # target within max_range), so return 0 instead.
   if duration < 0:
     return 0
   
-  # Convert round trip ECHO time to distance
-  return duration / 58
+  # Convert round-trip ECHO duration to distance in cm.
+  return duration / 58.2
 
 
 # ---------------------------------------------------------------------
