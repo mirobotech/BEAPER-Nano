@@ -1,11 +1,11 @@
 """
 ================================================================================
-Capstone Project: NeoPixel Display Controller
+Capstone Project: NeoPixel Display Controller [BEAPER_Nano-Capstone_NeoPixel.py]
 May 4, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (robot configuration with
-    voltage regulator U1 and 74HCT541 buffer/level shifter U2 is needed
-    to run short 5V NeoPixel sticks or rings)
+  voltage regulator U1 and 74HCT541 buffer/level shifter U2 is needed
+  to run short 5V NeoPixel sticks or rings)
 Requires: BEAPER_Nano.py board module file.
 
 Hardware used:
@@ -22,23 +22,25 @@ Hardware used:
 * Connecting a large NeoPixel strip *
 
 WARNING: A 60 LED strip at full brightness draws up to 3.6A (60ma
-    per pixel at white). Connect the strip's power and GND directly
-    to an external 5V power supply rated for at least 10% more than
-    the highest expected current. Connect the BEAPER Nano GND to
-    the external power supply GND (shared ground), and run the data
-    wire from the BEAPER Nano to the Din pin on the strip.
+  per pixel at white). Connect the strip's power and GND directly
+  to an external 5V power supply rated for at least 10% more than
+  the highest expected current. Connect the BEAPER Nano GND to
+  the external power supply GND (shared ground), and run the data
+  wire from the BEAPER Nano to the Din pin on the strip.
 
 * Connecting short NeoPixel sticks, rings, or strips *
 
 5V WS2812B or SK6812 LEDs:
-    Power BEAPER Nano with an external power supply (6-12V) connected
-    to screwn terminal CON1. Up to 30 WS2812B LEDs can be connected
-    to 5V output header H5 (GPIO 20) and used at low brightness
-    (MAX_BRIGHTNESS = 32 or less).
+  Power BEAPER Nano with an external power supply (6-12V) connected
+  to screw terminal CON1. Up to 30 WS2812B LEDs can be connected
+  to 5V output header H5 (GPIO 11) and used at low brightness
+  (MAX_BRIGHTNESS = 32 or less).
 
 3.3V SK6812 LEDs only:
-    Up to 10 SK6812 LEDs can be connected to 3.3V header H1 (GPIO 6)
-    and used at low brightness (MAX_BRIGHTNESS = 32 or less).
+  Up to 10 SK6812 LEDs can be connected using the 3.3V side of
+  header H1 (also GPIO 11). H1 and H5 share the same GPIO pin on
+  the BEAPER Nano, so the data connection is identical for both
+  strip types - only the strip's supply voltage differs.
     
 --------------------------------------------------------------------------------
 Animation modes (selected with SW3 / SW4):
@@ -82,8 +84,13 @@ MAX_BRIGHTNESS = 32           # Global brightness cap (0-255).
 # Strip type: "RGB" for WS2812B (3-byte), "RGBW" for SK6812 (4-byte).
 STRIP_TYPE = "RGB"            # Change to "RGBW" for SK6812 strips.
 
-# Data pin: H5 (GPIO 20) for WS2812B (5V header).
-#           H1 (GPIO 6)  for SK6812  (3.3V header - change beaper.H5_PIN below).
+# Data pin: H5 (GPIO 11) for WS2812B (5V header).
+#           H1 (GPIO 11) for SK6812  (3.3V header).
+# H1 and H5 share GPIO 11 on the BEAPER Nano, so PIXEL_PIN is the same
+# for both strip types. Only the strip supply voltage differs.
+# NOTE: GPIO 11 is also used by the QWIIC I2C bus (SDA). Creating the
+# NeoPixel object on this pin reclaims it from I2C - QWIIC will be
+# unavailable while the NeoPixel strip is in use.
 PIXEL_PIN = Pin(beaper.H5_PIN, Pin.OUT)
 
 # NeoPixel strip object.
@@ -130,12 +137,12 @@ MODE_PULSE   = const(5)  # All pixels fading in and out
 NUM_MODES = const(6)
 
 MODE_NAMES = {
-    MODE_OFF:     "OFF",
-    MODE_SOLID:   "SOLID",
-    MODE_CHASE:   "CHASE",
-    MODE_THEATRE: "THEATRE",
-    MODE_RAINBOW: "RAINBOW",
-    MODE_PULSE:   "PULSE",
+  MODE_OFF:     "OFF",
+  MODE_SOLID:   "SOLID",
+  MODE_CHASE:   "CHASE",
+  MODE_THEATRE: "THEATRE",
+  MODE_RAINBOW: "RAINBOW",
+  MODE_PULSE:   "PULSE",
 }
 
 # =============================================================================
@@ -206,135 +213,134 @@ last_active_mode = MODE_SOLID    # Mode to return to when SW5 turns the strip on
 # =============================================================================
 
 def hsv_to_rgb(h, s, v):
-    # Convert a colour from HSV to an (R, G, B) tuple.
-    # h: hue 0-359 degrees
-    # s: saturation 0-100 (0 = grey, 100 = fully saturated)
-    # v: value (brightness) 0-100 (0 = black, 100 = full brightness)
-    # Returns (r, g, b) with each component in the range 0-255.
-    #
-    # Why HSV instead of RGB?
-    # In RGB, colours are described as amounts of red, green, and blue
-    # light. To smoothly cycle through the spectrum in RGB you would need
-    # to change all three components simultaneously in a complex pattern.
-    # HSV describes colours as a position on a colour wheel using:
-    #  - Hue - the colour, where each colour is represented by its
-    #    angle in degrees around a circle. (red is hue=0, green is hue=120,
-    #    and blue is hue=240)
-    #  - Saturation - how vivid the colour is from 0 (no colour) to 100
-    #    (full colour).
-    #  - Value - how bright the colour is from 0 (black) to 100 (bright)
-    # Using HSV, cycling hue from 0 to 359 displays every colour in the
-    # spectrum - red, orange, yellow, green, cyan, blue, violet, and back
-    # to red - without touching saturation or brightness. This makes smooth
-    # colour animations easier than triying to simultaneously adjust
-    # individual RGB values up and down to mix colours.
-    if s == 0:
-        c = int(v * 255 / 100)
-        return (c, c, c)
-    s /= 100.0
-    v /= 100.0
-    i = int(h / 60) % 6
-    f = (h / 60) - int(h / 60)
-    p = int(v * (1 - s) * 255)
-    q = int(v * (1 - f * s) * 255)
-    t = int(v * (1 - (1 - f) * s) * 255)
-    v = int(v * 255)
-    if i == 0: return (v, t, p)
-    if i == 1: return (q, v, p)
-    if i == 2: return (p, v, t)
-    if i == 3: return (p, q, v)
-    if i == 4: return (t, p, v)
-    return (v, p, q)
+  # Convert a colour from HSV to an (R, G, B) tuple.
+  # h: hue 0-359 degrees
+  # s: saturation 0-100 (0 = grey, 100 = fully saturated)
+  # v: value (brightness) 0-100 (0 = black, 100 = full brightness)
+  # Returns (r, g, b) with each component in the range 0-255.
+  #
+  # Why HSV instead of RGB?
+  # In RGB, colours are described as amounts of red, green, and blue
+  # light. To smoothly cycle through the spectrum in RGB you would need
+  # to change all three components simultaneously in a complex pattern.
+  # HSV describes colours as a position on a colour wheel using:
+  #  - Hue - the colour, where each colour is represented by its
+  #    angle in degrees around a circle. (red is hue=0, green is hue=120,
+  #    and blue is hue=240)
+  #  - Saturation - how vivid the colour is from 0 (no colour) to 100
+  #    (full colour).
+  #  - Value - how bright the colour is from 0 (black) to 100 (bright)
+  # Using HSV, cycling hue from 0 to 359 displays every colour in the
+  # spectrum - red, orange, yellow, green, cyan, blue, violet, and back
+  # to red - without touching saturation or brightness. This makes smooth
+  # colour animations easier than triying to simultaneously adjust
+  # individual RGB values up and down to mix colours.
+  if s == 0:
+    c = int(v * 255 / 100)
+    return (c, c, c)
+  s /= 100.0
+  v /= 100.0
+  i = int(h / 60) % 6
+  f = (h / 60) - int(h / 60)
+  p = int(v * (1 - s) * 255)
+  q = int(v * (1 - f * s) * 255)
+  t = int(v * (1 - (1 - f) * s) * 255)
+  v = int(v * 255)
+  if i == 0: return (v, t, p)
+  if i == 1: return (q, v, p)
+  if i == 2: return (p, v, t)
+  if i == 3: return (p, q, v)
+  if i == 4: return (t, p, v)
+  return (v, p, q)
 
 
 def scale_colour(r, g, b, brightness):
-    # Scale an RGB colour by a brightness factor (0-255).
-    # brightness=255 returns the colour unchanged.
-    # brightness=128 returns half-brightness.
-    # brightness=32  returns 1/8 brightness
-    # brightness=0   returns 0 brightness, or black.
-    #
-    # This is used to apply MAX_BRIGHTNESS globally - all colour math
-    # uses full 0-255 values, and scale_colour() dims them at the end.
-    factor = brightness / 255
-    return (int(r * factor), int(g * factor), int(b * factor))
+  # Scale an RGB colour by a brightness factor (0-255).
+  # brightness=255 returns the colour unchanged.
+  # brightness=128 returns half-brightness.
+  # brightness=0   returns black.
+  #
+  # This is used to apply MAX_BRIGHTNESS globally - all colour math
+  # uses full 0-255 values, and scale_colour() dims them at the end.
+  factor = brightness / 255
+  return (int(r * factor), int(g * factor), int(b * factor))
 
 
 def make_pixel(r, g, b):
-    # Build a pixel value tuple for the current strip type.
-    # For RGB strips  (STRIP_TYPE = "RGB"):  returns (r, g, b)
-    # For RGBW strips (STRIP_TYPE = "RGBW"): returns (r, g, b, 0)
-    #
-    # Using make_pixel() throughout means all animation code works with
-    # both strip types without any other changes.
-    if STRIP_TYPE == "RGBW":
-        return (r, g, b, 0)
-    return (r, g, b)
+  # Build a pixel value tuple for the current strip type.
+  # For RGB strips  (STRIP_TYPE = "RGB"):  returns (r, g, b)
+  # For RGBW strips (STRIP_TYPE = "RGBW"): returns (r, g, b, 0)
+  #
+  # Using make_pixel() throughout means all animation code works with
+  # both strip types without any other changes.
+  if STRIP_TYPE == "RGBW":
+    return (r, g, b, 0)
+  return (r, g, b)
 
 
 def fill_strip(r, g, b):
-    # Set every pixel on the strip to (r, g, b) and push to hardware.
-    for i in range(NUM_LEDS):
-        strip[i] = make_pixel(r, g, b)
-    strip.write()
+  # Set every pixel on the strip to (r, g, b) and push to hardware.
+  for i in range(NUM_LEDS):
+    strip[i] = make_pixel(r, g, b)
+  strip.write()
 
 
 def clear_strip():
-    # Turn off all pixels.
-    fill_strip(0, 0, 0)
+  # Turn off all pixels.
+  fill_strip(0, 0, 0)
 
 
 def enter_mode(new_mode):
-    # Transition to a new mode.
-    # Clears the strip, resets all animation counters, plays a
-    # mode-specific confirmation tone, and prints the mode name.
-    # This is the same enter_state() pattern from Activity 12.
-    global mode, mode_changed
-    global chase_pos, theatre_offset, theatre_frames
-    global rainbow_offset, pulse_bright, pulse_up
+  # Transition to a new mode.
+  # Clears the strip, resets all animation counters, plays a
+  # mode-specific confirmation tone, and prints the mode name.
+  # This is the same enter_state() pattern from Activity 12.
+  global mode, mode_changed
+  global chase_pos, theatre_offset, theatre_frames
+  global rainbow_offset, pulse_bright, pulse_up
 
-    mode           = new_mode
-    mode_changed   = True
-    chase_pos      = 0
-    theatre_offset = 0
-    theatre_frames = 0
-    rainbow_offset = 0
-    pulse_bright   = 0
-    pulse_up       = True
+  mode           = new_mode
+  mode_changed   = True
+  chase_pos      = 0
+  theatre_offset = 0
+  theatre_frames = 0
+  rainbow_offset = 0
+  pulse_bright   = 0
+  pulse_up       = True
 
-    clear_strip()
+  clear_strip()
 
-    if new_mode == MODE_OFF:
-        beaper.pico_led_off()
-        beaper.noTone()
-    else:
-        beaper.pico_led_on()
-        beaper.tone(660 + new_mode * 80, 60)
+  if new_mode == MODE_OFF:
+    beaper.nano_led_off()
+    beaper.noTone()
+  else:
+    beaper.nano_led_on()
+    beaper.tone(660 + new_mode * 80, 60)
 
-    print("-->", MODE_NAMES[new_mode])
+  print("-->", MODE_NAMES[new_mode])
 
 
 def check_sw2(current_time):
-    # Read SW2 with the Activity 11 hold-and-repeat pattern.
-    # Returns True if a parameter increment step is due this iteration,
-    # False otherwise. Fires once on first press, then repeatedly after
-    # ADJUST_FIRST ms with ADJUST_REPEAT ms between repeats.
-    global sw2_held, sw2_held_start, sw2_last_repeat
+  # Read SW2 with the Activity 11 hold-and-repeat pattern.
+  # Returns True if a parameter increment step is due this iteration,
+  # False otherwise. Fires once on first press, then repeatedly after
+  # ADJUST_FIRST ms with ADJUST_REPEAT ms between repeats.
+  global sw2_held, sw2_held_start, sw2_last_repeat
 
-    sw2_current = beaper.SW2.value()
-    if sw2_current == 0:
-        if not sw2_held:
-            sw2_held        = True
-            sw2_held_start  = current_time
-            sw2_last_repeat = current_time
-            return True
-        elif (time.ticks_diff(current_time, sw2_held_start) >= ADJUST_FIRST and
+  sw2_current = beaper.SW2.value()
+  if sw2_current == 0:
+    if not sw2_held:
+      sw2_held        = True
+      sw2_held_start  = current_time
+      sw2_last_repeat = current_time
+      return True
+    elif (time.ticks_diff(current_time, sw2_held_start) >= ADJUST_FIRST and
               time.ticks_diff(current_time, sw2_last_repeat) >= ADJUST_REPEAT):
-            sw2_last_repeat = current_time
-            return True
-    else:
-        sw2_held = False
-    return False
+      sw2_last_repeat = current_time
+      return True
+  else:
+    sw2_held = False
+  return False
 
 
 # =============================================================================
@@ -342,7 +348,7 @@ def check_sw2(current_time):
 # =============================================================================
 
 clear_strip()
-beaper.pico_led_off()
+beaper.nano_led_off()
 print("NeoPixel Display Controller")
 print("Strip type:", STRIP_TYPE, " Pixels:", NUM_LEDS,
       " Max brightness:", MAX_BRIGHTNESS)
@@ -358,158 +364,158 @@ enter_mode(MODE_OFF)
 # =============================================================================
 
 while True:
-    current_time = time.ticks_ms()
+  current_time = time.ticks_ms()
 
-    # ---- Button: SW3 - previous mode ------------------------------------
-    sw3_current = beaper.SW3.value()
-    if sw3_current == 0 and sw3_last == 1:
-        if mode != MODE_OFF:
-            enter_mode((mode - 1 - 1) % (NUM_MODES - 1) + 1)
-    sw3_last = sw3_current
+  # ---- Button: SW3 - previous mode ------------------------------------
+  sw3_current = beaper.SW3.value()
+  if sw3_current == 0 and sw3_last == 1:
+    if mode != MODE_OFF:
+      enter_mode((mode - 1 - 1) % (NUM_MODES - 1) + 1)
+  sw3_last = sw3_current
 
-    # ---- Button: SW4 - next mode ----------------------------------------
-    sw4_current = beaper.SW4.value()
-    if sw4_current == 0 and sw4_last == 1:
-        if mode != MODE_OFF:
-            enter_mode(mode % (NUM_MODES - 1) + 1)
-    sw4_last = sw4_current
+  # ---- Button: SW4 - next mode ----------------------------------------
+  sw4_current = beaper.SW4.value()
+  if sw4_current == 0 and sw4_last == 1:
+    if mode != MODE_OFF:
+      enter_mode(mode % (NUM_MODES - 1) + 1)
+  sw4_last = sw4_current
 
-    # ---- Button: SW5 - toggle strip on/off ------------------------------
-    sw5_current = beaper.SW5.value()
-    if sw5_current == 0 and sw5_last == 1:
-        if mode == MODE_OFF:
-            enter_mode(last_active_mode)   # Return to the last active mode
-        else:
-            last_active_mode = mode        # Remember current mode before turning off
-            enter_mode(MODE_OFF)
-    sw5_last = sw5_current
+  # ---- Button: SW5 - toggle strip on/off ------------------------------
+  sw5_current = beaper.SW5.value()
+  if sw5_current == 0 and sw5_last == 1:
+    if mode == MODE_OFF:
+      enter_mode(last_active_mode)   # Return to the last active mode
+    else:
+      last_active_mode = mode        # Remember current mode before turning off
+      enter_mode(MODE_OFF)
+  sw5_last = sw5_current
 
-    # ---- SW2: cycle mode parameter (hold to repeat) ---------------------
-    if check_sw2(current_time):
-        if mode == MODE_SOLID or mode == MODE_PULSE:
-            hue = (hue + 10) % 360
-            print("    hue:", hue)
-        elif mode == MODE_CHASE:
-            chase_speed = chase_speed % 20 + 1   # Cycles 1->20->1
-            print("    chase speed:", chase_speed, "pixels/frame")
-        elif mode == MODE_THEATRE:
-            theatre_rate = theatre_rate % 20 + 1  # Cycles 1->20->1
-            print("    theatre rate:", theatre_rate, "frames/step")
-        elif mode == MODE_RAINBOW:
-            rainbow_speed = rainbow_speed % 20 + 1  # Cycles 1->20->1
-            print("    rainbow speed:", rainbow_speed, "deg/frame")
+  # ---- SW2: cycle mode parameter (hold to repeat) ---------------------
+  if check_sw2(current_time):
+    if mode == MODE_SOLID or mode == MODE_PULSE:
+      hue = (hue + 10) % 360
+      print("    hue:", hue)
+    elif mode == MODE_CHASE:
+      chase_speed = chase_speed % 20 + 1   # Cycles 1->20->1
+      print("    chase speed:", chase_speed, "pixels/frame")
+    elif mode == MODE_THEATRE:
+      theatre_rate = theatre_rate % 20 + 1  # Cycles 1->20->1
+      print("    theatre rate:", theatre_rate, "frames/step")
+    elif mode == MODE_RAINBOW:
+      rainbow_speed = rainbow_speed % 20 + 1  # Cycles 1->20->1
+      print("    rainbow speed:", rainbow_speed, "deg/frame")
 
-    # ---- Animation frame (non-blocking, rate-limited by FRAME_INTERVAL) -
-    if time.ticks_diff(current_time, last_frame_time) >= FRAME_INTERVAL:
-        last_frame_time = current_time
+  # ---- Animation frame (non-blocking, rate-limited by FRAME_INTERVAL) -
+  if time.ticks_diff(current_time, last_frame_time) >= FRAME_INTERVAL:
+    last_frame_time = current_time
 
-        # ------------------------------------------------------------------
-        # MODE_SOLID: all pixels set to a single colour.
-        #
-        # This mode is already complete and working - it shows how
-        # hsv_to_rgb(), scale_colour(), and make_pixel() work together.
-        # Read and understand this before implementing the other modes.
-        # ------------------------------------------------------------------
-        if mode == MODE_SOLID:
-            r, g, b = scale_colour(*hsv_to_rgb(hue, 100, 100), MAX_BRIGHTNESS)
-            fill_strip(r, g, b)
+    # ------------------------------------------------------------------
+    # MODE_SOLID: all pixels set to a single colour.
+    #
+    # This mode is already complete and working - it shows how
+    # hsv_to_rgb(), scale_colour(), and make_pixel() work together.
+    # Read and understand this before implementing the other modes.
+    # ------------------------------------------------------------------
+    if mode == MODE_SOLID:
+      r, g, b = scale_colour(*hsv_to_rgb(hue, 100, 100), MAX_BRIGHTNESS)
+      fill_strip(r, g, b)
 
-        # ------------------------------------------------------------------
-        # MODE_CHASE: one lit pixel travels along the strip.
-        #
-        # Concept: strip[i] addresses a single pixel by index.
-        # The lit pixel index is stored in chase_pos. Each frame:
-        #   1. Clear the entire strip (all pixels off).
-        #   2. Set strip[chase_pos] to the current colour.
-        #   3. Call strip.write() to push the change to the hardware.
-        #   4. Advance chase_pos by chase_speed.
-        #      Use % NUM_LEDS to wrap back to 0 after the last pixel.
-        #
-        # TODO: implement MODE_CHASE using the steps above.
-        # ------------------------------------------------------------------
-        elif mode == MODE_CHASE:
-            pass
+    # ------------------------------------------------------------------
+    # MODE_CHASE: one lit pixel travels along the strip.
+    #
+    # Concept: strip[i] addresses a single pixel by index.
+    # The lit pixel index is stored in chase_pos. Each frame:
+    #   1. Clear the entire strip (all pixels off).
+    #   2. Set strip[chase_pos] to the current colour.
+    #   3. Call strip.write() to push the change to the hardware.
+    #   4. Advance chase_pos by chase_speed.
+    #      Use % NUM_LEDS to wrap back to 0 after the last pixel.
+    #
+    # TODO: implement MODE_CHASE using the steps above.
+    # ------------------------------------------------------------------
+    elif mode == MODE_CHASE:
+      pass
 
-        # ------------------------------------------------------------------
-        # MODE_THEATRE: every third pixel is lit and the pattern advances.
-        #
-        # Concept: the modulo operator % tests whether a number is a
-        # multiple of another. (i % 3 == 0) is True for i = 0, 3, 6, 9...
-        # Adding theatre_offset shifts which pixels are lit:
-        #   offset=0: pixels 0, 3, 6, 9...  are lit
-        #   offset=1: pixels 1, 4, 7, 10... are lit
-        #   offset=2: pixels 2, 5, 8, 11... are lit
-        #
-        # Each frame, count up theatre_frames. When theatre_frames reaches
-        # theatre_rate, reset it to 0 and advance theatre_offset by 1
-        # (wrapping at 3 with % 3). This controls how fast the pattern moves.
-        #
-        # TODO: use a for loop over range(NUM_LEDS). For each pixel i,
-        #       set strip[i] to the colour if (i % 3 == theatre_offset),
-        #       or to make_pixel(0, 0, 0) (off) otherwise. After the loop,
-        #       call strip.write(). Then update theatre_frames and advance
-        #       theatre_offset when theatre_frames reaches theatre_rate.
-        # ------------------------------------------------------------------
-        elif mode == MODE_THEATRE:
-            pass
+    # ------------------------------------------------------------------
+    # MODE_THEATRE: every third pixel is lit and the pattern advances.
+    #
+    # Concept: the modulo operator % tests whether a number is a
+    # multiple of another. (i % 3 == 0) is True for i = 0, 3, 6, 9...
+    # Adding theatre_offset shifts which pixels are lit:
+    #   offset=0: pixels 0, 3, 6, 9...  are lit
+    #   offset=1: pixels 1, 4, 7, 10... are lit
+    #   offset=2: pixels 2, 5, 8, 11... are lit
+    #
+    # Each frame, count up theatre_frames. When theatre_frames reaches
+    # theatre_rate, reset it to 0 and advance theatre_offset by 1
+    # (wrapping at 3 with % 3). This controls how fast the pattern moves.
+    #
+    # TODO: use a for loop over range(NUM_LEDS). For each pixel i,
+    #       set strip[i] to the colour if (i % 3 == theatre_offset),
+    #       or to make_pixel(0, 0, 0) (off) otherwise. After the loop,
+    #       call strip.write(). Then update theatre_frames and advance
+    #       theatre_offset when theatre_frames reaches theatre_rate.
+    # ------------------------------------------------------------------
+    elif mode == MODE_THEATRE:
+      pass
 
-        # ------------------------------------------------------------------
-        # MODE_RAINBOW: a full colour spectrum is spread across the strip
-        # and the gradient slowly rotates.
-        #
-        # Concept: each pixel is assigned a hue based on its position.
-        # Pixel i gets the hue: (rainbow_offset + i * 360 // NUM_LEDS) % 360
-        # This spreads 360 degrees of hue evenly across NUM_LEDS pixels.
-        # Adding rainbow_offset (which increases each frame) rotates the
-        # gradient along the strip.
-        #
-        # Why // instead of /? The expression i * 360 // NUM_LEDS uses
-        # integer division to produce a whole-number hue value. Regular
-        # division would give a float, which hsv_to_rgb() also handles
-        # but integer arithmetic is faster on a microcontroller.
-        #
-        # TODO: use a for loop over range(NUM_LEDS). For each pixel i,
-        #       calculate pixel_hue using the formula above, convert it
-        #       to a scaled colour using hsv_to_rgb() and scale_colour(),
-        #       and assign it to strip[i] via make_pixel(). After the loop,
-        #       call strip.write(). Then advance rainbow_offset by
-        #       rainbow_speed, wrapping at 360 with % 360.
-        # ------------------------------------------------------------------
-        elif mode == MODE_RAINBOW:
-            pass
+    # ------------------------------------------------------------------
+    # MODE_RAINBOW: a full colour spectrum is spread across the strip
+    # and the gradient slowly rotates.
+    #
+    # Concept: each pixel is assigned a hue based on its position.
+    # Pixel i gets the hue: (rainbow_offset + i * 360 // NUM_LEDS) % 360
+    # This spreads 360 degrees of hue evenly across NUM_LEDS pixels.
+    # Adding rainbow_offset (which increases each frame) rotates the
+    # gradient along the strip.
+    #
+    # Why // instead of /? The expression i * 360 // NUM_LEDS uses
+    # integer division to produce a whole-number hue value. Regular
+    # division would give a float, which hsv_to_rgb() also handles
+    # but integer arithmetic is faster on a microcontroller.
+    #
+    # TODO: use a for loop over range(NUM_LEDS). For each pixel i,
+    #       calculate pixel_hue using the formula above, convert it
+    #       to a scaled colour using hsv_to_rgb() and scale_colour(),
+    #       and assign it to strip[i] via make_pixel(). After the loop,
+    #       call strip.write(). Then advance rainbow_offset by
+    #       rainbow_speed, wrapping at 360 with % 360.
+    # ------------------------------------------------------------------
+    elif mode == MODE_RAINBOW:
+      pass
 
-        # ------------------------------------------------------------------
-        # MODE_PULSE: all pixels fade in and out together, and the hue
-        # advances at the start of each new cycle.
-        #
-        # Concept: pulse_bright ramps from 0 up to MAX_BRIGHTNESS then
-        # back down to 0. pulse_up tracks the direction (True = going up).
-        # Each frame, fill the strip with hue at the current pulse_bright.
-        # Note: use pulse_bright directly as the brightness argument to
-        # scale_colour() - not MAX_BRIGHTNESS - because pulse_bright IS
-        # the brightness for this mode.
-        #
-        # When pulse_bright reaches MAX_BRIGHTNESS, set pulse_up to False.
-        # When pulse_bright reaches 0 going down, set pulse_up to True and
-        # advance the hue by 30 degrees so each pulse is a different colour.
-        #
-        # TODO: implement MODE_PULSE using the description above.
-        # Hint: the update logic looks like this:
-        #   if pulse_up:
-        #       pulse_bright = min(pulse_bright + PULSE_STEP, MAX_BRIGHTNESS)
-        #       if pulse_bright == MAX_BRIGHTNESS: pulse_up = False
-        #   else:
-        #       pulse_bright = max(pulse_bright - PULSE_STEP, 0)
-        #       if pulse_bright == 0:
-        #           pulse_up = True
-        #           hue = (hue + 30) % 360
-        #
-        # Add PULSE_STEP = 2 to the constants section above.
-        # ------------------------------------------------------------------
-        elif mode == MODE_PULSE:
-            pass
+    # ------------------------------------------------------------------
+    # MODE_PULSE: all pixels fade in and out together, and the hue
+    # advances at the start of each new cycle.
+    #
+    # Concept: pulse_bright ramps from 0 up to MAX_BRIGHTNESS then
+    # back down to 0. pulse_up tracks the direction (True = going up).
+    # Each frame, fill the strip with hue at the current pulse_bright.
+    # Note: use pulse_bright directly as the brightness argument to
+    # scale_colour() - not MAX_BRIGHTNESS - because pulse_bright IS
+    # the brightness for this mode.
+    #
+    # When pulse_bright reaches MAX_BRIGHTNESS, set pulse_up to False.
+    # When pulse_bright reaches 0 going down, set pulse_up to True and
+    # advance the hue by 30 degrees so each pulse is a different colour.
+    #
+    # TODO: implement MODE_PULSE using the description above.
+    # Hint: the update logic looks like this:
+    #   if pulse_up:
+    #       pulse_bright = min(pulse_bright + PULSE_STEP, MAX_BRIGHTNESS)
+    #       if pulse_bright == MAX_BRIGHTNESS: pulse_up = False
+    #   else:
+    #       pulse_bright = max(pulse_bright - PULSE_STEP, 0)
+    #       if pulse_bright == 0:
+    #           pulse_up = True
+    #           hue = (hue + 30) % 360
+    #
+    # Add PULSE_STEP = 2 to the constants section above.
+    # ------------------------------------------------------------------
+    elif mode == MODE_PULSE:
+      pass
 
-    time.sleep_ms(LOOP_DELAY)
+  time.sleep_ms(LOOP_DELAY)
 
 
 """
@@ -521,9 +527,9 @@ brightness while the circuit is USB-powered.
 
 Step 1 - Hardware setup and first pixel
     Wire the strip: data input to PIXEL_PIN, strip GND to BEAPER Nano
-    GND, strip power to an external supply (or the header for a short
-    test strip). Before any animation code, verify the connection by
-    temporarily adding these lines before the main loop:
+    GND, strip power to an external supply (or USB for a short test strip).
+    Before any animation code, verify the connection by temporarily adding
+    these lines before the main loop:
 
         strip[0] = make_pixel(32, 0, 0)   # Red at low brightness
         strip.write()
@@ -536,7 +542,7 @@ Step 1 - Hardware setup and first pixel
     neopixel driver handles this internally with the standard RGB tuple.
 
     For SK6812 strips, make sure STRIP_TYPE = "RGBW" and bpp=4 in the
-    NeoPixel() constructor before testing.
+    NeoPixel() constructor before testing. Connect data to H1, not H5.
 
 Step 2 - Verify hsv_to_rgb()
     The hsv_to_rgb() function converts a colour described in HSV (hue,
@@ -724,8 +730,9 @@ Step 10 - RGBW strips (SK6812)
 
     1. Change STRIP_TYPE = "RGB" to STRIP_TYPE = "RGBW"
     2. Change bpp=3 to bpp=4 in the NeoPixel() constructor
-    3. Change the data pin: replace beaper.H5_PIN with beaper.H1_PIN
-       (H1 is a 3.3V header, suitable for the SK6812)
+    3. The data pin does not change: H1 and H5 share GPIO 11 on the
+       BEAPER Nano. Connect the SK6812 data input to the H1 header
+       (3.3V side) instead of H5 (5V side) - same pin, different voltage
     4. Connect the strip data input to H1 instead of H5
 
     The make_pixel() function handles the rest: it automatically adds
@@ -774,10 +781,11 @@ Extensions
        that ignores the colour channels and uses only the white channel,
        slowly pulsing between warm-white and off. Compare the light quality
        to the PULSE mode running in white (hue=0, saturation=0).
-       
+
     f) Star Wars light saber: press a button to grow the 'blade' from the
        hilt, and then shimmer the brightness. Pressing the button again
        shrinks the blade back down into the hilt. Use another button to
        change or cycle the colour of the light saber blade.
+
 
 """
