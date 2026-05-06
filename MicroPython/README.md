@@ -1,19 +1,21 @@
 # BEAPER-Nano
 
-## Beginner Electronics and Programming Educational Robot (BEAPER) for Arduino Nano ESP32
+### Beginner Electronics and Programming Educational Robot (BEAPER) for Arduino Nano ESP32
 
-[BEAPER nano](https://mirobo.tech/beaper) is a beginner circuit kit for learning and teaching microcontroller programming and robotics using the Arduino Nano ESP32 microcontroller and either Arduino C/C++ code or MicroPython.
+[BEAPER nano](https://mirobo.tech/beaper) is a circuit kit for learning and teaching beginner microcontroller programming, electronics, and robotics using the Arduino Nano ESP32 microcontroller and either Arduino C/C++ code or MicroPython.
 
-This repository contains MicroPython programs for BEAPER Nano:
-* Beginner Activities - a complete MicroPython beginner curriculum for BEAPER Pico in the form of lesson activities, extension projects, and capstone project templates
-* LCD - a MicroPython ST7789 LCD driver module for BEAPER Pico along with example LCD programs
-* VL53L0X - a non-blocking VL53L0X ToF (Time of Flight) distance sensor driver module and example programs
+This repository contains:
 
-## Beginner Activities - Beginner learning activities
+## **BEAPER_Nano.py**
 
-Each beginner activity consists of an example program, Guided Exploration Activities to build understanding, and Extension Activities to practice learned skills. Some beginner activities include additional extension project activities.
+A MicroPython board support module for BEAPER Nano. Copy BEAPER_Nano.py into the Arduino Nano ESP32 filesystem to use it with the Beginner Activities as well as other example programs.
 
-* BEAPER_Pico.py - BEAPER Pico board support module
+## **/Beginner Activities**
+A complete beginner curriculum containing beginner learning activities for BEAPER Nano.
+
+Each beginner activity consists of an example program, Guided Exploration Activities to build understanding, and Extension Activities to practice learned skills. Some beginner activities include additional extension projects.
+
+* BEAPER_Nano.py - BEAPER Nano board support module
 * Activity_B01_Output.py - Output, program structure
 * Activity_B02_Timing.py - Output with timing (blocking)
 * Activity_B03_Input.py - Input programming activity, including logic states
@@ -37,10 +39,13 @@ Each beginner activity consists of an example program, Guided Exploration Activi
 * Capstone Preparation Guide - Capstone project explainer
 * Analog_Monitor.py - Analog monitor capstone project template
 * Line_Follower.py - Line following robot capstone project template
+* NeoPixel_Controller.py - NeoPixel lighting effects capstone project template
 * Simon_Game.py - Memory game capstone project template
 * Sumo_Robot.py - Sumo robot capstone project template
 
-## LCD - MicroPython ST7789 LCD Driver Module
+
+## **/LCD**
+A MicroPython ST7789 LCD driver module for BEAPER Nano along with example LCD programs.
 
 * LCD.py - MicroPython LCD driver module
 * LCDConfig_Nano.py - BEAPER Nano LCD driver configuration file
@@ -51,9 +56,14 @@ Each beginner activity consists of an example program, Guided Exploration Activi
 * Bar_Graph_Demo.py - bar graph demo program
 * Fonts - Various TrueType fonts converted for use with LCD.py
 
+
+## **/SONAR**
+HC-SR04(P) SONAR module timing test program.
+
+* SONAR_Timing_Test.py - SONAR TRIG -> ECHO delay test
+
+
 ## VL53L0X - Non-blocking ToF Driver Module
 
 * vl53l0x_nb.py - non-blocking [VL53L0X driver](https://github.com/antirez/VL53L0X.git)
-* BEAPER_Nano.py - BEAPER Nano board support module
-* ToF_SONAR_Comparison.py - Distance, acquisition time comparison (uses LCD)
-SONAR distance sensing
+* ToF_SONAR_Comparison.py - VL53L0X/HC-SR04P distance, acquisition time comparison (uses LCD)
