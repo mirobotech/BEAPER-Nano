@@ -72,6 +72,10 @@ beaper.nano_led_on()
 # print("I2C scan:", beaper.QWIIC.scan())
 tof = VL53L0X(beaper.QWIIC)
 
+# Deinit(ialize) SPI on Arduino Nano ESP32 after software restart
+spi = SPI(2, baudrate=40000000, sck=Pin(48), mosi=Pin(38), miso=None)
+spi.deinit()
+
 # Configure LCD
 lcd = lcd_config.config()
 
