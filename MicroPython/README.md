@@ -8,7 +8,7 @@ This repository contains:
 
 ## **BEAPER_Nano.py**
 
-A MicroPython board support module for BEAPER Nano. BEAPER_Nano.py is used by all of the beginner activities and most BEAPER Nano exampmle program. See **BEAPER_Nano_README.md** for details.
+A MicroPython board support module for BEAPER Nano. BEAPER_Nano.py is used by all beginner activities and most other BEAPER Nano example programs. See **BEAPER_Nano_README.md** for details.
 
 ## **/Beginner Activities**
 A complete beginner curriculum containing beginner learning activities for BEAPER Nano.
