@@ -8,7 +8,7 @@ This repository contains:
 
 ## **BEAPER_Nano.py**
 
-A MicroPython board support module for BEAPER Nano. Copy BEAPER_Nano.py into the Arduino Nano ESP32 filesystem to use it with the Beginner Activities as well as other example programs.
+A MicroPython board support module for BEAPER Nano. BEAPER_Nano.py is used by all of the beginner activities and most BEAPER Nano exampmle program. See [BEAPER_Nano_README.md](BEAPER_Nano_REEADME.md) for detials.
 
 ## **/Beginner Activities**
 A complete beginner curriculum containing beginner learning activities for BEAPER Nano.
