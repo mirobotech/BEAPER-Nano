@@ -4,32 +4,27 @@ A pure-MicroPython driver for the **ST VL53L4CD** time-of-flight distance sensor
 
 ---
 
-## Features
-
-- Simple one-call `get_range()` method for beginner/robotics projects
-- Full sensor API: timing, offset, cross-talk, sigma and signal thresholds, detection windows, temperature recalibration
-- Non-blocking `data_ready()` / `get_result()` path for advanced use
-- Meaningful error codes (rather than a bare `-1`)
-- No dependencies beyond the MicroPython standard library (`machine`, `time`, `micropython`)
-
----
-
 ## Hardware
 
-The VL53L4CD ToF sensor measures distances from roughly **1 mm to 1300 mm** with up to ±3 mm accuracy. It connects over **I2C** at default address `0x29`.
+The VL53L4CD ToF sensor connects over **I2C** and measures distances from roughly **1 mm to 1200 mm** with up to ±6 mm of accuracy and at frequencies up to 100 Hz.
 
 Full VL53L4CD details and resources are available from [https://www.st.com/en/imaging-and-photonics-solutions/vl53l4cd.html](https://www.st.com/en/imaging-and-photonics-solutions/vl53l4cd.html).
 
 ---
 
+## Driver Features
+
+- Full sensor API: timing, offset, cross-talk, sigma and signal thresholds, detection windows, temperature recalibration
+- Non-blocking `data_ready()` / `get_result()` methods
+- Simple (blocking) one-call `get_range()` method for beginner projects 
+- Meaningful error codes (rather than a bare `-1`)
+- No dependencies beyond the MicroPython standard library (`machine`, `time`, `micropython`)
+
+---
+
 ## Installation
 
-Copy `VL53L4CD.py` to the root of your board's filesystem (or to `/lib`).
-
-Using `mpremote`:
-```
-mpremote cp VL53L4CD.py :
-```
+Copy `VL53L4CD.py` to the root of your microcontroller's filesystem.
 
 ---
 
@@ -74,7 +69,7 @@ tof = VL53L4CD(i2c, address=0x29)
 | `i2c` | An initialised `machine.I2C` instance |
 | `address` | 7-bit I2C address (default `0x29`) |
 
-The constructor boots the sensor, writes the default configuration, runs VHV calibration, and sets a 50 ms timing budget in continuous mode. A `VL53L4CDError` is raised if the sensor does not respond within 1 second.
+The constructor initializes the sensor, writes the default configuration, runs VHV calibration, and sets a 50 ms timing budget in continuous mode. A `VL53L4CDError` is raised if the sensor does not respond within 1 second.
 
 ---
 
@@ -85,7 +80,7 @@ The constructor boots the sensor, writes the default configuration, runs VHV cal
 | `start_ranging()` | Begin measurements. Uses continuous mode if `inter_measurement_ms` is 0 (the default), autonomous mode otherwise |
 | `stop_ranging()` | Stop measurements |
 | `data_ready()` | Returns `True` when a new result is waiting to be read |
-| `clear_interrupt()` | Clears the data-ready flag. Must be called after every `get_result()` call (gets called automatically by `get_range()`) |
+| `clear_interrupt()` | Clears the data-ready flag. Must be called after every `get_result()` call (gets called automatically by the simpler `get_range()` method) |
 
 ---
 
