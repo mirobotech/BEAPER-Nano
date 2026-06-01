@@ -1,11 +1,17 @@
 """
 ================================================================================
 Sensors_Demo.py
-Updated: May 29, 2026
+Updated: June 1, 2026
 
 A radar read-out style graphical display for BEAPER Nano showing Q1 and Q3
 floor sensor reflectivity, battery voltage, temperature, and distance
-to the closest target.
+to the closest target. Distance can be measured using one of:
+
+- HC-SR04P ultrasonic SONAR distance sensor module
+- VL53L0X LASER ToF (Time-of-flight) distance sensor module
+- VL53L4CD LASER ToF (Time-of-flight) distance sensor module
+
+This program is pre-configured for the HC-SR04P SONAR module.
 
 Platform: mirobo.tech BEAPER Nano circuit
 Requires: BEAPER_Nano.py board support module file
@@ -58,7 +64,6 @@ tof = VL53L0X(beaper.QWIIC)
 # Start first range request (non-blocking)
 tof.start_range_request()
 # ------------------------------------------------------------------
-"""
 
 # Configure VL53L4CD sensor ----------------------------------------
 # Import VL53L4CD driver module
@@ -68,7 +73,7 @@ tof = VL53L4CD(beaper.QWIIC)
 # Start first range request
 tof.start_ranging()
 # ------------------------------------------------------------------
-
+"""
 
 # --- Program Constants ----------------
 MAX_TARGET_RANGE = const(500)   # Follow targets within max range (mm)
@@ -184,7 +189,6 @@ while True:
     # Start new measurement
     tof.start_range_request()
     # ---------------------------------------------------------------
-  """
   
   # Read VL53L4CD distance sensor -----------------------------------
   if tof.data_ready():
@@ -192,13 +196,11 @@ while True:
     tof.clear_interrupt()
     range_mm = result['distance_mm']
   # -----------------------------------------------------------------
-  
-  
   """
+  
   # Read SONAR distance sensor --------------------------------------
   range_mm = int(beaper.sonar_range(MAX_TARGET_RANGE) * 10)
   # -----------------------------------------------------------------
-  """
 
   # Ignore far away targets
   if range_mm > MAX_TARGET_RANGE:

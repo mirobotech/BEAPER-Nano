@@ -1,11 +1,17 @@
 """
 ================================================================================
 Sensors_Demo.py
-Updated: May 29, 2026
+Updated: June 1, 2026
 
 A radar read-out style graphical display for BEAPER Nano showing Q1 and Q3
 floor sensor reflectivity, battery voltage, temperature, and distance
-to the closest target.
+to the closest target. Distance can be measured using one of:
+
+- HC-SR04P ultrasonic SONAR distance sensor module
+- VL53L0X LASER ToF (Time-of-flight) distance sensor module
+- VL53L4CD LASER ToF (Time-of-flight) distance sensor module
+
+This program is pre-configured for the VL53L4CD ToF module.
 
 Platform: mirobo.tech BEAPER Nano circuit
 Requires: BEAPER_Nano.py board support module file
