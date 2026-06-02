@@ -3,15 +3,16 @@ BEAPER Nano Layered Graphics Demo
 Updated: June 2, 2026
 
 Displays an Intersex-Inclusive Progress Pride Flag created using layered
-graphics primitives. (https://www.hrc.org/resources/lgbtq-pride-flags)
+graphics primitives. (Learn more about the different Pride flags here:
+https://www.hrc.org/resources/lgbtq-pride-flags)
 
-Colours are stored in a tuple allowing the stripe colours to animate when
-pushbutton SW4 is held.
+The colours are stored in MicroPython tuples allowing the stripes to be
+animated when pushbutton SW4 is held.
 
 Requires:
     BEAPER_Nano.py    - BEAPER Nano board configuration file
     LCDconfig_Nano.py - LCD configuration file for BEAPER Nano
-    LCD.py            - LCD driver module
+    LCD.py            - LCD driver module for ST7789 displays
 
 """
 
@@ -37,9 +38,7 @@ spi.deinit()
 # Create LCD object
 lcd = lcd_config.config()
 
-# ---------------------------------------------------------------------
 # Layout constants
-# ---------------------------------------------------------------------
 
 # Calculate stripe sizes
 STRIPE_WIDTH = lcd.width
@@ -56,7 +55,7 @@ TRIANGLE_MIDDLE = TRIANGLE_HEIGHT // 2
 CIRCLE_X = int(TRIANGLE_OFFSET * 1.4)
 CIRCLE_Y = lcd.height // 2
 CIRCLE_RADIUS = CIRCLE_X
-CIRCLE_OFFSET = 4
+CIRCLE_WIDTH = 4
 
 # Draw stripes
 def draw_stripes(index = 0):
@@ -80,7 +79,7 @@ def draw_triangles(index = 0):
 # Draw circle
 def draw_circle():
   lcd.ellipse(CIRCLE_X, CIRCLE_Y, CIRCLE_RADIUS, CIRCLE_RADIUS, 0xB816, True)
-  lcd.ellipse(CIRCLE_X, CIRCLE_Y, CIRCLE_RADIUS - CIRCLE_OFFSET, CIRCLE_RADIUS - CIRCLE_OFFSET, 0xBDE0, True)
+  lcd.ellipse(CIRCLE_X, CIRCLE_Y, CIRCLE_RADIUS - CIRCLE_WIDTH, CIRCLE_RADIUS - CIRCLE_WIDTH, 0xBDE0, True)
   
 color_index = 0
 
