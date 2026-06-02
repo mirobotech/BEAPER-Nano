@@ -49,7 +49,7 @@ spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
 spi.deinit()
 
 # Create lcd object. Rotation=3 is the normal BEAPER Nano LCD orientation.
-lcd = lcd_config.config(rotation=3)
+lcd = lcd_config.config()
 
 # Brick constants
 BRICK_HEIGHT = 8
