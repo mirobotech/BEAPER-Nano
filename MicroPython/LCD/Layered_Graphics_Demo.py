@@ -5,8 +5,8 @@ Updated: June 2, 2026
 Displays an Intersex-Inclusive Progress Pride Flag created using layered
 graphics primitives. (https://www.hrc.org/resources/lgbtq-pride-flags)
 
-Colours are stored in tuples allowing the stripes to be animated when
-holding pushbutton SW4.
+Colours are stored in a tuple allowing the stripe colours to animate when
+pushbutton SW4 is held.
 
 Requires:
     BEAPER_Nano.py    - BEAPER Nano board configuration file
