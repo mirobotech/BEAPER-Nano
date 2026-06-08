@@ -80,7 +80,7 @@ The constructor initializes the sensor, writes the default configuration, runs V
 | `start_ranging()` | Begin measurements. Uses continuous mode if `inter_measurement_ms` is 0 (the default), autonomous mode otherwise |
 | `stop_ranging()` | Stop measurements |
 | `data_ready()` | Returns `True` when a new result is waiting to be read |
-| `clear_interrupt()` | Clears the data-ready flag. Must be called after every `get_result()` call (clear_interrup() is called automatically by the simpler `get_range()` method) |
+| `clear_interrupt()` | Clears the data-ready flag. Must be called after every `get_result()` call. (clear_interrup() is called automatically by the simpler `get_range()` method) |
 
 ---
 
