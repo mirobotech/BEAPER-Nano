@@ -1,7 +1,7 @@
 """
 ================================================================================
 Sensors_Demo.py
-Updated: June 1, 2026
+Updated: June 8, 2026
 
 A radar read-out style graphical display for BEAPER Nano showing Q1 and Q3
 floor sensor reflectivity, battery voltage, temperature, and distance
@@ -78,7 +78,7 @@ tof.start_ranging()
 # --- Program Constants ----------------
 MAX_TARGET_RANGE = const(500)   # Follow targets within max range (mm)
 DARK_THRESHOLD = const(60)      # Floor sensor dark threshold (%, lower -> darker)
-TOF_OFFSET = const(0)           # ToF sensor module range offset (mm)
+TOF_OFFSET = const(0)           # ToF sensor module range offset (mm) for windowed sensors
 TEMP_OFFSET = const(1)          # Temperature sensor offset (degrees C)
 TV_PERIOD = const(1000)         # Tempeature and voltage update period (ms)
 
@@ -181,10 +181,10 @@ while True:
   # Read VL53L0X distance sensor ------------------------------------
   if tof.reading_available():
     # Single measurement has larger distance variation
-    # tof_range_mm = tof.get_range_value()
+    # tof_range_mm = tof.get_range_value() + TOF_OFFSET
     
     # Average of two measurements produces slightly smoother results
-    range_mm = (range_mm + tof.get_range_value()) // 2 + TOF_OFFSET
+    range_mm = (range_mm + tof.get_range_value() + TOF_OFFSET) // 2
     # Start new measurement
     tof.start_range_request()
     # ---------------------------------------------------------------
