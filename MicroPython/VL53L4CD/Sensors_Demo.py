@@ -137,7 +137,7 @@ temp_C = (beaper.temp_level() * 3.3 / 65535 -0.5) / 0.01
 sys_V = beaper.VDIV_level() * 3.3 / 65535 * 6.225
 
 # Deinit(ialize) SPI on Arduino Nano ESP32 (needed after software restart)
-spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
+spi = SPI(2, baudrate=40000000, sck=Pin(48), mosi=Pin(38), miso=None)
 spi.deinit()
 
 # Configure TFT
