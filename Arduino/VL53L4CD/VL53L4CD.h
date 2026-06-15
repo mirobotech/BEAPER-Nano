@@ -1,6 +1,6 @@
 /**
  * VL53L4CD.h  –  Arduino library for the ST VL53L4CD time-of-flight sensor
- * Updated: May 20, 2026
+ * Updated: June 15, 2026
  *
  * Ported from ST's VL53L4CD_ULD_DRIVER v2.2.3
  * Copyright (c) 2023 STMicroelectronics. All rights reserved. See licence below.
