@@ -21,6 +21,10 @@ The VL53L4CD ToF sensor connects over **I2C** and measures distances from roughl
 
 Full VL53L4CD details and resources are available from [https://www.st.com/en/imaging-and-photonics-solutions/vl53l4cd.html](https://www.st.com/en/imaging-and-photonics-solutions/vl53l4cd.html).
 
+This driver module was created for the mirobo.tech QWIIC VL53L4CD ToF distance sensor module, but breakout boards from Adafruit, Pololu, SparkFun, and others should all be compatible.
+
+The QWIIC VL53L4CD distance sensor module runs only from a **3.3V** supply and uses 3.3V logic — do not connect it directly to 5V microcontrollers without an appropriate level shifter.
+
 ---
 
 ## Driver Features
