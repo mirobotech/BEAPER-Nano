@@ -17,7 +17,9 @@ An Arduino C++ library for the **ST VL53L4CD** time-of-flight distance sensor, p
 
 ## Hardware
 
-The VL53L4CD measures distances from roughly **5 mm to 1300 mm** with up to ±3 mm accuracy. It communicates over **I2C** at a default address of `0x29` and operates from a 2.6–3.5 V supply.
+The VL53L4CD ToF sensor connects over **I2C** and measures distances from roughly **5 mm to 1200 mm** with up to ±6 mm of accuracy and at frequencies up to 100 Hz.
+
+Full VL53L4CD details and resources are available from [https://www.st.com/en/imaging-and-photonics-solutions/vl53l4cd.html](https://www.st.com/en/imaging-and-photonics-solutions/vl53l4cd.html).
 
 This library was created for the mirobo.tech QWIIC VL53L4CD ToF distance sensor module, but breakout boards from Adafruit, Pololu, SparkFun, and others should all be compatible.
 
