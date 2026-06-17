@@ -42,7 +42,7 @@ while True:
         print(f"{result['distance_mm']:4d}mm  status: {result['range_status']}")
         print(f"Ranging time: {tof_time_us:d}us")
 
-    time.sleep_ms(1)
+    time.sleep_ms(10)
             
 
 
