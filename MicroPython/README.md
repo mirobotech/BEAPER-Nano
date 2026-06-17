@@ -6,11 +6,11 @@
 
 This repository contains:
 
-## **BEAPER_Nano.py**
+## BEAPER_Nano.py
 
 A MicroPython board support module for BEAPER Nano. BEAPER_Nano.py is used by all beginner activities and most other BEAPER Nano example programs. See **BEAPER_Nano_README.md** for details.
 
-## **/Beginner Activities**
+## /Beginner Activities
 A complete beginner curriculum containing beginner learning activities for BEAPER Nano.
 
 Each beginner activity consists of an example program, Guided Exploration Activities to build understanding, and Extension Activities to practice learned skills. Some beginner activities include additional extension projects.
@@ -44,7 +44,7 @@ Each beginner activity consists of an example program, Guided Exploration Activi
 * Sumo_Robot.py - Sumo robot capstone project template
 
 
-## **/LCD**
+## /LCD
 A MicroPython ST7789 LCD driver module for BEAPER Nano along with example LCD programs.
 
 * LCD.py - MicroPython LCD driver module
@@ -57,20 +57,20 @@ A MicroPython ST7789 LCD driver module for BEAPER Nano along with example LCD pr
 * Fonts - Various TrueType fonts converted for use with LCD.py
 
 
-## **/SONAR**
+## /SONAR
 HC-SR04(P) SONAR module timing test program.
 
 * SONAR_Timing_Test.py - SONAR TRIG -> ECHO delay test
 * Sensors_Demo.py - BEAPER Nano Radar-like LCD sensor display demo
 
-## VL53L0X - Non-blocking ToF Driver Module
+## /VL53L0X - Non-blocking ToF Driver Module
 
 * Sensors_Demo.py - BEAPER Nano RADAR-like sensor display demo (needs LCD)
 * ToF_SONAR_Comparison.py - VL53L0X/HC-SR04P distance, acquisition time comparison (needs LCD)
 * ToF_test.py - simple VL53L0X sensor range and timing test
 * vl53l0x_nb.py - non-blocking [VL53L0X driver](https://github.com/antirez/VL53L0X.git)
 
-## VL53L4CD ToF Driver module
+## /VL53L4CD ToF Driver module
 
 * Sensors_Demo.py - BEAPER Nano RADAR-like sensor display demo (needs LCD)
 * ToF_SONAR_Comparison.py - VL53L4CD/HC-SR04P distance, acquisition time comparison (needs LCD)
