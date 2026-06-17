@@ -61,9 +61,18 @@ A MicroPython ST7789 LCD driver module for BEAPER Nano along with example LCD pr
 HC-SR04(P) SONAR module timing test program.
 
 * SONAR_Timing_Test.py - SONAR TRIG -> ECHO delay test
-
+* Sensors_Demo.py - BEAPER Nano Radar-like LCD sensor display demo
 
 ## VL53L0X - Non-blocking ToF Driver Module
 
+* Sensors_Demo.py - BEAPER Nano RADAR-like sensor display demo (needs LCD)
+* ToF_SONAR_Comparison.py - VL53L0X/HC-SR04P distance, acquisition time comparison (needs LCD)
+* ToF_test.py - simple VL53L0X sensor range and timing test
 * vl53l0x_nb.py - non-blocking [VL53L0X driver](https://github.com/antirez/VL53L0X.git)
-* ToF_SONAR_Comparison.py - VL53L0X/HC-SR04P distance, acquisition time comparison (uses LCD)
+
+## VL53L4CD ToF Driver module
+
+* Sensors_Demo.py - BEAPER Nano RADAR-like sensor display demo (needs LCD)
+* ToF_SONAR_Comparison.py - VL53L4CD/HC-SR04P distance, acquisition time comparison (needs LCD)
+* VL53L4CD.py - VL53L4CD driver module
+* LV53L4CD_test.py - simple VL53L4CD sensor range, status, and timing test
