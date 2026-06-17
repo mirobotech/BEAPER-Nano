@@ -4,7 +4,7 @@
 
 ## Compatible Hardware
 
-BEAPER_Nano.py is designed for the []**Arduino Nano ESP32**](https://store-usa.arduino.cc/products/nano-esp32) module.
+BEAPER_Nano.py is designed for the [**Arduino Nano ESP32**](https://store-usa.arduino.cc/products/nano-esp32) module.
 
 ## On-Board Hardware
 
