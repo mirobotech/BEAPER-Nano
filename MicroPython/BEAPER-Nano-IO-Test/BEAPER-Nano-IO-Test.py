@@ -1,6 +1,6 @@
 """
 BEAPER Nano I/O Test project
-April 8, 2026
+June 19, 2026
 
 Functional test program for on-board BEAPER Nano I/O devices. Tests:
   - inputs (pushbuttons, ambient light sensor Q4, temperature sensor U4,
@@ -20,6 +20,7 @@ progams and beginner programming activities.
 """
 
 # Import machine and time functions
+import machine
 from machine import Pin, PWM, ADC
 import time
 
@@ -114,12 +115,12 @@ def sonar_range(max):
     # Wait for ECHO to go high. HC-SR04P (3.3V-capable modules, also labelled as
     # RCWL-9610A 2022) delay for approximately 2300us after TRIG pulse ends
     # before ECHO pulse starts.
-    duration = time_pulse_us(ECHO, 0, 2500)
+    duration = machine.time_pulse_us(ECHO, 0, 2500)
     if duration < 0:
         return duration # ECHO didn't start. Return error code.
     
     # Time ECHO pulse. Set time-out value to max range.
-    duration = time_pulse_us(ECHO, 1, (max + 1) * 58)
+    duration = machine.time_pulse_us(ECHO, 1, (max + 1) * 58)
     if duration < 0:
         return 0    # Return 0 if distance is > max range
     
