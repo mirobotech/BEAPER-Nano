@@ -201,7 +201,7 @@ while True:
         rv2_angle = map_range(rv2_pos, 0, 65535, 0, 90)
         servo2_position(rv2_angle)
 
-    # Update SONAR range and analog input every 500ms
+    # Update SONAR range and analog inputs every 500ms
     if time.ticks_diff(time.ticks_ms(), sensor_timer) > 500:
         # Reset sensor_timer
         sensor_timer = time.ticks_ms()
