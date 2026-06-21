@@ -1,7 +1,7 @@
 """
 ================================================================================
 Sensors_Demo.py
-Updated: June 8, 2026
+Updated: June 21, 2026
 
 A radar read-out style graphical display for BEAPER Nano showing Q1 and Q3
 floor sensor reflectivity, battery voltage, temperature, and distance
@@ -33,7 +33,7 @@ Jumper Settings:  JP1 - Robot (Q1/Left floor sensor)
 """
 
 # --- MicroPython Modules --------------
-from machine import Pin, PWM, I2C, ADC
+from machine import Pin, PWM, I2C, ADC, SPI
 import framebuf
 import time
 
