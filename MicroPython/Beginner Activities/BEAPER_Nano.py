@@ -1,41 +1,41 @@
-"""
-BEAPER_Nano.py
-May 4, 2026
-
-Board support module for the mirobo.tech BEAPER Nano circuit.
-
-This module configures Arduino Nano ESP32's GPIO pins for BEAPER
-Nano's on-board circuits and provides simple helper functions to
-enable beginners to focus on learning programming concepts first.
-(A similar Arduino C header file is also available for BEAPER Nano.)
-
-Before getting started with it you should know:
-- nothing here is hidden, or * magic *, or requires special libraries
-- the functions are just normal Python code to help you start learning
-- you're encouraged to modify the code to make it work better for you!
-
-BEAPER Nano hardware notes:
-- Buttons use internal pull-up resistors (so pressed == 0)
-- LEDs and motor driver inputs share I/O pins
-- Headers H1-H4 and H5-H8 share I/O pins (so much I/O, too few pins!)
-- Analog jumpers on BEAPER Nano must be set to connect sensors to pins:
-  - Enviro. position selects sensors Q4, U4, and pots RV1 and RV2
-  - Robot position selects floor/line phototransistors Q1, Q2, Q3,
-    and voltage divider resistor circuit (VDIV)
-"""
+# ==============================================================================
+# BEAPER_Nano.py
+# July 10, 2026
+# 
+# Board support module for the mirobo.tech BEAPER Nano circuit.
+# 
+# This module configures Arduino Nano ESP32's GPIO pins for BEAPER Nano's
+# on-board circuits and devices, and provides simple helper functions to
+# enable beginners to focus on learning programming concepts more quickly.
+# (A similar Arduino C header file is also available for BEAPER Nano.)
+# 
+# Before getting started with it you should know:
+# - nothing here is hidden, or **magic**, or requires special libraries
+# - the functions are just normal Python code to help you start learning
+# - you're encouraged to modify the code to make it work better for you!
+# 
+# BEAPER Nano hardware notes:
+# - Button switches use internal pull-up resistors (so pressed == 0)
+# - LEDs and motor driver inputs share I/O pins
+# - Headers H1-H4 and H5-H8 share I/O pins (so much I/O, so few I/O pins!)
+# - Analog jumpers on BEAPER Nano must be set to connect sensors to pins:
+#   - Enviro. position selects sensors Q4, U4, and pots RV1 and RV2
+#   - Robot position selects floor/line phototransistors Q1, Q2, Q3,
+#     and voltage divider resistor circuit (VDIV)
+# ==============================================================================
 
 import machine
 from machine import Pin, ADC, PWM, I2C
 import time
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Arduino Nano ESP32 Module LEDs
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-LED_BUILTIN = Pin(48, Pin.OUT)    # Used as GPIO48 and SPI SCK
-LED_RGB_RED   = PWM(Pin(46), freq=1000, duty_u16=65535)  # Active LOW
-LED_RGB_GREEN = PWM(Pin(0), freq=1000, duty_u16=65535)   # Active LOW
-LED_RGB_BLUE  = PWM(Pin(45), freq=1000, duty_u16=65535)  # Active LOW
+LED_BUILTIN   = Pin(48, Pin.OUT)  # Used as GPIO48 and SPI SCK
+LED_RGB_RED   = PWM(Pin(46), freq=1000, duty_u16=65535)  # Active-LOW
+LED_RGB_GREEN = PWM(Pin(0), freq=1000, duty_u16=65535)   # Active-LOW
+LED_RGB_BLUE  = PWM(Pin(45), freq=1000, duty_u16=65535)  # Active-LOW
 
 def nano_led_on():
   # Turn the Arduino Nano ESP32 on-board LED on.
@@ -65,9 +65,9 @@ def nano_rgb_blue(brightness):
   LED_RGB_BLUE.duty_u16(65535 - brightness)
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # BEAPER Nano LEDS
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # IMPORTANT: LED pins are shared with the motor controller. Using the
 # LEDs while the the motors are active will affect motor behavior!
@@ -76,6 +76,7 @@ LED2_PIN = const(7)  # LED2 and Motor 1A (Motor 1 = left motor)
 LED3_PIN = const(8)  # LED3 and Motor 1B
 LED4_PIN = const(9)  # LED4 and Motor 2A (Motor 2 = right motor)
 LED5_PIN = const(10) # LED5 and Motor 2B
+# Note: const() stores fixed values in ROM to save RAM
 
 LED2 = Pin(LED2_PIN, Pin.OUT)
 LED3 = Pin(LED3_PIN, Pin.OUT)
@@ -96,17 +97,16 @@ def leds_off():
     led.value(0)
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # BEAPER Nano Pushbutton Switches
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# All pushbutton switches use internal pull-up resistors (active LOW)
+# All pushbutton switches use internal pull-up resistors (active-LOW)
 
 SW2_PIN = const(44)  # SW2
 SW3_PIN = const(43)  # SW3
 SW4_PIN = const(5)   # SW4
 SW5_PIN = const(6)   # SW5
-# Note: const() stores fixed values in ROM to save RAM
 
 SW2 = Pin(SW2_PIN, Pin.IN, Pin.PULL_UP)
 SW3 = Pin(SW3_PIN, Pin.IN, Pin.PULL_UP)
@@ -117,20 +117,20 @@ SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
 # Useful for iterating through all SWITCHES - see LEDS examples, above.
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # BEAPER Nano Motor Controller
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# IMPORTANT: Motor controller is connected to LED pins! Using the
-# LEDs while the the motors are active will affect motor behavior!
+# IMPORTANT: The motor controller is connected to the LED pins! Using the
+# LEDs while the motors are active will affect motor behavior!
 
 # NOTE: The forward and reverse directions of each motor are dependent
 # on both program code and physical motor wiring connections on CON1.
 
-M1A = LED2
-M1B = LED3
-M2A = LED4
-M2B = LED5
+M1A = LED2  # Left motor terminal A
+M1B = LED3  # Left motor terminal B
+M2A = LED4  # Right motor terminal A
+M2B = LED5  # Right motor terminal B
 
 def motors_stop():
   M1A.value(0)
@@ -163,9 +163,9 @@ def right_motor_stop():
   M2B.value(0)
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # BEAPER Nano Piezo Buzzer (BEAPER's beeper!)
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Generate tones using PWM (similar to Arduino tone() functions)
 
@@ -193,9 +193,9 @@ def beep(duration=100):
   tone(1000, duration)
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # BEAPER Nano Analog Inputs
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # IMPORTANT: On-board analog jumpers must be used to select analog devices.
 
@@ -205,7 +205,7 @@ ADC2_PIN = const(3)  # Pot RV1 OR floor/line sensor Q3
 ADC3_PIN = const(4)  # Pot RV2 OR battery divider circuit VDIV
 
 # IMPORTANT: ADC4-7 are shared with headers H1-H4, H5-H8, I2C, and 
-# ESP32-S3 has ADC additional limitations. For more details see:
+# ESP32-S3 has additional ADC limitations. For more details see:
 # https://docs.arduino.cc/tutorials/nano-esp32/cheat-sheet/#pins
 # ADC4_PIN = const(11) # Shared with H1, H5, and I2C SDA
 # ADC5_PIN = const(12) # Shared with H4, H6, and I2C SCL
@@ -254,9 +254,9 @@ def VDIV_level():
   return ADC3.read_u16()
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # 3.3V I/O Headers H1-H4 (supports I2C and 3.3V HC-SR04P SONAR module)
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Analog/digital I/O header (optional SONAR module shares H2 and H3)
 # IMPORTANT: Headers H1-H4, headers H5-H8, and I2C/QWIIC connector J4
@@ -320,9 +320,9 @@ def sonar_range(_max_range=100):
   return duration / 58.2
 
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # 5V Digital Output Headers H5-H8 (supports up to 4 servos)
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # NOTE: Headers H5-H8 are 5V digital output only and share GPIO
 # pins with 3.3V I/O headers H1-H4 and I2C/QWIIC connector!
