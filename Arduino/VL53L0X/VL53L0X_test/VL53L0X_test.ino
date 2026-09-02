@@ -1,25 +1,33 @@
 /* ================================================================================
 VL53L0X Test Program [VL53L0X-Test.ino]
-May 6, 2026
+July 21, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit 
 Requires: BEAPERNano.h header file
-Requires: VL53L0X_mod library 
+Requires: Pololu VL53L0X library
 =================================================================================*/
 
 #include <Wire.h>
-#include <VL53L0X_mod.h>
+#include <VL53L0X.h>
 
-const uint32_t RANGE_PERIOD = 200;  // Ranging period in ms (doesn't work)
 uint16_t tofRange;
 unsigned long start_time_us;
-unsigned long range_time_us;
+float range_time_ms;
 
-VL53L0X_mod tof;        // Set up tof sensor instance
+VL53L0X tof;            // Initialize VL53L0X as tof
+
+// Uncomment one of these two lines below to get:
+// - higher speed (20ms) at the cost of lower accuracy OR
+// - higher accuracy at the cost of lower speed (200ms)
+
+//#define HIGH_SPEED
+//#define HIGH_ACCURACY
+
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  delay(2000);
   Wire.begin();
 
   tof.setTimeout(500);  // Set read time-out to 500ms
@@ -29,30 +37,34 @@ void setup()
     while (1);
   }
 
-  tof.startContinuous(RANGE_PERIOD);  // Start continuous sensor readings
-  start_time_us = micros();
+  tof.startContinuous();
+
+#if defined HIGH_SPEED
+  // Reduce timing budget to 20ms (default is about 35 ms)
+  tof.setMeasurementTimingBudget(20000);
+#elif defined HIGH_ACCURACY
+  // Increase timing budget (up to 200ms)
+  tof.setMeasurementTimingBudget(200000);
+#endif
 }
 
 void loop()
 {
-  // Singe conversion
   start_time_us = micros();
-  tofRange = tof.readRangeSingleMillimeters();
-  range_time_us = micros() - start_time_us;
 
-  // Continuous conversion
-  /*
-  if(tof.readRangeNoBlocking(tofRange)){
-    range_time_us = micros() - start_time_us;
-    start_time_us = micros();
-  }
-  */
-  
+  // Uncomment one of the two lines below to get single or continuous measurements: 
+  tofRange = tof.readRangeSingleMillimeters();  // Start and read single measurement
+  // tofRange = tof.readRangeContinuousMillimeters();  // Read current measurement
+
+  range_time_ms = (micros() - start_time_us) / 1000.0f;
+
   Serial.print("Range: ");
-  Serial.println(tofRange);
-  Serial.print("Range Time: ");
-  Serial.println(range_time_us);
+  Serial.print(tofRange);
+  Serial.println("mm");
+  Serial.print("Ranging Time: ");
+  Serial.print(range_time_ms);
+  Serial.println("ms");
   Serial.println("");
-  delay(100);
 
+  delay(200);
 }
