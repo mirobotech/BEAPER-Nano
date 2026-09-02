@@ -1,38 +1,43 @@
-"""
-BEAPER Nano LCD Configuration for 1.54" 240x240 LCD
-Updated: March 22, 2026
-
-Adapted from st7789py_mpy by Russ Hughes:
-https://github.com/russhughes/st7789py_mpy
-"""
+# ================================================================================
+# BEAPER Nano LCD Configuration [LCDconfig_Nano.py]
+# Version: 1.0
+# Updated: August 22, 2026
+#
+# Configuration for the optional 1.54", 240x240 pixel ST7789-based LCD
+# display module mounted on the BEAPER Nano circuit.
+#
+# Adapted from Russ Hughes' st7789py_mpy driver:
+# https://github.com/russhughes/st7789py_mpy
+# ================================================================================
 
 from machine import Pin, SPI
 import LCD as lcd
 
-TFA = 0
-BFA = 80
+TFA  = 0
+BFA  = 80
 WIDE = 1
 TALL = 0
 
 def config(rotation=3):
-    """
-    Configures and returns an instance of the ST7789 display driver.
+    # Configure and return an instance of the ST7789 display driver for
+    # BEAPER Nano's LCD.
+    #
+    # Parameters:
+    #     rotation (int): The rotation of the display (0-3).
+    #         3 is upright for the way the LCD is mounted on BEAPER Nano.
+    #
+    # Returns:
+    #     LCD: An instance of the ST7789 LCD display driver.
 
-    Parameters:
-        rotation (int): The rotation of the display. (3 is upright on BEAPER LCD)
-
-    Returns:
-        ST7789: An instance of the ST7789 display driver.
-    """
     INIT_CMDS = (
-        ( b'\x11', None, 5),    	# SLPOUT - Exit sleep mode
-        ( b'\x13', None, 0),		# NORON - Normal display mode on
-        ( b'\x20', None, 0),    	# INVOFF - Display inversion off
-        ( b'\x26', b'\x01', 0),		# GAMSET - Gamma set curve 1 (g2.2)
+        ( b'\x11', None, 5),        # SLPOUT - Exit sleep mode
+        ( b'\x13', None, 0),        # NORON - Normal display mode on
+        ( b'\x20', None, 0),        # INVOFF - Display inversion off
+        ( b'\x26', b'\x01', 0),     # GAMSET - Gamma set curve 1 (g2.2)
         ( b'\xb0', b'\x00\xf8', 0), # RAMCTRL - Swap endian byte order
-        ( b'\x3a', b'\x55', 5), 	# COLMOD - 16 bit per pixel (RGB565) color mode
-        ( b'\xc0', b'\x3c', 0), 	# LCMCTRL - Mirrorring control
-        ( b'\x29', b'\x00', 0), 	# DISPON - Turn the display on
+        ( b'\x3a', b'\x55', 5),     # COLMOD - 16 bit per pixel (RGB565) color mode
+        ( b'\xc0', b'\x3c', 0),     # LCMCTRL - Mirrorring control
+        ( b'\x29', b'\x00', 0),     # DISPON - Turn the display on
     )
 
     DISPLAY_240x240 = (
