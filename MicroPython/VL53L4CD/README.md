@@ -3,9 +3,11 @@
 A MicroPython driver and example programs for use with ST VL53L4CD ToF (Time-of-Flight) LASER distance sensor modules and the BEAPER Nano circuit.
 
 * Sensors_Demo.py - a demo program using BEAPER Nano's LCD to show a radar-like parameter display including floor sensor reflectivity, Ambient temperature, battery voltage, and distance read from either: HC-SR04P SONAR distance sensor module, VL53L0X ToF (Time-of-Flight) LASER distance sensor module, or VL53L4CD ToF LASER distance sensor module.
-* ToF_SONAR_Comparison.py - a demo program using BEAPER Nano's LCD to compare VL53L4CD ToF and HC-SR04P SONAR distance and measurement time with a graphical oscilloscope view of the SONAR TRIG and ECHO signals.
-* VL53L4CD.py – a MicroPython VL53L4CD driver module
-* VL53L4CD_test.py - a simple distance measurement test program
+* ToF_SONAR_Comparison.py - a demo program using BEAPER Nano's LCD to compare VL53L4CD ToF and HC-SR04P SONAR distance and measurement time with a graphical 'beam' view of the SONAR and ToF sensor ranges plus ranging time readouts.
+* VL53L4CD_Ranging_Time_Comparison.py - a program to display range accuracy data as ranging time is changed.
+* VL53L4CD_Simple.py - a program demonstrating the use of the VL53L4CD using the simple (blocking) get_range() function.
+* VL53L4CD_test.py - a distance measurement program demonstrating the non-blocking get_result() function.
+* VL53L4CD.py – MicroPython VL53L4CD driver module
 
 ---
 
