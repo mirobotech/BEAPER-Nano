@@ -1,7 +1,7 @@
 # ================================================================================
 # Sensors_Demo.py
 # Version: 1.1
-# Updated: September 2, 2026
+# Updated: September 3, 2026
 #
 # A radar read-out style graphical display for BEAPER Nano showing Q1 and Q3
 # floor sensor reflectivity, battery voltage, temperature, and distance
@@ -83,7 +83,7 @@ MAX_TARGET_RANGE = const(500)   # Follow targets within max range (mm)
 DARK_THRESHOLD = const(60)      # Floor sensor dark threshold (%, lower -> darker)
 TOF_OFFSET = const(0)           # ToF sensor module range offset (mm) for windowed sensors
 TEMP_OFFSET = const(1)          # Temperature sensor offset (degrees C)
-TV_PERIOD = const(1000)         # Tempeature and voltage update period (ms)
+TV_PERIOD = const(1000)         # Temperature and voltage update period (ms)
 
 left_floor = 0                  # Left floor sensor reflectivity
 right_floor = 0                 # Right floor sensor reflectivity
@@ -135,7 +135,7 @@ def update_floor_leds():
 
 
 # Read temperature and system voltage
-temp_C = (beaper.temp_level() * 3.3 / 65535 -0.5) / 0.01
+temp_C = (beaper.temp_level() * 3.3 / 65535 - 0.5) / 0.01
 sys_V = beaper.VDIV_level() * 3.3 / 65535 * 6.225
 
 # Deinit(ialize) SPI on Arduino Nano ESP32 (needed after software restart)
