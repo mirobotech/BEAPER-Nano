@@ -190,7 +190,7 @@ while True:
   #   range_mm = (range_mm + tof.get_range_value() + TOF_OFFSET) // 2
   #   # Start new measurement
   #   tof.start_range_request()
-  #   # ---------------------------------------------------------------
+  # # ---------------------------------------------------------------
 
   
   # Read VL53L4CD distance sensor -----------------------------------
@@ -201,9 +201,9 @@ while True:
   # -----------------------------------------------------------------
 
   
-  # Read SONAR distance sensor --------------------------------------
-  range_mm = int(beaper.sonar_range(MAX_TARGET_RANGE) * 10)
-  # -----------------------------------------------------------------
+  # # Read SONAR distance sensor --------------------------------------
+  # range_mm = int(beaper.sonar_range(MAX_TARGET_RANGE) * 10)
+  # # -----------------------------------------------------------------
 
   # Ignore far away targets
   if range_mm > MAX_TARGET_RANGE:
