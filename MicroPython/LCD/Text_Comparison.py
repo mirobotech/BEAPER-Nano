@@ -2,16 +2,16 @@
 # BEAPER Nano Text Comparison
 # Version 1.1
 # Updated: September 3, 2026
-
+# 
 # Compares the time taken to write text using text16() with the built-in
 # display font and write() using converted TrueType fonts while allowing
 # users to compare the appearance of all font characters from 0x20-0x7e.
-
+# 
 # Uses the LCD.py driver module adapted from Russ Hughes' st7789py.py MicroPython
 # ST7789 driver library. (https://github.com/russhughes/st7789py_mpy)
-
+# 
 # Requires TrueType fonts to be converted using write_font_converter.py
-
+# 
 # Required files:
 #     LCDconfig_Nano.py - LCD configuration file for BEAPER Nano, or
 #     LCDconfig_Pico.py - LCD configuration file for BEAPER Pico
