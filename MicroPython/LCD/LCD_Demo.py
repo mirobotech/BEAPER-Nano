@@ -1,24 +1,24 @@
-"""
-BEAPER Nano LCD demo program
-Updated: April 2, 2026
-
-Displays the time taken by various LCD operations and draws multiple screens
-of graphics primitives using MicroPython's framebuffer. Records and displays
-the number of each type of graphical object drawn per second.
-
-Uses the LCD.py driver module adapted from Russ Hughes' st7789py.py MicroPython
-ST7789 driver library. (https://github.com/russhughes/st7789py_mpy)
-
-Navigation:
-    SW3 ( < ) - previous screen       SW4 ( > ) - next screen
-
-Required files:
-    LCDconfig_Nano.py - LCD configuration file for BEAPER Nano, or
-    LCDconfig_Pico.py - LCD configuration file for BEAPER Pico
-
-    LCD.py - LCD driver module that extends the MicroPython framebuffer
-
-"""
+# ================================================================================
+# BEAPER Nano LCD demo program
+# Version: 1.1
+# Updated: September 3, 2026
+# 
+# Displays the time taken by various LCD operations and draws multiple screens
+# of graphics primitives using MicroPython's framebuffer. Records and displays
+# the number of each type of graphical object drawn per second.
+# 
+# Uses the LCD.py driver module adapted from Russ Hughes' st7789py.py MicroPython
+# ST7789 driver library. (https://github.com/russhughes/st7789py_mpy)
+# 
+# Navigation:
+#     SW3 ( < ) - previous screen       SW4 ( > ) - next screen
+# 
+# Required files:
+#     LCDconfig_Nano.py - LCD configuration file for BEAPER Nano, or
+#     LCDconfig_Pico.py - LCD configuration file for BEAPER Pico
+# 
+#     LCD.py - LCD driver module that extends the MicroPython framebuffer
+# ================================================================================
 
 frames_per_sec = 30                         # Target frames per second
 frame_period = 1000000 // frames_per_sec    # Frame period in microseconds
