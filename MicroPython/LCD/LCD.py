@@ -1,5 +1,7 @@
+# ================================================================================
 # MicroPython LCD Driver [LCD.py]
-# Updated: July 10, 2026
+# Version: 2.0
+# Updated: September 3, 2026
 #
 # Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver
 # library. (https://github.com/russhughes/st7789py_mpy)
@@ -31,7 +33,7 @@
 #         if m=True
 #
 #     rotation(r) - rotate image to one of 4 orientations (r=0-3, 3 is
-#         upright for the orientation of the LCD on BEAPER Nano and
+#         upright for the way the LCD is mounted on BEAPER Nano and
 #         BEAPER Pico)
 #
 #     blit_buffer(b, x, y, w, h) - copy memory buffer b to the LCD
@@ -169,8 +171,8 @@
 #
 #     lcd.fill(lcd.BLACK)     # Fill framebuffer with black
 #     lcd.round_rect(0, 0, 200, 40, 10, lcd.BLUE75, True)  # Draw filled blue round rect
-#     lcd.write("Hello, world!", 10, 10, font24, lcd.YELLOW)  # Write yellow text string
-#     lcd.update()            # update the LCD display from the framebuffer
+#     lcd.write("Hello, world!", 10, 10, font24, lcd.YELLOW)  # Write text string
+#     lcd.update()            # update the LCD display
 #
 # ---- Original license below: ----
 #
@@ -200,7 +202,7 @@
 #
 # The driver is based on devbis' st7789py_mpy module from
 # https://github.com/devbis/st7789py_mpy.
-#
+# ================================================================================
 
 import framebuf
 from array import array
@@ -620,9 +622,17 @@ _MIROBO16 = bytes((
 ))
 
 
-class Canvas(framebuf.FrameBuffer):
-    # Canvas class inherits and extends MicroPython's Framebuffer
-    # primitives with:
+class Canvas:
+    # Canvas wraps a MicroPython framebuf.FrameBuffer (held internally as
+    # self._fb, not inherited) and exposes its drawing primitives directly:
+    #     fill, pixel, hline, vline, line, rect, ellipse, poly, scroll,
+    #     text, blit - see MicroPython's framebuf module documentation
+    # Composition (rather than inheriting FrameBuffer) lets rotation()
+    # rebuild self._fb with swapped width/height for rectangular panels,
+    # since framebuf.FrameBuffer has no way to change its dimensions
+    # once constructed.
+    #
+    # Canvas also extends the wrapped FrameBuffer with:
     #     color565      - convert 8-bit RGB values to 16-bit RGB565 format
     #     round_rect    - draw rounded rectangle
     #     text          - write string using MicroPython's built-in 8x8 pixel font
@@ -641,13 +651,50 @@ class Canvas(framebuf.FrameBuffer):
     
     def __init__(self, buffer, width, height, format):
         self.display_buffer = buffer
-        super().__init__(self.display_buffer, width, height, format)
+        self.format = format
+        self._fb = framebuf.FrameBuffer(self.display_buffer, width, height, format)
         # Character buffer and canvas for write() - allocated once and reused.
         # Reallocated only when the font changes (fonts differ in MAX_WIDTH/HEIGHT).
         self._char_font = None      # Font module currently sized for
         self._char_buffer = None    # bytearray backing _char_canvas
         self._char_canvas = None    # FrameBuffer wrapping _char_buffer
-        
+
+    # -- Delegated framebuf.FrameBuffer primitives -----------------------
+    # Thin pass-throughs to self._fb, so the public API is unchanged even
+    # though Canvas no longer inherits FrameBuffer directly.
+
+    def fill(self, color):
+        self._fb.fill(color)
+
+    def pixel(self, x, y, color=None):
+        if color is None:
+            return self._fb.pixel(x, y)
+        self._fb.pixel(x, y, color)
+
+    def hline(self, x, y, w, color):
+        self._fb.hline(x, y, w, color)
+
+    def vline(self, x, y, h, color):
+        self._fb.vline(x, y, h, color)
+
+    def line(self, x1, y1, x2, y2, color):
+        self._fb.line(x1, y1, x2, y2, color)
+
+    def rect(self, x, y, w, h, color, fill=False):
+        self._fb.rect(x, y, w, h, color, fill)
+
+    def ellipse(self, x, y, xr, yr, color, fill=False, mask=0x0f):
+        self._fb.ellipse(x, y, xr, yr, color, fill, mask)
+
+    def poly(self, x, y, coords, color, fill=False):
+        self._fb.poly(x, y, coords, color, fill)
+
+    def scroll(self, xstep, ystep):
+        self._fb.scroll(xstep, ystep)
+
+    def blit(self, fbuf, x, y, key=-1, palette=None):
+        self._fb.blit(fbuf, x, y, key, palette)
+
     def color565(self, red, green, blue):
         # Convert red, green and blue values (0-255) into 16-bit RGB565 encoding.
         return (red & 0xF8) << 8 | (green & 0xFC) << 3 | blue >> 3
@@ -709,7 +756,7 @@ class Canvas(framebuf.FrameBuffer):
         #     color (int): Text color (RGB565, optional, defaults to 75% white)
         if color is None:
             color = _TEXT_COLOR
-        super().text(string, x, y, color)
+        self._fb.text(string, x, y, color)
 
     def text16(self, string, x, y, color=None):
         # Write a text string using the mirobo16 font built into this
@@ -851,10 +898,9 @@ class Canvas(framebuf.FrameBuffer):
         if bg is None:
             # Choose a transparency key value that is guaranteed not to
             # equal fg color, so blit() never treats a foreground pixel
-            # as transparent. Flipping all bits ensures the key value always
-            # differs from fg; the one edge case (fg == 0xFFFF) falls back
-            # to 0x0000.
-            transparent = (fg ^ 0xFFFF) if fg != 0xFFFF else 0x0000
+            # as transparent. Flipping all bits (bitwise complement) always
+            # produces a value that differs from fg, for any fg.
+            transparent = fg ^ 0xFFFF
             fill_colour = transparent
         else:
             fill_colour = bg
@@ -1295,12 +1341,25 @@ class LCD(Canvas):
         self._rotation = rotation
         (
             madctl,
-            self.width,
-            self.height,
+            new_width,
+            new_height,
             self.xstart,
             self.ystart,
             self.needs_swap,
         ) = self.rotations[rotation]
+
+        if new_width != self.width or new_height != self.height:
+            # This rotation swaps width and height (rectangular panel).
+            # framebuf.FrameBuffer has no way to change its dimensions
+            # once constructed, so rebuild self._fb over the same
+            # display_buffer with the new dimensions. Total pixel count
+            # (width * height) is unchanged by a 90/270-degree swap, so
+            # the existing buffer is already the correct size.
+            self._fb = framebuf.FrameBuffer(
+                self.display_buffer, new_width, new_height, self.format
+            )
+        self.width = new_width
+        self.height = new_height
 
         if self.color_order == LCD.BGR:
             madctl |= _ST7789_MADCTL_BGR
@@ -1311,6 +1370,10 @@ class LCD(Canvas):
 
     def blit_buffer(self, buffer, x, y, width, height):
         # Copy the buffer to the LCD display memory at the given location.
+        # The region is clipped to the display bounds automatically, so
+        # a buffer positioned partially or fully off-screen (e.g. a sprite
+        # drawn near an edge) is trimmed instead of sending an invalid
+        # window to the display controller.
         #
         # Parameters:
         #     buffer (bytes): Data to copy to display
@@ -1318,8 +1381,35 @@ class LCD(Canvas):
         #     y (int): Top left corner y coordinate
         #     width (int): Width
         #     height (int): Height
-        self._set_window(x, y, x + width - 1, y + height - 1)
-        self._write(None, buffer)
+        x0 = max(0, x)
+        y0 = max(0, y)
+        x1 = min(x + width, self.width)
+        y1 = min(y + height, self.height)
+
+        if x0 >= x1 or y0 >= y1:
+            return  # Entirely off-screen
+
+        if x0 == x and y0 == y and x1 == x + width and y1 == y + height:
+            # Fully on-screen: send the buffer as-is
+            self._set_window(x0, y0, x1 - 1, y1 - 1)
+            self._write(None, buffer)
+        else:
+            # Partially off-screen: extract only the visible rows/columns.
+            # buffer's own row stride is based on the caller's original
+            # width, not the clipped width.
+            clipped_w = x1 - x0
+            clipped_h = y1 - y0
+            row_bytes = clipped_w * 2
+            src_stride = width * 2
+            col_offset = (x0 - x) * 2
+            region = bytearray(row_bytes * clipped_h)
+            for row in range(clipped_h):
+                src_row = (y0 - y) + row
+                src = src_row * src_stride + col_offset
+                dst = row * row_bytes
+                region[dst:dst + row_bytes] = buffer[src:src + row_bytes]
+            self._set_window(x0, y0, x1 - 1, y1 - 1)
+            self._write(None, region)
 
     def update(self, x=0, y=0, w=None, h=None):
         # Blit framebuffer to LCD display memory.
@@ -1386,7 +1476,7 @@ class LCD(Canvas):
         #     y0 (int): row start address
         #     x1 (int): column end address
         #     y1 (int): row end address
-        if x0 <= x1 <= self.width and y0 <= y1 <= self.height:
+        if x0 <= x1 < self.width and y0 <= y1 < self.height:
             self._write(
                 _ST7789_CASET,
                 struct.pack(_ENCODE_POS, x0 + self.xstart, x1 + self.xstart),
