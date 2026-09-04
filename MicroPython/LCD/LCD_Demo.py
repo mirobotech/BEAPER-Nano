@@ -329,15 +329,15 @@ while SW4.value() == 0:  # Wait for release
 
 def draw_pixel():
     lcd.pixel(
-        random.randint(0, lcd.width),
-        random.randint(0, lcd.height),
+        random.randint(0, lcd.width - 1),
+        random.randint(0, lcd.height - 1),
         lcd.color565(random.getrandbits(8), random.getrandbits(8), random.getrandbits(8)),
     )
 
 def draw_line():
     lcd.line(
-        random.randint(0, lcd.width), random.randint(0, lcd.height),
-        random.randint(0, lcd.width), random.randint(0, lcd.height),
+        random.randint(0, lcd.width - 1), random.randint(0, lcd.height - 1),
+        random.randint(0, lcd.width - 1), random.randint(0, lcd.height - 1),
         lcd.color565(random.getrandbits(8), random.getrandbits(8), random.getrandbits(8)),
     )
 
