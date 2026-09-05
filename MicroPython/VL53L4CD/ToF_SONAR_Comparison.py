@@ -1,7 +1,7 @@
 # ==============================================================================
 # ToF and SONAR Comparison [ToF_SONAR_Comparison.py]
 # Version: 1.2
-# Updated: September 2, 2026
+# Updated: September 4, 2026
 #
 # Platform: mirobo.tech BEAPER Nano
 # Requires: BEAPER_Nano.py board support module file
@@ -19,10 +19,6 @@ from machine import I2C, SPI
 import framebuf
 import array
 import time
-
-# Deinit(ialize) SPI on Arduino Nano ESP32 (needed after software restart)
-spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
-spi.deinit()
 
 # LCD driver module
 import LCDconfig_Nano as lcd_config
