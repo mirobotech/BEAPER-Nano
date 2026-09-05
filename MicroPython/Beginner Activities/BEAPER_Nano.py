@@ -1,12 +1,13 @@
 # ==============================================================================
-# BEAPER_Nano.py
-# July 10, 2026
-# 
+# BEAPER Nano Board Module [BEAPER_Nano.py]
+# Version: 1.2
+# Updated: July 12, 2026
+#
 # Board support module for the mirobo.tech BEAPER Nano circuit.
 # 
-# This module configures Arduino Nano ESP32's GPIO pins for BEAPER Nano's
-# on-board circuits and devices, and provides simple helper functions to
-# enable beginners to focus on learning programming concepts more quickly.
+# This module configures Arduino Nano ESP32's GPIO pins for BEAPER
+# Nano's on-board circuits and provides simple helper functions to
+# enable beginners to focus on learning programming concepts first.
 # (A similar Arduino C header file is also available for BEAPER Nano.)
 # 
 # Before getting started with it you should know:
@@ -15,8 +16,8 @@
 # - you're encouraged to modify the code to make it work better for you!
 # 
 # BEAPER Nano hardware notes:
-# - Button switches use internal pull-up resistors (so pressed == 0)
-# - LEDs and motor driver inputs share I/O pins
+# - Buttons use internal pull-up resistors (so pressed == 0)
+# - LEDs and motor driver share I/O pins
 # - Headers H1-H4 and H5-H8 share I/O pins (so much I/O, so few I/O pins!)
 # - Analog jumpers on BEAPER Nano must be set to connect sensors to pins:
 #   - Enviro. position selects sensors Q4, U4, and pots RV1 and RV2
@@ -50,19 +51,25 @@ def nano_led_toggle():
   LED_BUILTIN.value(not LED_BUILTIN.value())
 
 def nano_rgb_red(brightness):
-  # Set the RGB LED red element to brightness (0 - 65535)
-  # 65535 is full brightness
-  LED_RGB_RED.duty_u16(65535 - brightness)
+  # Set the RGB LED red element to brightness (0 - 100 percent)
+  brightness = max(0, min(100, brightness))
+  LED_RGB_RED.duty_u16(65535 - int(brightness * 655.35))
 
 def nano_rgb_green(brightness):
-  # Set the RGB LED green element to brightness (0 - 65535)
-  # 65535 is full brightness
-  LED_RGB_GREEN.duty_u16(65535 - brightness)
+  # Set the RGB LED green element to brightness (0 - 100 percent)
+  brightness = max(0, min(100, brightness))
+  LED_RGB_GREEN.duty_u16(65535 - int(brightness * 655.35))
 
 def nano_rgb_blue(brightness):
-  # Set the RGB LED blue element to brightness (0 - 65535)
-  # 65535 is full brightness
-  LED_RGB_BLUE.duty_u16(65535 - brightness)
+  # Set the RGB LED blue element to brightness (0 - 100 percent)
+  brightness = max(0, min(100, brightness))
+  LED_RGB_BLUE.duty_u16(65535 - int(brightness * 655.35))
+
+def nano_rgb(red, green, blue):
+  # Set all three RGB LED elements at once (each 0 - 100 percent)
+  nano_rgb_red(red)
+  nano_rgb_green(green)
+  nano_rgb_blue(blue)
 
 
 # ------------------------------------------------------------------------------
@@ -83,7 +90,7 @@ LED3 = Pin(LED3_PIN, Pin.OUT)
 LED4 = Pin(LED4_PIN, Pin.OUT)
 LED5 = Pin(LED5_PIN, Pin.OUT)
 
-LEDS = (LED2, LED3, LED4, LED5)  # Tuple of all LED pins
+LEDS = (LED2, LED3, LED4, LED5)  # Tuple of all LED pins.
 # Useful for iterating through all LEDS - see below:
 
 def leds_on():
@@ -113,7 +120,7 @@ SW3 = Pin(SW3_PIN, Pin.IN, Pin.PULL_UP)
 SW4 = Pin(SW4_PIN, Pin.IN, Pin.PULL_UP)
 SW5 = Pin(SW5_PIN, Pin.IN, Pin.PULL_UP)
 
-SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
+SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins.
 # Useful for iterating through all SWITCHES - see LEDS examples, above.
 
 
@@ -121,8 +128,8 @@ SWITCHES = (SW2, SW3, SW4, SW5)  # Tuple of all pushbutton switch pins
 # BEAPER Nano Motor Controller
 # ------------------------------------------------------------------------------
 
-# IMPORTANT: The motor controller is connected to the LED pins! Using the
-# LEDs while the motors are active will affect motor behavior!
+# IMPORTANT: Motor controller is connected to LED pins! Using the
+# LEDs while the the motors are active will affect motor behavior!
 
 # NOTE: The forward and reverse directions of each motor are dependent
 # on both program code and physical motor wiring connections on CON1.
@@ -131,6 +138,8 @@ M1A = LED2  # Left motor terminal A
 M1B = LED3  # Left motor terminal B
 M2A = LED4  # Right motor terminal A
 M2B = LED5  # Right motor terminal B
+
+# Motor helper functions
 
 def motors_stop():
   M1A.value(0)
@@ -212,6 +221,7 @@ ADC3_PIN = const(4)  # Pot RV2 OR battery divider circuit VDIV
 # ADC6_PIN = const(13) # Shared with H2 (SONAR TRIG) and H7
 # ADC7_PIN = const(14) # Shared with H3 (SONAR ECHO) and H8
 
+# Arduino Nano ESP32 analog inputs
 ADC0 = ADC(Pin(ADC0_PIN), atten = ADC.ATTN_11DB)
 ADC1 = ADC(Pin(ADC1_PIN), atten = ADC.ATTN_11DB)
 ADC2 = ADC(Pin(ADC2_PIN), atten = ADC.ATTN_11DB)
@@ -221,37 +231,43 @@ ADC3 = ADC(Pin(ADC3_PIN), atten = ADC.ATTN_11DB)
 # ADC6 = ADC(Pin(ADC6_PIN), atten = ADC.ATTN_11DB)
 # ADC7 = ADC(Pin(ADC7_PIN), atten = ADC.ATTN_11DB)
 
+# Analog helper functions
+
 def light_level():
-  # Read Q4 ambient light sensor value. Set JP1 to Enviro.
+  # Read converted Q4 ambient light sensor value. Set JP1 to Enviro.
   return 65535-ADC0.read_u16() # Brighter -> higher values
 
 def temp_level():
-  # Read U4 analog temperature sensor value. Set JP2 to Enviro.
+  # Read raw U4 analog temperature sensor value. Set JP2 to Enviro.
   return ADC1.read_u16()  # Warmer -> higher values
 
 def Q1_level():
-  # Read floor sensor Q1. Set JP1 to Robot.
+  # Read converted floor sensor Q1 value. Set JP1 to Robot.
   return 65535-ADC0.read_u16()  # Higher reflectivity -> higher values
 
 def Q2_level():
-  # Read line sensor Q2. Set JP2 to Robot.
+  # Read converted line sensor Q2 value. Set JP2 to Robot.
   return 65535-ADC1.read_u16()  # Higher reflectivity -> higher values
 
 def Q3_level():
-  # Read floor/line sensor Q3. Set JP3 to Robot.
+  # Read converted floor/line sensor Q3 value. Set JP3 to Robot.
   return 65535-ADC2.read_u16()  # Higher reflectivity -> higher values
 
 def RV1_level():
-  # Read potentiometer RV1. Set JP3 to Enviro.
+  # Read raw potentiometer RV1 value. Set JP3 to Enviro.
   return ADC2.read_u16()  # Clockwise -> higher values
 
 def RV2_level():
-  # Read potentiometer RV2. Set JP4 to Enviro.
+  # Read raw potentiometer RV2 value. Set JP4 to Enviro.
   return ADC3.read_u16()  # Clockwise -> higher values
 
 def VDIV_level():
-  # Read VDIV voltage divider. Set JP4 to Robot.
-  return ADC3.read_u16()
+  # Read raw VDIV voltage divider value. Set JP4 to Robot.
+  return ADC3.read_u16()  # Higher voltage -> higher values
+
+def VDIV_volts():
+  # Read convertred VDIV voltage in volts. Set JP4 to Robot.
+  return ADC3.read_u16() * 20.5 / 65535  # VDC input voltage
 
 
 # ------------------------------------------------------------------------------
@@ -362,4 +378,3 @@ def set_servo(servo, angle):
   pulse_us = SERVO_MIN_US + int(angle / SERVO_RANGE * (SERVO_MAX_US - SERVO_MIN_US))
   servo.duty_ns(pulse_us * 1000)
   return angle
-
