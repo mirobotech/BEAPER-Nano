@@ -1,7 +1,7 @@
 # ==============================================================================
 # BEAPER Nano Text Comparison
 # Version 1.1
-# Updated: September 3, 2026
+# Updated: September 4, 2026
 # 
 # Compares the time taken to write text using text16() with the built-in
 # display font and write() using converted TrueType fonts while allowing
@@ -32,10 +32,6 @@ import LCDconfig_Nano as lcd_config     # Customized for BEAPER Nano I/O pins
 import NotoSansDisplay_16 as font16
 # import NotoSansMono_16 as font16
 
-# Deinit(ialize) SPI on Arduino Nano ESP32 after software restart
-spi = SPI(2, baudrate=40000000, sck=Pin(48), mosi=Pin(38), miso=None)
-spi.deinit()
-
 lcd = lcd_config.config()    # Configure LCD as lcd
 
 # All printable ASCII characters (0x20-0x7e) are displayed in both
@@ -65,7 +61,7 @@ lcd.hline(0, 119, 240, lcd.WHITE75)
 font16_h = lcd.write_height(font16)
 start_time = time.ticks_us()
 for i, row in enumerate(_CHAR_ROWS):
-    lcd.write(row, 0, 121 + i * font16_h, font16, lcd.WHITE75)
+    lcd.write(row, 0, 121 + i * font16_h, font16)
 font16_time = time.ticks_diff(time.ticks_us(), start_time)
 
 # Display timing results below the font samples.
@@ -73,8 +69,8 @@ t16_str  = "mirobo16: " + str(text16_time) + "us"
 t16_x    = (240 - lcd.text16_width(t16_str)) // 2
 f16_str  = "font16: " + str(font16_time) + "us"
 f16_x    = (240 - lcd.write_width(f16_str, font16)) // 2
-lcd.text16(t16_str, t16_x, 100, lcd.WHITE75)
-lcd.write(f16_str, f16_x, 220, font16, lcd.WHITE75)
+lcd.text16(t16_str, t16_x, 100)
+lcd.write(f16_str, f16_x, 220, font16)
 lcd.update()
 
 
