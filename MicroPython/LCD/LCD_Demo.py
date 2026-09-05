@@ -1,7 +1,7 @@
 # ================================================================================
 # BEAPER Nano LCD demo program
 # Version: 1.1
-# Updated: September 3, 2026
+# Updated: September 4, 2026
 # 
 # Displays the time taken by various LCD operations and draws multiple screens
 # of graphics primitives using MicroPython's framebuffer. Records and displays
@@ -163,10 +163,6 @@ def run_benchmark(label, draw_fn):
 # ---------------------------------------------------------------------
 # Startup: time config(), fill(), update(), colour bars, and text16()
 # ---------------------------------------------------------------------
-
-# Deinit(ialize) SPI on Arduino Nano ESP32 after software restart
-spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
-spi.deinit()
 
 # Time how long it takes to create the lcd object and initialize the LCD
 start_time = time.ticks_us()
