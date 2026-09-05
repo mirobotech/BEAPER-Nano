@@ -1,7 +1,7 @@
 # ================================================================================
 # BEAPER Nano LCD Configuration [LCDconfig_Nano.py]
-# Version: 1.0
-# Updated: August 22, 2026
+# Version: 1.1
+# Updated: September 4, 2026
 #
 # Configuration for the optional 1.54", 240x240 pixel ST7789-based LCD
 # display module mounted on the BEAPER Nano circuit.
@@ -23,8 +23,8 @@ def config(rotation=3):
     # BEAPER Nano's LCD.
     #
     # Parameters:
-    #     rotation (int): The rotation of the display (0-3).
-    #         3 is upright for the way the LCD is mounted on BEAPER Nano.
+    #     rotation (int): The rotation of the display (0-3). Rotation
+    #         3 is upright for the LCD orientation on BEAPER Nano.
     #
     # Returns:
     #     LCD: An instance of the ST7789 LCD display driver.
@@ -46,6 +46,12 @@ def config(rotation=3):
         (0xc0, 240, 240,  0, 80, True),
         (0xa0, 240, 240, 80,  0, True),
     )
+
+    # Try de-initializing SPI bus to enable initialization after soft restart.
+    try:
+        SPI(2, sck=Pin(48), mosi=Pin(38), miso=None).deinit()
+    except OSError:
+        pass
 
     return lcd.LCD(
         SPI(2, baudrate=40000000, sck=Pin(48), mosi=Pin(38), miso=None),
