@@ -36,7 +36,7 @@ def config(rotation=3):
         ( b'\x26', b'\x01', 0),     # GAMSET - Gamma set curve 1 (g2.2)
         ( b'\xb0', b'\x00\xf8', 0), # RAMCTRL - Swap endian byte order
         ( b'\x3a', b'\x55', 5),     # COLMOD - 16 bit per pixel (RGB565) color mode
-        ( b'\xc0', b'\x3c', 0),     # LCMCTRL - Mirrorring control
+        ( b'\xc0', b'\x3c', 0),     # LCMCTRL - Mirroring control
         ( b'\x29', b'\x00', 0),     # DISPON - Turn the display on
     )
 
