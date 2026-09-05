@@ -1,7 +1,7 @@
 # ================================================================================
 # Sensors_Demo.py
 # Version: 1.1
-# Updated: September 3, 2026
+# Updated: September 4, 2026
 #
 # A radar read-out style graphical display for BEAPER Nano showing Q1 and Q3
 # floor sensor reflectivity, battery voltage, temperature, and distance
@@ -137,10 +137,6 @@ def update_floor_leds():
 # Read temperature and system voltage
 temp_C = (beaper.temp_level() * 3.3 / 65535 - 0.5) / 0.01
 sys_V = beaper.VDIV_level() * 3.3 / 65535 * 6.225
-
-# Deinit(ialize) SPI on Arduino Nano ESP32 (needed after software restart)
-spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
-spi.deinit()
 
 # Configure TFT
 lcd = lcd_config.config()
