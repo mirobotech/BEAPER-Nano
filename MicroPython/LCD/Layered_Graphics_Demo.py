@@ -1,20 +1,21 @@
-"""
-BEAPER Nano Layered Graphics Demo
-Updated: June 2, 2026
-
-Displays an Intersex-Inclusive Progress Pride Flag created using layered
-graphics primitives. (Learn more about the different Pride flags here:
-https://www.hrc.org/resources/lgbtq-pride-flags)
-
-The colours are stored in MicroPython tuples allowing the stripes to be
-animated when pushbutton SW4 is held.
-
-Requires:
-    BEAPER_Nano.py    - BEAPER Nano board configuration file
-    LCDconfig_Nano.py - LCD configuration file for BEAPER Nano
-    LCD.py            - LCD driver module for ST7789 displays
-
-"""
+# ==============================================================================
+# BEAPER Nano Layered Graphics Demo
+# Version: 1.1
+# Updated: September 4, 2026
+#
+# Displays an Intersex-Inclusive Progress Pride Flag created using layered
+# graphics primitives. (Learn more about the different Pride flags here:
+# https://www.hrc.org/resources/lgbtq-pride-flags)
+#
+# The colours are stored in MicroPython tuples allowing the stripes to be
+# animated when pushbutton SW4 is held. The first shapes be be drawn become
+# the lower layers of the image. Shapes drawn later appear as upper layers.
+#
+# Requires:
+#     BEAPER_Nano.py    - BEAPER Nano board configuration file
+#     LCDconfig_Nano.py - LCD configuration file for BEAPER Nano
+#     LCD.py            - LCD driver module for ST7789 displays
+# ==============================================================================
 
 from machine import SPI, Pin
 import BEAPER_Nano as beaper         # BEAPER Nano board module
@@ -30,10 +31,6 @@ STRIPES = (
 TRIANGLES = (
   (0x0000, 0x78E0, 0xBBFF, 0xFBEF, 0xFFFF, 0xBDE0)
 )
-
-# Deinit(ialize) SPI on Arduino Nano ESP32 after software restart
-spi = SPI(2, baudrate=40000000, sck=Pin(48), mosi=Pin(38), miso=None)
-spi.deinit()
 
 # Create LCD object
 lcd = lcd_config.config()
