@@ -1,7 +1,7 @@
 # ================================================================================
 # SONAR LCD Timing Test [SONAR_LCD_Timing_Test.py]
 # Version: 1.1
-# Updated: September 1, 2026
+# Updated: September 4, 2026
 #
 # Platform: mirobo.tech BEAPER Nano circuit
 # Requires: BEAPER_Nano.py board support module file
@@ -20,10 +20,6 @@ import time
 
 # BEAPER Nano support module
 import BEAPER_Nano as beaper
-
-# Deinit(ialize) SPI on Arduino Nano ESP32 (needed after software restart)
-spi = SPI(2, baudrate=60000000, sck=Pin(48), mosi=Pin(38), miso=None)
-spi.deinit()
 
 # LCD driver module
 import LCDconfig_Nano as lcd_config
