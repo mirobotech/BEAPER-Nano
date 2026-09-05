@@ -1,7 +1,7 @@
 # ================================================================================
 # MicroPython LCD Driver [LCD.py]
 # Version: 2.0
-# Updated: September 3, 2026
+# Updated: September 4, 2026
 #
 # Adapted from Russ Hughes' st7789mpy.py MicroPython ST7789 driver
 # library. (https://github.com/russhughes/st7789py_mpy)
@@ -126,8 +126,9 @@
 #
 #     write(s, x, y, font, fg [, bg]) - write text string s at location
 #         x,y, in font 'font' (a font object converted from a TTF font
-#         file), using color fg, on a transparent background or using
-#         optional background color bg
+#         file), using color fg (if color is not provided, text is written
+#         using 75% white), on a transparent background or using optional
+#         background color bg
 #
 #     write_width(s, font) - return the pixel width of string s written in
 #         the specified converted TrueType font
@@ -325,12 +326,12 @@ _TEXT_COLOR = const(0xBDF7)     # 75% white
 #
 # Each character is encoded in 16 bytes (16 rows × 1 byte per row), as
 # a full 8x16 pixel glyph without inter-character spaces. The text16()
-# function displays characters 10 pixels apart, providing a 2-pixel gap
-# between characters which results in 24 characters displayed/line on a
-# 240 pixel wide display.
+# function displays characters 10 pixels apart, adding a fixed 2-pixel
+# gap between characters. This results in 24 characters displayed per
+# line on a 240 pixel wide display.
 #
-# Characters cover printable ASCII 0x20 (space) through 0x7e (~).
-# Character index = ord(char) - 0x20
+# Character range includes printable ASCII 0x20 (space) through 0x7e
+# (~). Character index = ord(char) - 0x20
 # ---------------------------------------------------------------------
 
 _MIROBO16 = bytes((
@@ -624,18 +625,15 @@ _MIROBO16 = bytes((
 
 class Canvas:
     # Canvas wraps a MicroPython framebuf.FrameBuffer (held internally as
-    # self._fb, not inherited) and exposes its drawing primitives directly:
+    # self._fb, not inherited) and exposes framebuf primitives:
     #     fill, pixel, hline, vline, line, rect, ellipse, poly, scroll,
     #     text, blit - see MicroPython's framebuf module documentation
-    # Composition (rather than inheriting FrameBuffer) lets rotation()
-    # rebuild self._fb with swapped width/height for rectangular panels,
-    # since framebuf.FrameBuffer has no way to change its dimensions
-    # once constructed.
+    # Composition lets rotation() rebuild self._fb with swapped width/
+    # height for rectangular panels.
     #
     # Canvas also extends the wrapped FrameBuffer with:
     #     color565      - convert 8-bit RGB values to 16-bit RGB565 format
     #     round_rect    - draw rounded rectangle
-    #     text          - write string using MicroPython's built-in 8x8 pixel font
     #     text16        - write string using the built-in 10x16 pixel font
     #     text16_width  - return the pixel width of a string in the 10x16 font
     #     text16_height - return the pixel height of the 10x16 font (always 16)
@@ -647,21 +645,20 @@ class Canvas:
     #     bitmap_to_buffer - convert a palette-compressed bitmap to a raw RGB565
     #                     bytearray for fast repeated drawing with blit_buffer()
     #     polygon       - draw a polygon with optional rotation
-    #
     
     def __init__(self, buffer, width, height, format):
         self.display_buffer = buffer
         self.format = format
         self._fb = framebuf.FrameBuffer(self.display_buffer, width, height, format)
         # Character buffer and canvas for write() - allocated once and reused.
-        # Reallocated only when the font changes (fonts differ in MAX_WIDTH/HEIGHT).
+        # Reallocated when the font changes (fonts differ in MAX_WIDTH/HEIGHT).
         self._char_font = None      # Font module currently sized for
         self._char_buffer = None    # bytearray backing _char_canvas
         self._char_canvas = None    # FrameBuffer wrapping _char_buffer
 
     # -- Delegated framebuf.FrameBuffer primitives -----------------------
-    # Thin pass-throughs to self._fb, so the public API is unchanged even
-    # though Canvas no longer inherits FrameBuffer directly.
+    # Thin pass-throughs to self._fb - see the descriptions of framebuf's
+    # primitive shapes at micropython.org for additional details.
 
     def fill(self, color):
         self._fb.fill(color)
@@ -694,6 +691,9 @@ class Canvas:
 
     def blit(self, fbuf, x, y, key=-1, palette=None):
         self._fb.blit(fbuf, x, y, key, palette)
+    
+    # -- Additional/extended framebuf.FrameBuffer primitives -------------
+    # 
 
     def color565(self, red, green, blue):
         # Convert red, green and blue values (0-255) into 16-bit RGB565 encoding.
@@ -745,9 +745,9 @@ class Canvas:
 
     def text(self, string, x, y, color=None):
         # Write a text string using MicroPython's built-in 8x8 pixel font.
-        # If color is not given, text is drawn using 75% white. Each
-        # character is 8 pixels wide and 8 pixels tall, giving up to 30
-        # characters per row on a 240-pixel wide display.
+        # If color is not given, text is drawn using 75% white. Characters
+        # are 8 pixels wide and 8 pixels tall, giving 30 characters per row
+        # on a 240-pixel wide display.
         #
         # Parameters:
         #     string (str): The string to write
@@ -761,9 +761,9 @@ class Canvas:
     def text16(self, string, x, y, color=None):
         # Write a text string using the mirobo16 font built into this
         # module. If color is not given, text is drawn using 75% white.
-        # Each character 16 pixels tall and 8 pixels wide (without gaps)
-        # and is drawn in a 10 pixel wide by 16 pixel tall grid giving
-        # up to 24 characters per row on a 240-pixel wide display.
+        # Characters are 16 pixels tall and 8 pixels wide (without gaps)
+        # and are drawn in a 10 pixel wide by 16 pixel tall grid giving
+        # 24 characters per row on a 240-pixel wide display.
         #
         # Parameters:
         #     string (str): The string to write
@@ -835,13 +835,13 @@ class Canvas:
         else:
             self.poly(0, 0, array('h', [x0, y0, x1, y1, x2, y2]), color, True)
 
-    def write(self, string, x, y, font, fg=0xFFFF, bg=None):
+    def write(self, string, x, y, font, fg=_TEXT_COLOR, bg=None):
         # Writes a string to the MicroPython FrameBuffer using a converted
         # True-Type font. Each character in the string is created in a
         # one character width * height sized memory buffer and blitted
         # to the display FrameBuffer starting at the x and y coordinates
         # marking the top left of the string bounding box. The string is
-        # written in white (default) or in an optional foreground (fg)
+        # written in 75% white (default) or in an optional foreground (fg)
         # color, onto either a transparent background (None) or onto an
         # optional background (bg) color.
         #
@@ -859,7 +859,7 @@ class Canvas:
         #     x (int): column to write starting letter of string
         #     y (int): row to write starting letter of string
         #     font (font): The module containing the converted true-type font
-        #     fg (int): foreground color (RGB565, optional), defaults to WHITE
+        #     fg (int): foreground color (RGB565, optional), defaults to WHITE75
         #     bg (int): background color (RGB565, optional), defaults to transparent
         # Reallocate the character buffer and canvas only when the font changes.
         # The same bytearray is used for both direct byte writes and char_canvas
@@ -882,9 +882,7 @@ class Canvas:
             font._map_cache = {c: i for i, c in enumerate(font.MAP)}
         map_cache = font._map_cache
 
-        # Bind frequently accessed font attributes to locals. Local variable
-        # access is faster than repeated module attribute lookups in MicroPython,
-        # particularly for values used inside the inner pixel loop.
+        # Bind frequently accessed font attributes to local variables.
         bitmaps     = font.BITMAPS
         offsets     = font.OFFSETS
         widths      = font.WIDTHS
