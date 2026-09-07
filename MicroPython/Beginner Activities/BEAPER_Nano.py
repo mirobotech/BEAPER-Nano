@@ -1,13 +1,13 @@
 # ==============================================================================
 # BEAPER Nano Board Module [BEAPER_Nano.py]
 # Version: 1.2
-# Updated: July 12, 2026
+# Updated: September 5, 2026
 #
 # Board support module for the mirobo.tech BEAPER Nano circuit.
 # 
 # This module configures Arduino Nano ESP32's GPIO pins for BEAPER
 # Nano's on-board circuits and provides simple helper functions to
-# enable beginners to focus on learning programming concepts first.
+# enable beginners to focus on learning programming concepts quickly.
 # (A similar Arduino C header file is also available for BEAPER Nano.)
 # 
 # Before getting started with it you should know:
@@ -16,7 +16,7 @@
 # - you're encouraged to modify the code to make it work better for you!
 # 
 # BEAPER Nano hardware notes:
-# - Buttons use internal pull-up resistors (so pressed == 0)
+# - Buttons use internal pull-up resistors (pressed == 0)
 # - LEDs and motor driver share I/O pins
 # - Headers H1-H4 and H5-H8 share I/O pins (so much I/O, so few I/O pins!)
 # - Analog jumpers on BEAPER Nano must be set to connect sensors to pins:
@@ -51,17 +51,17 @@ def nano_led_toggle():
   LED_BUILTIN.value(not LED_BUILTIN.value())
 
 def nano_rgb_red(brightness):
-  # Set the RGB LED red element to brightness (0 - 100 percent)
+  # Set the RGB LED red element brightness (0 - 100 percent)
   brightness = max(0, min(100, brightness))
   LED_RGB_RED.duty_u16(65535 - int(brightness * 655.35))
 
 def nano_rgb_green(brightness):
-  # Set the RGB LED green element to brightness (0 - 100 percent)
+  # Set the RGB LED green element brightness (0 - 100 percent)
   brightness = max(0, min(100, brightness))
   LED_RGB_GREEN.duty_u16(65535 - int(brightness * 655.35))
 
 def nano_rgb_blue(brightness):
-  # Set the RGB LED blue element to brightness (0 - 100 percent)
+  # Set the RGB LED blue element brightness (0 - 100 percent)
   brightness = max(0, min(100, brightness))
   LED_RGB_BLUE.duty_u16(65535 - int(brightness * 655.35))
 
@@ -173,7 +173,7 @@ def right_motor_stop():
 
 
 # ------------------------------------------------------------------------------
-# BEAPER Nano Piezo Buzzer (BEAPER's beeper!)
+# BEAPER Nano Piezo Speaker
 # ------------------------------------------------------------------------------
 
 # Generate tones using PWM (similar to Arduino tone() functions)
@@ -220,6 +220,11 @@ ADC3_PIN = const(4)  # Pot RV2 OR battery divider circuit VDIV
 # ADC5_PIN = const(12) # Shared with H4, H6, and I2C SCL
 # ADC6_PIN = const(13) # Shared with H2 (SONAR TRIG) and H7
 # ADC7_PIN = const(14) # Shared with H3 (SONAR ECHO) and H8
+
+# NOTE: ADC attenuation must be set on Arduino Nano ESP32. ADC.ATTN_11DB
+# gives a 0 - 3.3V input range on the ESP32-S3 chip used in Arduino Nano
+# ESP32. The ADC also has a "dead zone" below about 100-150mV that reads
+# as 0 - important for sensors with low output voltage.
 
 # Arduino Nano ESP32 analog inputs
 ADC0 = ADC(Pin(ADC0_PIN), atten = ADC.ATTN_11DB)
@@ -290,6 +295,7 @@ I2C_ID = 0
 SDA = H1_PIN
 SCL = H4_PIN
 QWIIC = I2C(id=I2C_ID, sda=SDA, scl=SCL)
+
 
 # Ultrasonic SONAR distance measurement function. Returns the distance
 # to the nearest target within max_range in cm (defaults to 1m).
@@ -378,3 +384,4 @@ def set_servo(servo, angle):
   pulse_us = SERVO_MIN_US + int(angle / SERVO_RANGE * (SERVO_MAX_US - SERVO_MIN_US))
   servo.duty_ns(pulse_us * 1000)
   return angle
+  
