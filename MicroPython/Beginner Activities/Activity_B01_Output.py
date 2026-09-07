@@ -172,9 +172,8 @@ while True:
 #   beaper.LED3.value(1)  # LED3 on
 #   beaper.LED3.value(0)  # LED3 off
 #
-# Reminder: easily remove comment pound signs '#' from multiple lines of
-# code by highlighting the lines and pressing CMD-/ on macOS, or CTRL-/ on
-# Windows.
+# Reminder: easily remove comment pound signs '#' from multiple lines of code
+# by highlighting the lines and pressing CMD-/ on macOS, or CTRL-/ on Windows.
 #
 # Since these two statements are now inside the main loop, 'pass' is no
 # longer needed. The loop will run each statement once, first turning LED3
