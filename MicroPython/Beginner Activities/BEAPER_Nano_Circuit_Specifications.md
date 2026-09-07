@@ -57,7 +57,7 @@ GP48 - LCD/SPI SCK pin
 GP38 - LCD/SPI COPI pin
 
 GP1 - jumper selectable between ambient light sensor Q4 input and left floor sensor phototransistor Q1 input
-GP2 -  jumper selectable between analog temperature sensor U4 input and left line sensor phototransistor Q2 input
+GP2 - jumper selectable between analog temperature sensor U4 input and left line sensor phototransistor Q2 input
 GP3 - jumper selectable between potentiometer RV1 input and right floor/line sensor phototransistor Q3 input
 GP4 - jumper selectable between potentiometer RV2 input and battery voltage divider
 
@@ -92,6 +92,32 @@ D13 - LCD/SPI SCK pin
 D11 - LCD/SPI COPI pin
 
 A0 - jumper selectable between ambient light sensor Q4 input and left floor sensor phototransistor Q1 input
-A1 -  jumper selectable between analog temperature sensor U4 input and left line sensor phototransistor Q2 input
+A1 - jumper selectable between analog temperature sensor U4 input and left line sensor phototransistor Q2 input
 A2 - jumper selectable between potentiometer RV1 input and right floor/line sensor phototransistor Q3 input
 A3 - jumper selectable between potentiometer RV2 input and battery voltage divider
+
+# BEAPER Nano Component Placement
+
+The BEAPER Nano circuit board is laid out in a landscape format rectangle, with the break-away optical sensor modules located at the top corners (LED D6 and phototransistor Q1 at top left, LED D7 and phototransistors Q2 and Q3 at top right).
+
+When the optical sensor modules are broken away, the remaining top, protruding centre section of the PCB holds the QWIIC connector and the H1-H4 header connectors designed to mount the SONAR module (centred horizontally within the PCB).
+
+Immediately below the SONAR module is the Arduino Nano ESP32, then the 240x240 pixel TFT LCD display, and a battery and motor screw terminal header strip is centred along the bottom edge of the PCB.
+
+The ambient light sensor, analog temperature sensor, potentiometers RV1 and RV2 and the analog select jumpers (along with the main power switch, reset button, and voltage regulator) are located in the space to the left of the processor, LCD, and screw terminal strip.
+
+The piezo speaker, LEDs, pushbuttons, and 5V output headers H5-H8 are located to the right of the processor, LCD, and screw terminal strip.
+
+## LED arrangement
+
+The four LEDs are arranged in a horizontal line from left (D2) to right (D5) beside the LCD and are roughly in line with the top of the LCD.
+
+## Pushbutton arrangement and labels
+
+Pushbuttons SW2-SW5 are arranged in a diamond pattern to the right of the LCD and below the LEDs, at the following positions and with the associated silkscreen labels:
+
+- SW2 (top), labelled with a circle
+- SW3 (left), labelled with a left-facing triangle
+- SW4 (right), labelled with a right-facing triangle
+- SW5 (bottom), labelled with a square
+
