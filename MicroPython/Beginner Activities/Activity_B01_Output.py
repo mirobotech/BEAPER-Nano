@@ -50,7 +50,7 @@ while True:
 # In later GE and EA sections you'll be asked to modify or replace the code
 # in your program. When copying activity code into your program you'll need
 # to strip out the pound characters in order for the code to run. It's easy
-# to toggle code comments on or off by selecting one of more lines of text
+# to toggle code comments on or off by selecting one or more lines of text
 # and then pressing CMD-/ on macOS, or CTRL-/ on Windows.
 #
 # --------------------------------------------------------------------------------
