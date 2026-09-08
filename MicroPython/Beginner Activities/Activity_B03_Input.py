@@ -198,7 +198,7 @@ while True:
 # --------------------------------------------------------------------------------
 #
 # The logical 'or' operator can also be used in conditional expressions.
-# Predict when the LED would be lit if the 'and' operator in GE 5 was to be
+# Predict when the LED would be lit if the 'and' operator in GE 5 were
 # replaced with 'or'. Try it in your program to verify your prediction.
 
 
