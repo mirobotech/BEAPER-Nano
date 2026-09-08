@@ -1,5 +1,5 @@
 /* ================================================================================
-Beginner Activity 4: Constants and Variables [BEAPERNano-Activity-B04-Constants-Variables]
+Beginner Activity 4: Constants and Variables [Activity_B04_Constants_Variables]
 Version: 1.2
 Updated: September 7, 2026
 
