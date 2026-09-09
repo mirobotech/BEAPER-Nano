@@ -40,6 +40,7 @@ void setup()
     pinMode(SW5, INPUT_PULLUP);
 
     Serial.begin(9600);                 // Initialize serial output for debugging
+    delay(2000);                        // Give the Serial Monitor time to connect
 }
 
 void loop()
