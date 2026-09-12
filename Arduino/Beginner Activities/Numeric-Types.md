@@ -1,6 +1,6 @@
-# Sidebar: How Computers Store Numbers
+# Explainer: How Computers Store Numbers
 
-## A Reference for mirobo.tech Year 1 Microcontroller Programming
+## A Reference for mirobo.tech Beginner Microcontroller Programming
 
 ---
 
@@ -8,16 +8,21 @@ At several points in this curriculum — when you first saw `analogRead()`
 return 1023, when the ADC returned 65535, when `millis()` was declared
 `unsigned long`, when the header files used `uint8_t` — you encountered
 the fact that computers don't store numbers the way humans think about
-them. This sidebar explains why, and what it means for the programs
+them. This document explains why, and what it means for the programs
 you write.
 
 ---
 
 ## Why Computers Use Binary
 
-A computer's memory is built from electronic switches. Each switch has
-exactly two stable states: on or off. One switch stores one **bit** of
-information — a single 0 or 1.
+A computer's memory is built from electronic switches. To make these
+switches as simple and small as possible, each switch can be in one of
+two stable states: on or off. We say each switch stores one **bit** of
+information — a single digit, 0 or 1.
+
+In fact, bit is shorthand for **binary digit**, a number system in which
+each digit has one of two states (0, 1). A number system with only two
+states has a very big problem; it can't store very large numbers. 
 
 To store larger numbers, computers group bits together. With 2 bits you
 can represent 4 different values (00, 01, 10, 11). With 8 bits you can
@@ -48,18 +53,19 @@ consequence of the hardware's bit width.
 An **integer** is a whole number with no fractional part. Most values
 in microcontroller programs are integers: pin numbers, sensor readings,
 timing values, loop counters, LED states. Integers are fast to compute,
-take up a predictable amount of memory, and map directly onto the
+take up a predictable sizes in memory, and map directly onto the
 hardware operations of the processor.
 
 ### Signed and Unsigned
 
-Every integer type is either **signed** (can represent negative numbers)
-or **unsigned** (only zero and positive numbers).
+Every integer type is either **signed** (can represent both positive 
+and negative numbers) or **unsigned** (only zero and positive numbers).
 
 A signed 8-bit integer uses one of its bits to indicate the sign,
 leaving 7 bits for the magnitude. This gives a range of −128 to +127.
 An unsigned 8-bit integer uses all 8 bits for the value, giving a range
-of 0 to 255.
+of 0 to 255. Both can store 256 numeric states, but half of them are
+negative when using signed integers.
 
 Most quantities in embedded programming are naturally non-negative —
 pin numbers, ADC readings, elapsed times, PWM duty cycles — so unsigned
@@ -91,8 +97,8 @@ unsigned, `8` means 8 bits, and `_t` is a C convention meaning "type."
 The `unsigned long` type for timing variables — `unsigned long
 button_down_time = 0;` — is chosen because `millis()` returns an
 `unsigned long`. Timing values start at zero and grow as the program
-runs, so unsigned is appropriate. Using 32 bits gives a maximum value
-of about 4.3 billion milliseconds — roughly 49 days of continuous
+runs, so unsigned is appropriate. Using 32 bits (long) gives a maximum
+value of about 4.3 billion milliseconds — roughly 49 days of continuous
 running before the counter rolls over.
 
 **In MicroPython**, the type system is simpler: there is only one
@@ -100,8 +106,7 @@ integer type, called `int`, and it automatically grows as large as
 needed. You rarely need to think about bit width in MicroPython, but
 the numbers the hardware returns are still determined by the hardware's
 bit width — `RV1_level()` still returns values from 0 to 65535 because
-the ADC is 16 bits wide, regardless of how MicroPython stores that
-value internally.
+the ADC read instruction returns numbers that are 16 bits wide.
 
 ### Out-of-Range Values and Wrapping
 
@@ -289,9 +294,11 @@ distinguishes finer voltage differences:
 
 The ARPS-2 (Arduino UNO R4) uses a 10-bit ADC by default, returning
 0–1023. The BEAPER Nano (Arduino Nano ESP32) and BEAPER Pico use
-16-bit ADC readings, returning 0–65535. The board module functions
-`RV1_level()`, `light_level()`, and `temp_level()` all return values
-in the range appropriate for the platform they run on.
+16-bit ADC readings, set using analogReadResolution(16) in setup()
+for Arduino C code or read_16() in MicroPython, to return values
+from 0–65535. The board module functions `RV1_level()`, `light_level()`,
+and `temp_level()` all return values in the range appropriate for
+the platform they run on.
 
 When scaling an ADC reading to control a PWM output — mapping a
 potentiometer to LED brightness, for example — you need to account
@@ -350,6 +357,7 @@ a whole number or can it be fractional?
 
 When in doubt in Arduino, `int` is a reasonable default for values
 that fit in its range and `unsigned long` for any timing variable.
+
 In MicroPython, you rarely need to think about type explicitly —
 but you do need to think about whether you want `/` (float result)
 or `//` (integer result) when dividing.
@@ -397,4 +405,4 @@ or `//` (integer result) when dividing.
 
 ---
 
-*mirobo.tech Year 1 Microcontroller Programming — Numeric Types Sidebar*
+*mirobo.tech Beginner Microcontroller Programming — Numeric Types Explainer*
