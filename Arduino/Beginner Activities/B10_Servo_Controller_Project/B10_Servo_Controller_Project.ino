@@ -1,12 +1,13 @@
 /* ================================================================================
-Project: Servo Controller [B10-Servo-Controller-Project]
-March 31, 2026
+Project: Servo Controller [B10_Servo_Controller_Project]
+Version: 1.2
+Updated: September 14, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPERNano.h header file
 
-Before starting this project, re-read GE1 and GE3
-from Activity 10: Analog Output.
+Before starting this project, re-read GE 1 and GE 3 from
+Activity 10: Analog Output.
 
 Servo position is controlled by PWM pulse width, not duty cycle.
 The standard hobby servo protocol uses a 50 Hz signal where:
@@ -40,15 +41,15 @@ bool POTS_INSTALLED = false;          // Set true if RV1 and RV2 are installed
 
 // ---- Program Constants ---------------
 const int STEP_DELAY  = 20;           // Main loop delay (ms)
-const int ANGLE_STEP  = 2;           // Degrees per button press step
+const int ANGLE_STEP  = 2;            // Degrees per button press step
 
 // ---- Servo objects -------------------
 Servo servo1;                         // Servo on connector H5
 Servo servo2;                         // Servo on connector H6
 
 // ---- Program Variables ---------------
-int servo1_angle = 90;               // Current angle for servo 1 (degrees)
-int servo2_angle = 90;               // Current angle for servo 2 (degrees)
+int servo1_angle = 90;                // Current angle for servo 1 (degrees)
+int servo2_angle = 90;                // Current angle for servo 2 (degrees)
 
 
 // ---- Program Functions ---------------
@@ -85,8 +86,15 @@ void setup()
     pinMode(SW4, INPUT_PULLUP);
     pinMode(SW5, INPUT_PULLUP);
 
+    // Configure the ADC for 16-bit readings (0-65535), matching the
+    // MicroPython board module's read_u16()-style scaling - see
+    // Activity 10, GE1.
+    analogReadResolution(16);
+
     Serial.begin(9600);
-    while (!Serial);
+    delay(2000);                       // Give Serial Monitor time to
+                                        // connect, without blocking
+                                        // forever if it's never opened
 
     // Move both servos to centre on startup
     servo1_angle = set_servo(servo1, servo1_angle);
@@ -104,8 +112,8 @@ void loop()
 {
     if (POTS_INSTALLED)
     {
-        servo1_angle = map(analogRead(RV1), 0, 1023, 0, 180);
-        servo2_angle = map(analogRead(RV2), 0, 1023, 0, 180);
+        servo1_angle = map(RV1_level(), 0, 65535, 0, 180);
+        servo2_angle = map(RV2_level(), 0, 65535, 0, 180);
     }
     else
     {
@@ -131,54 +139,73 @@ void loop()
 }
 
 
-/*
+/* ================================================================================
 Extension Activities
+================================================================================
 
-1.  The Servo library's 'write()' function accepts angles in
-    degrees and converts them to pulse widths internally. The
-    library also provides 'writeMicroseconds(us)' for direct
-    pulse width control in microseconds.
+--------------------------------------------------------------------------------
+EA 1 - write() vs. writeMicroseconds()
+--------------------------------------------------------------------------------
 
-    Try calling 'servo1.writeMicroseconds(1000)', then 1500,
-    then 2000. Do these correspond to the 0, 90, and 180 degree
-    positions from 'write()'? Are the endpoints exactly the
-    same, or does your servo respond to a wider range?
+The Servo library's 'write()' function accepts angles in
+degrees and converts them to pulse widths internally. The
+library also provides 'writeMicroseconds(us)' for direct
+pulse width control in microseconds.
 
-    Compare 'write()' with 'writeMicroseconds()' - which gives
-    you more control over the exact servo position? For standard
-    applications 'write()' is simpler, but 'writeMicroseconds()'
-    is useful when you need to fine-tune the endpoints or work
-    with servos that use a non-standard pulse width range.
+Try calling 'servo1.writeMicroseconds(1000)', then 1500,
+then 2000. Do these correspond to the 0, 90, and 180 degree
+positions from 'write()'? Are the endpoints exactly the
+same, or does your servo respond to a wider range?
 
-2.  Write a 'sweep(Servo &srv, int start, int end, int step_ms)'
-    function that moves a servo smoothly from start to end angle,
-    pausing step_ms milliseconds between each degree. Use it to
-    create a continuous scanning motion between 0 and 180 degrees.
+Compare 'write()' with 'writeMicroseconds()' - which gives
+you more control over the exact servo position? For standard
+applications 'write()' is simpler, but 'writeMicroseconds()'
+is useful when you need to fine-tune the endpoints or work
+with servos that use a non-standard pulse width range.
 
-    Note that 'delay()' inside 'sweep()' blocks 'loop()' for
-    its full duration. How would you allow two servos to sweep
-    simultaneously? This is the problem Activity 11's non-blocking
-    timing solves.
+--------------------------------------------------------------------------------
+EA 2 - sweep(Servo &srv, int start, int end, int step_ms)
+--------------------------------------------------------------------------------
 
-3.  Implement a servo sequencer using a 2D array of position and
-    dwell-time pairs, similar to the Sound Player's melody array:
+Write a 'sweep(Servo &srv, int start, int end, int step_ms)'
+function that moves a servo smoothly from start to end angle,
+pausing step_ms milliseconds between each degree. Use it to
+create a continuous scanning motion between 0 and 180 degrees.
 
-  const int sequence[][2] = {
-      {  10, 500 },   // Position, dwell time (ms)
-      {  90, 300 },
-      { 170, 500 },
-      {  90, 300 },
-  };
-  const int SEQ_LENGTH = sizeof(sequence) / sizeof(sequence[0]);
+Note that 'delay()' inside 'sweep()' blocks 'loop()' for
+its full duration. How would you allow two servos to sweep
+simultaneously? This is the problem Activity 11's non-blocking
+timing solves.
 
-    Write a 'play_sequence(Servo &srv)' function that steps through
-    the array, moving the servo to each position and waiting the
-    specified dwell time.
+--------------------------------------------------------------------------------
+EA 3 - Servo sequencer
+--------------------------------------------------------------------------------
 
-4.  Attach a third servo to H7 (pin S3) and add a second
-    'Servo servo3' object and 'servo3_angle' variable. Extend
-    'setup()' with 'servo3.attach(H7)' and add controls for
-    servo 3. With three servos you can create a simple 3-DOF
-    (degrees of freedom) manipulator arm.
+Implement a servo sequencer using a 2D array of position and
+dwell-time pairs, similar to the Sound Player's melody array:
+
+Example code:
+
+const int sequence[][2] = {
+    {  10, 500 },   // Position, dwell time (ms)
+    {  90, 300 },
+    { 170, 500 },
+    {  90, 300 },
+};
+const int SEQ_LENGTH = sizeof(sequence) / sizeof(sequence[0]);
+
+Write a 'play_sequence(Servo &srv)' function that steps through
+the array, moving the servo to each position and waiting the
+specified dwell time.
+
+--------------------------------------------------------------------------------
+EA 4 - A third servo
+--------------------------------------------------------------------------------
+
+Attach a third servo to H7 (pin S3) and add a third
+'Servo servo3' object and 'servo3_angle' variable. Extend
+'setup()' with 'servo3.attach(H7)' and add controls for
+servo 3. With three servos you can create a simple 3-DOF
+(degrees of freedom) manipulator arm.
 
 */
