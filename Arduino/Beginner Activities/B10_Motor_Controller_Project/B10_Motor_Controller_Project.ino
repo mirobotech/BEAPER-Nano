@@ -1,12 +1,13 @@
 /* ================================================================================
-Project: Motor Controller [B10-Motor-Controller-Project]
-March 31, 2026
+Project: Motor Controller [B10_Motor_Controller_Project]
+Version: 1.2
+Updated: September 14, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (robot configuration)
 Requires: BEAPERNano.h header file
 
-Before starting this project, re-read GE1, GE2, GE3,
-and GE4 from Activity 10: Analog Output.
+Before starting this project, re-read GE 1, GE 2, GE 3, and GE 4
+from Activity 10: Analog Output.
 
 IMPORTANT HARDWARE NOTES:
   The H-bridge motor driver outputs share pins with LED2-LED5.
@@ -37,7 +38,7 @@ Controls:
 
 // ---- Program Constants ---------------
 const int STEP_DELAY = 20;            // Main loop delay (ms)
-const int DEADBAND   = 5;            // Speed % below which motor is stopped
+const int DEADBAND   = 5;             // Speed % below which motor is stopped
 const int MAX_SPEED  = 100;           // Maximum speed percentage
 
 // ---- Program Variables ---------------
@@ -88,10 +89,10 @@ void motors(int left_speed, int right_speed)
 
 int pot_to_speed(int pot_value)
 {
-    // Convert a potentiometer reading (0-1023) to a motor speed (-100 to 100).
+    // Convert a potentiometer reading (0-65535) to a motor speed (-100 to 100).
     // The centre of the pot range maps to 0 (stopped).
     // Values within DEADBAND percent of centre return 0.
-    int speed = map(pot_value, 0, 1023, -MAX_SPEED, MAX_SPEED);
+    int speed = map(pot_value, 0, 65535, -MAX_SPEED, MAX_SPEED);
     speed = constrain(speed, -MAX_SPEED, MAX_SPEED);
     if (abs(speed) < DEADBAND)
         return 0;
@@ -116,8 +117,15 @@ void setup()
     pinMode(SW4, INPUT_PULLUP);
     pinMode(SW5, INPUT_PULLUP);
 
+    // Configure the ADC for 16-bit readings (0-65535), matching the
+    // MicroPython board module's read_u16()-style scaling - see
+    // Activity 10, GE1.
+    analogReadResolution(16);
+
     Serial.begin(9600);
-    while (!Serial);
+    delay(2000);                       // Give Serial Monitor time to
+                                        // connect, without blocking
+                                        // forever if it's never opened
 
     motors(0, 0);
     Serial.println("Motor Controller");
@@ -147,7 +155,7 @@ void loop()
 
     if (drive_enabled)
     {
-        int left_speed  = pot_to_speed(analogRead(RV1));
+        int left_speed  = pot_to_speed(RV1_level());
         // TODO: read RV2 and convert to right_speed using pot_to_speed()
         int right_speed = 0;
         motors(left_speed, right_speed);
@@ -163,37 +171,65 @@ void loop()
 }
 
 
-/*
+/* ================================================================================
 Extension Activities
+================================================================================
 
-1.  Add acceleration limiting so that motor speed changes gradually
-    rather than jumping to the target immediately. Declare static
-    variables inside 'loop()' to track the current speed for each
-    motor, and move each toward its target by a fixed step per
-    iteration. What step size gives a natural-feeling acceleration?
+--------------------------------------------------------------------------------
+EA 1 - Complete the skeleton
+--------------------------------------------------------------------------------
 
-  static int current_left  = 0;
-  static int current_right = 0;
+BEAPER Nano will need to be powered using either a power supply
+or a battery pack connected to the CON1 screw terminal strip to
+run the motors.
 
-2.  Implement 'drive_timed(int left_spd, int right_spd, int ms)'
-    that drives both motors for a set duration then stops. Use it
-    to create a simple repeatable movement sequence. Note that
-    'delay()' inside this function blocks 'loop()' for its full
-    duration - Activity 11 introduces non-blocking timing that
-    allows other actions to continue during a timed movement.
+Test the program with one motor connected to the left motor
+terminals. Finish the right_motor() and motors() functions in
+the program and test them to make sure they work.
 
-3.  Four-pump or four-fan controller: the H-bridge driver can
-    control four independent single-direction loads by wiring each
-    load between one motor output pin and ground, with the other
-    pin held LOW. Use SW2-SW5 to enable each pump independently
-    and RV1 to set a shared duty cycle:
+--------------------------------------------------------------------------------
+EA 2 - Acceleration limiting
+--------------------------------------------------------------------------------
 
-  // Enable pump 1 at the current duty cycle
-  analogWrite(LED2, duty);
-  analogWrite(LED3, 0);         // Hold opposite pin LOW
+Add acceleration limiting so that motor speed changes gradually
+rather than jumping to the target immediately. Declare static
+variables inside 'loop()' to track the current speed for each
+motor, and move each toward its target by a fixed step per
+iteration. What step size gives a natural-feeling acceleration?
 
-    Add a maximum run time per pump using 'millis()' to prevent
-    overheating or tank overflow. This previews the non-blocking
-    timing technique covered in Activity 11.
+Example code:
+
+static int current_left  = 0;
+static int current_right = 0;
+
+--------------------------------------------------------------------------------
+EA 3 - Timed movement sequences
+--------------------------------------------------------------------------------
+
+Implement 'drive_timed(int left_spd, int right_spd, int ms)'
+that drives both motors for a set duration then stops. Use it
+to create a simple repeatable movement sequence. Note that
+'delay()' inside this function blocks 'loop()' for its full
+duration - Activity 11 introduces non-blocking timing that
+allows other actions to continue during a timed movement.
+
+--------------------------------------------------------------------------------
+EA 4 - Four-pump or four-fan controller
+--------------------------------------------------------------------------------
+
+The H-bridge driver can control four independent single-direction
+loads by wiring each load between one motor output pin and ground,
+with the other pin held LOW. Use SW2-SW5 to enable each pump
+independently and RV1 to set a shared duty cycle:
+
+Example code:
+
+// Enable pump 1 at the current duty cycle
+analogWrite(LED2, duty);
+analogWrite(LED3, 0);         // Hold opposite pin LOW
+
+Add a maximum run time per pump using 'millis()' to prevent
+overheating or tank overflow. This previews the non-blocking
+timing technique covered in Activity 11.
 
 */

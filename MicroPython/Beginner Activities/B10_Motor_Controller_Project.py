@@ -1,47 +1,47 @@
-"""
-================================================================================
-Project: Motor Controller [B10_Motor_Controller_Project.py]
-March 31, 2026
+# ================================================================================
+# Project: Motor Controller [B10_Motor_Controller_Project.py]
+# Version: 1.2
+# Updated: September 14, 2026
+#
+# Platform: mirobo.tech BEAPER Nano circuit (robot configuration)
+# Requires: BEAPER_Nano.py board module file
+#
+# Before starting this project, re-read GE 1, GE 2, GE 3, and GE 4
+# from Activity 10: Analog Output.
+#
+# IMPORTANT HARDWARE NOTES:
+#   The H-bridge motor driver outputs share pins with LED2-LED5.
+#   Using this skeleton will prevent LED2-LED5 from being used as
+#   status indicators - the PWM objects created here replace the
+#   LED Pin objects from the board module on those pins.
+#
+#   Motor wiring (standard robot configuration):
+#     M1A / M1B - Left motor
+#     M2A / M2B - Right motor
+#
+#   The H-bridge driver requires motor power to be connected
+#   separately from the logic supply. Ensure motor power is
+#   connected before running motors. Never exceed the driver
+#   chip's rated current per channel.
+#
+#   Always test motor direction at low speed (25%) before
+#   increasing to full speed. If a motor runs the wrong direction,
+#   swap its two wires at the motor terminal.
+#
+# This project configures both H-bridge channels as PWM outputs
+# and provides a left_motor() speed control function and right_motor()
+# and motors() function skeletons for you to finish implementing.
+# Speed is given as a percentage from -100 (full reverse) to 100
+# (full forward), with 0 as stopped.
+#
+# Controls:
+#   RV1 - left motor speed  (clockwise = forward, anti-clockwise = reverse)
+#   RV2 - right motor speed (anti-clockwise = reverse, clockwise = forward)
+#   SW5 - enable/disable drive (safety enable switch)
+# ================================================================================
 
-Platform: mirobo.tech BEAPER Nano circuit (robot configuration)
-Requires: BEAPER_Nano.py board module file.
-
-Before starting this project, re-read GE1, GE2, GE3,
-and GE4 from Activity 10: Analog Output.
-
-IMPORTANT HARDWARE NOTES:
-  The H-bridge motor driver outputs share pins with LED2-LED5.
-  Using this skeleton will prevent LED2-LED5 from being used as
-  status indicators - the PWM objects created here replace the
-  LED Pin objects from the board module on those pins.
-
-  Motor wiring (standard robot configuration):
-    M1A / M1B - Left motor
-    M2A / M2B - Right motor
-
-  The H-bridge driver requires motor power to be connected
-  separately from the logic supply. Ensure motor power is
-  connected before running motors. Never exceed the driver
-  chip's rated current per channel.
-
-  Always test motor direction at low speed (25%) before
-  increasing to full speed. If a motor runs the wrong direction,
-  swap its two wires at the motor terminal.
-
-This project configures both H-bridge channels as PWM outputs
-and provides a left_motor() speed control function and right_motor()
-and motors() function skeletons for you to finish implementing.
-Speed is given as a percentage from -100 (full reverse) to 100
-(full forward), with 0 as stopped.
-
-Controls:
-  RV1 - left motor speed  (clockwise = reverse, anti-clockwise = forward)
-  RV2 - right motor speed (anti-clockwise = reverse, clockwise = forward)
-  SW5 - enable/disable drive (safety enable switch)
-================================================================================
-"""
-# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32
-import BEAPER_Nano as beaper
+# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32.
+import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
 
 from machine import Pin, PWM
 import time
@@ -141,47 +141,64 @@ while True:
   time.sleep_ms(STEP_DELAY)
 
 
-"""
-Extension Activities
-
-1.  Note: BEAPER Nano will need to be powered using either a power
-    supply or a battery pack connected to the CON1 screw terminal
-    strip to run the motors. Test the program with one motor
-    connected to the left motor terminals. Finish the right_motor()
-    and motors() functions in the program and test them to make
-    sure they work.
-
-2.  Add acceleration limiting so that motor speed changes gradually
-    rather than jumping to the target immediately. Store the current
-    speed for each motor in a variable and move it toward the target
-    by a fixed step per loop iteration. What step size gives a
-    natural-feeling acceleration without making the robot feel
-    sluggish?
-
-3.  Implement a 'drive_timed(left_speed, right_speed, duration_ms)'
-    function that drives both motors at the given speeds for a set
-    duration, then stops. Use it to create a simple repeatable
-    movement sequence - forward, turn, forward, stop.
-
-    Note that 'drive_timed()' blocks the main loop for its full
-    duration using 'time.sleep_ms()'. Activity 11 introduces
-    non-blocking timing that allows other actions to continue
-    during a timed movement.
-
-4.  Four-pump or four-fan controller: the H-bridge driver can
-    control four independent single-direction loads (pumps, fans)
-    by wiring each load between one motor output pin and ground.
-    Reconfigure the motor PWM objects for the type of load that
-    will be controlled:
-
-  PUMP1_PWM = PWM(Pin(beaper.LED2_PIN), freq=1000, duty_u16=0)
-  PUMP2_PWM = PWM(Pin(beaper.LED3_PIN), freq=1000, duty_u16=0)
-  PUMP3_PWM = PWM(Pin(beaper.LED4_PIN), freq=1000, duty_u16=0)
-  PUMP4_PWM = PWM(Pin(beaper.LED5_PIN), freq=1000, duty_u16=0)
-
-    Use SW2-SW5 to enable each pump independently and RV1 to set
-    a shared duty cycle (flow rate). Add a maximum run time per
-    pump to prevent overheating or as a safety measure to prevent
-    a storage tank overflow.
-
-"""
+# ================================================================================
+# Extension Activities
+# ================================================================================
+#
+# --------------------------------------------------------------------------------
+# EA 1 - Complete the skeleton
+# --------------------------------------------------------------------------------
+#
+# Note: BEAPER Nano will need to be powered using either a power
+# supply or a battery pack connected to the CON1 screw terminal
+# strip to run the motors.
+#
+# Test the program with one motor connected to the left motor
+# terminals. Finish the right_motor() and motors() functions in
+# the program and test them to make sure they work.
+#
+# --------------------------------------------------------------------------------
+# EA 2 - Acceleration limiting
+# --------------------------------------------------------------------------------
+#
+# Add acceleration limiting so that motor speed changes gradually
+# rather than jumping to the target immediately. Store the current
+# speed for each motor in a variable and move it toward the target
+# by a fixed step per loop iteration. What step size gives a
+# natural-feeling acceleration without making the robot feel
+# sluggish?
+#
+# --------------------------------------------------------------------------------
+# EA 3 - Timed movement sequences
+# --------------------------------------------------------------------------------
+#
+# Implement a 'drive_timed(left_speed, right_speed, duration_ms)'
+# function that drives both motors at the given speeds for a set
+# duration, then stops. Use it to create a simple repeatable
+# movement sequence - forward, turn, forward, stop.
+#
+# Note that 'drive_timed()' blocks the main loop for its full
+# duration using 'time.sleep_ms()'. Activity 11 introduces
+# non-blocking timing that allows other actions to continue
+# during a timed movement.
+#
+# --------------------------------------------------------------------------------
+# EA 4 - Four-pump or four-fan controller
+# --------------------------------------------------------------------------------
+#
+# The H-bridge driver can control four independent single-direction
+# loads (pumps, fans) by wiring each load between one motor output
+# pin and ground. Reconfigure the motor PWM objects for the type of
+# load that will be controlled:
+#
+# Example code:
+#
+# PUMP1_PWM = PWM(Pin(beaper.LED2_PIN), freq=1000, duty_u16=0)
+# PUMP2_PWM = PWM(Pin(beaper.LED3_PIN), freq=1000, duty_u16=0)
+# PUMP3_PWM = PWM(Pin(beaper.LED4_PIN), freq=1000, duty_u16=0)
+# PUMP4_PWM = PWM(Pin(beaper.LED5_PIN), freq=1000, duty_u16=0)
+#
+# Use SW2-SW5 to enable each pump independently and RV1 to set
+# a shared duty cycle (flow rate). Add a maximum run time per
+# pump to prevent overheating or as a safety measure to prevent
+# a storage tank overflow.
