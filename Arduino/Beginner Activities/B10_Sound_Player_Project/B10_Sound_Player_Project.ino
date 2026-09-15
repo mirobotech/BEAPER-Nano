@@ -1,12 +1,13 @@
 /* ================================================================================
-Project: Sound Player [B10-Sound-Player-Project]
-March 31, 2026
+Project: Sound Player [B10_Sound_Player_Project]
+Version: 1.2
+Updated: September 14, 2026
 
 Platform: mirobo.tech BEAPER Nano circuit (any configuration)
 Requires: BEAPERNano.h header file
 
-Before starting this project, re-read GE1 and GE3
-from Activity 10: Analog Output.
+Before starting this project, re-read GE 1 and GE 3 from
+Activity 10: Analog Output.
 
 This project controls the BEAPER Nano's piezo speaker using
 Arduino's tone() function. Frequency (pitch) is fully controllable
@@ -71,7 +72,9 @@ void setup()
     pinMode(SW5, INPUT_PULLUP);
 
     Serial.begin(9600);
-    while (!Serial);                  // Wait for serial port to be ready
+    delay(2000);                       // Give Serial Monitor time to
+                                        // connect, without blocking
+                                        // forever if it's never opened
 
     Serial.println("Sound Player");
     Serial.println("SW2/SW5: pitch down/up   SW3/SW4: octave down/up");
@@ -118,62 +121,83 @@ void loop()
 }
 
 
-/*
+/* ================================================================================
 Extension Activities
+================================================================================
 
-1.  Implement the 'beep()' function and use it to play a startup
-    chime when the program begins - three rising tones of decreasing
-    duration, for example. Call 'beep()' from setup() after
-    Serial.println() so the chime plays once on startup, then the
-    interactive controls take over.
+--------------------------------------------------------------------------------
+EA 1 - Implement beep() and a startup chime
+--------------------------------------------------------------------------------
 
-    After the chime, does the speaker resume at the correct
-    frequency? What do you need to call after 'beep()' to restore
-    the continuous tone?
+Implement the 'beep()' function and use it to play a startup
+chime when the program begins - three rising tones of decreasing
+duration, for example. Call 'beep()' from setup() after
+Serial.println() so the chime plays once on startup, then the
+interactive controls take over.
 
-2.  A melody can be stored as a two-dimensional array of
-    {frequency, duration_ms} pairs. Here is a short example using
-    the first four notes of 'Ode to Joy':
+After the chime, does the speaker resume at the correct
+frequency? What do you need to call after 'beep()' to restore
+the continuous tone?
 
-  const int melody[][2] = {
-    { 659, 400 },   // E5
-    { 659, 400 },   // E5
-    { 698, 400 },   // F5
-    { 784, 400 },   // G5
-  };
-  const int MELODY_LENGTH = sizeof(melody) / sizeof(melody[0]);
+--------------------------------------------------------------------------------
+EA 2 - Playing a melody
+--------------------------------------------------------------------------------
 
-    Play the melody using 'beep()' in a for loop, with a short
-    gap between notes:
+A melody can be stored as a two-dimensional array of
+{frequency, duration_ms} pairs. Here is a short example using
+the first four notes of 'Ode to Joy':
 
-  for (int i = 0; i < MELODY_LENGTH; i++)
-  {
-    beep(melody[i][0], melody[i][1]);
-  }
+Example code:
 
-    Extend the melody with more notes, or create your own. Change
-    the gap value inside 'beep()' and observe how it affects the
-    feel of the music.
+const int melody[][2] = {
+  { 659, 400 },   // E5
+  { 659, 400 },   // E5
+  { 698, 400 },   // F5
+  { 784, 400 },   // G5
+};
+const int MELODY_LENGTH = sizeof(melody) / sizeof(melody[0]);
 
-3.  Add a silence mode toggled by pressing SW2 and SW5 at the same
-    time. When silent, 'noTone(LS1)' stops the tone without changing
-    'frequency'. Pressing either button alone while silent resumes
-    the tone at the stored frequency. How will you detect that two
-    buttons are pressed simultaneously?
+Play the melody using 'beep()' in a for loop, with a short
+gap between notes:
 
-4.  Arduino's tone() function always produces a 50% duty cycle
-    square wave - the signal spends equal time HIGH and LOW on every
-    cycle. Changing the duty cycle is not possible through
-    'analogWrite()' on the speaker pin, because 'analogWrite()'
-    changes the duty cycle but not the frequency, and 'tone()'
-    takes control of the timer and ignores 'analogWrite()'.
+Example code:
 
-    The Arduino Nano ESP32's hardware has a dedicated LEDC (LED
-    Control) peripheral that can set both frequency and duty cycle
-    independently. Research 'ledcAttach()', 'ledcWriteTone()', and
-    'ledcWrite()' in the ESP32 Arduino documentation. How would you
-    use these functions to produce the same pitch at different duty
-    cycles? What timbre change do you hear when the duty cycle
-    is very low (say, 5% of 255)?
+for (int i = 0; i < MELODY_LENGTH; i++)
+{
+  beep(melody[i][0], melody[i][1]);
+}
+
+Extend the melody with more notes, or create your own. Change
+the gap value inside 'beep()' and observe how it affects the
+feel of the music.
+
+--------------------------------------------------------------------------------
+EA 3 - Silence mode
+--------------------------------------------------------------------------------
+
+Add a silence mode toggled by pressing SW2 and SW5 at the same
+time. When silent, 'noTone(LS1)' stops the tone without changing
+'frequency'. Pressing either button alone while silent resumes
+the tone at the stored frequency. How will you detect that two
+buttons are pressed simultaneously?
+
+--------------------------------------------------------------------------------
+EA 4 - Duty cycle and the LEDC peripheral
+--------------------------------------------------------------------------------
+
+Arduino's tone() function always produces a 50% duty cycle
+square wave - the signal spends equal time HIGH and LOW on every
+cycle. Changing the duty cycle is not possible through
+'analogWrite()' on the speaker pin, because 'analogWrite()'
+changes the duty cycle but not the frequency, and 'tone()'
+takes control of the timer and ignores 'analogWrite()'.
+
+The Arduino Nano ESP32's hardware has a dedicated LEDC (LED
+Control) peripheral that can set both frequency and duty cycle
+independently. Research 'ledcAttach()', 'ledcWriteTone()', and
+'ledcWrite()' in the ESP32 Arduino documentation. How would you
+use these functions to produce the same pitch at different duty
+cycles? What timbre change do you hear when the duty cycle
+is very low (say, 5% of 255)?
 
 */
