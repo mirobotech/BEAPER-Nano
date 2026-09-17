@@ -1,16 +1,22 @@
 /* =============================================================================
-BEAPERNano.h
-March 14, 2026
+BEAPER Nano board header file [BEAPERNano.h]
+Version: 1.2
+Updated: September 5, 2026
 
 Board header file for the mirobo.tech BEAPER Nano circuit.
 
 This header defines Arduino Nano ESP32's GPIO pins for BEAPER Nano's
-on-board circuits and provides simple helper functions to enable
-beginners to focus on learning programming concepts more quickly.
+on-board circuits and devices, and provides simple helper functions to
+enable beginners to focus on learning programming concepts more quickly.
 (A similar MicroPython board module is also available for BEAPER Nano.)
 
+Before getting started with it you should know:
+- nothing here is hidden, or **magic**, or requires special libraries
+- the functions are just normal Arduino C code to help you start learning
+- you're encouraged to modify the code to make it work better for you!
+
 BEAPER Nano hardware notes:
-- Button switches use internal pull-up resistors (so pressed == LOW)
+- Button switches use internal pull-up resistors (pressed == LOW)
 - LEDs and motor driver inputs share I/O pins
 - Headers H1-H4 and H5-H8 share I/O pins (so much I/O, too few pins!)
 - Analog jumpers on BEAPER Nano must be set to connect sensors to pins:
@@ -22,10 +28,11 @@ BEAPER Nano hardware notes:
 #ifndef BEAPERNANO_H
 #define BEAPERNANO_H
 
-/* =====================================
- * Arduino Nano ESP32 Module LEDs
- * ====================================*/
-// Arduino Nano ESP32 LEDs pre-defined in the Arduino ESP32 boards package.
+// -----------------------------------------------------------------------------
+// Arduino Nano ESP32 Module LEDs
+// -----------------------------------------------------------------------------
+// Arduino Nano ESP32 LEDs are pre-defined in the Arduino ESP32 boards package.
+// Setup each LED using the names listed below:
 
 // LED_BUILTIN (D13)      // On-board LED (shared as SPI SCK pin)
 // LED_BLUE               // RGB LED blue element (active-LOW)
@@ -33,11 +40,11 @@ BEAPER Nano hardware notes:
 // LED_RED                // RGB LED red element (active-LOW)
 
 
-/* =====================================
- * LED Pins
- * ====================================*/
-// IMPORTANT: LED pins are shared with the motor controller. Using the
-// LEDs while the motors are active will affect motor behavior!
+// -----------------------------------------------------------------------------
+// BEAPER Nano LEDs
+// -----------------------------------------------------------------------------
+// IMPORTANT: LED pins are shared with the motor controller. Using the LEDs
+// while the motors are active will affect motor behavior!
 
 const uint8_t LED2 = 4;   // M1A
 const uint8_t LED3 = 5;   // M1B
@@ -64,9 +71,10 @@ inline void leds_off()
 }
 
 
-/* =====================================
- * Pushbutton Pins (Active LOW)
- * ====================================*/
+// -----------------------------------------------------------------------------
+// BEAPER Nano Pushbutton Switches
+// -----------------------------------------------------------------------------
+// All pushbutton switches use internal pull-up resistors (active-LOW)
 
 const uint8_t SW2 = 0;
 const uint8_t SW3 = 1;
@@ -77,11 +85,11 @@ const uint8_t SWITCHES[] = {SW2, SW3, SW4, SW5};  // Array of all switch pins
 const uint8_t NUM_SWITCHES = 4;
 
 
-/* =====================================
- * Motor Pins
- * ====================================*/
-// IMPORTANT: Motor output pins aare shared with the LEDs. Using the LEDs
-// while driving the motors will affect motor behaviour!
+// -----------------------------------------------------------------------------
+// BEAPER Nano Motor Controller
+// -----------------------------------------------------------------------------
+// IMPORTANT: The motor controller is connected to the LED pins. Using the LEDs
+// while the motors are actvie will affect motor behaviour!
 
 const uint8_t M1A = 4;    // Left motor terminal A
 const uint8_t M1B = 5;    // Left motor terminal B
@@ -144,21 +152,58 @@ inline void right_motor_stop()
 }
 
 
-/* =====================================
- * Piezo Beeper Pin
- * ====================================*/
+// -----------------------------------------------------------------------------
+// BEAPER Nano Piezo Speaker
+// -----------------------------------------------------------------------------
 
-const uint8_t LS1 = 8;    // BEAPER Nano Piezo beeper LS1
+const uint8_t LS1 = 8;    // BEAPER Nano Piezo speaker LS1
 
 inline void beep()
 {
     tone(LS1, 1000, 100); // Play a short beep
 }
 
-/* =====================================
- * 3.3V I/O Expansion Header Pins
- * ====================================*/
-// NOTE: I/O headers H1-H4 are shared between analog, I2C, and 5V output headers H5-H8.
+
+// -----------------------------------------------------------------------------
+// BEAPER Nano Analog Inputs
+// -----------------------------------------------------------------------------
+// IMPORTANT: On-board analog jumpers must be set to select each input.
+
+const uint8_t Q1 = A0;    // Left floor/line sensor phototransistor Q1 (JP1 - Robot)
+const uint8_t Q4 = A0;    // Ambient light sensor Q4 (JP1 - Enviro.)
+const uint8_t Q2 = A1;    // Left line sensor phototransistor Q2 (JP2 - Robot)
+const uint8_t U4 = A1;    // Analog temperature sensor U4 (JP2 - Enviro.)
+const uint8_t Q3 = A2;    // Right floor/line sensor phototransistor Q3 (JP3 - Robot)
+const uint8_t RV1 = A2;   // Potentiometer RV1 (JP3 - Enviro.)
+const uint8_t VDIV = A3;  // Resistor voltage divider (JP4 - Robot)
+const uint8_t RV2 = A3;   // Potentiometer RV2 (JP4 - Enviro.)
+
+// NOTE: Arduino Nano ESP32 defaults to 12-bit (0-4095) ADC resolution.
+// ADC can be set to 10-bit (0-1023) using analogReadResolution(10) in setup()
+// for compatibility with older Arduino software.
+
+// Analog Helper Functions
+// These analog helper functions return 16-bit (0-65535) values and require
+// modification if analog resolution is changed. Use analogReadResolution(16)
+// in setup() to return 16-bit ADC results for these helper functions
+// regardless of physical ADC resolution.
+
+inline int light_level() { return 65535 - analogRead(Q4); }   // Brighter -> higher values (JP1 - Enviro.)
+inline int temp_level()  { return analogRead(U4); }           // Warmer -> higher values  (JP2 - Enviro.)
+inline int RV1_level()   { return analogRead(RV1); }          // Clockwise -> higher values (JP3 - Enviro.)
+inline int RV2_level()   { return analogRead(RV2); }          // Clockwise -> higher values (JP4 - Enviro.)
+inline int Q1_level()    { return 65535 - analogRead(Q1); }   // Higher reflectivity -> higher values (JP1 - Robot)
+inline int Q2_level()    { return 65535 - analogRead(Q2); }   // Higher reflectivity -> higher values (JP2 - Robot)
+inline int Q3_level()    { return 65535 - analogRead(Q3); }   // Higher reflectivity -> higher values (JP3 - Robot)
+inline int VDIV_level()  { return analogRead(VDIV); }         // Voltage divider tap (JP4 - Robot)
+inline float VDIV_volts() { return analogRead(VDIV) * 20.5f / 65535.0f; }  // Battery voltage (JP4 - Robot)
+
+
+// -----------------------------------------------------------------------------
+// 3.3V I/O Expansion Header Pins
+// -----------------------------------------------------------------------------
+// NOTE: I/O headers H1-H4 are shared between analog, I2C, and 5V output headers
+// H5-H8. Plan header I/O carefully!
 
 const uint8_t H1 = A4;    // Header H1 (shared with I2C SDA and 5V output header H5)
 
@@ -171,10 +216,11 @@ const uint8_t ECHO = A7;  // Ultrasonic SONAR distance sensor ECHO input
 const uint8_t H4 = A5;    // Header H4 (shared with I2C SCL and 5V output header H6)
 
 
-/* =====================================
- * 5V Output Expansion Header Pins
- * ====================================*/
-// NOTE: Designed as Servo outputs, shared with 3.3V I/O headers H1-H4.
+// -----------------------------------------------------------------------------
+// 5V Output Expansion Header Pins
+// -----------------------------------------------------------------------------
+// NOTE: H5-H8 are designed as servo outputs, and share I/O pins with 3.3V I/O
+// headers H1-H4.
 
 const uint8_t H5 = A4;    // H1
 const uint8_t H6 = A5;    // H4
@@ -182,10 +228,10 @@ const uint8_t H7 = A6;    // H2
 const uint8_t H8 = A7;    // H3
 
 
-/* =====================================
- * SONAR Distance Sensor Functions
- * ====================================*/
- 
+// -----------------------------------------------------------------------------
+// SONAR Distance Sensor Functions
+// -----------------------------------------------------------------------------
+
 // Call sonar_setup() once in setup() to configure the SONAR pins.
 inline void sonar_setup()
 {
@@ -242,40 +288,9 @@ inline float sonar_range(int max_range = 100)
 }
 
 
-/* =====================================
- * Analog I/O Pins
- * ====================================*/
-// IMPORTANT: On-board analog jumpers must be set to select each input.
-
-const uint8_t Q1 = A0;    // Left floor/line sensor phototransistor Q1 (JP1 - Robot)
-const uint8_t Q4 = A0;    // Ambient light sensor Q4 (JP1 - Enviro.)
-const uint8_t Q2 = A1;    // Left line sensor phototransistor Q2 (JP2 - Robot)
-const uint8_t U4 = A1;    // Analog temperature sensor U4 (JP2 - Enviro.)
-const uint8_t Q3 = A2;    // Right floor/line sensor phototransistor Q3 (JP3 - Robot)
-const uint8_t RV1 = A2;   // Potentiometer RV1 (JP3 - Enviro.)
-const uint8_t VDIV = A3;  // Resistor voltage divider (JP4 - Robot)
-const uint8_t RV2 = A3;   // Potentiometer RV2 (JP4 - Enviro.)
-
-// NOTE: Arduino Nano ESP32 supports 10-bit (default 0-1023) or
-// 12-bit (0-4095) ADC resolution - via analogReadResolution(12)
-// in setup(). See intermediate activities for higher resolution use.
-
-// Analog helper functions: these analog helper functions return 10-bit
-// (0-1023) values and require modification if analog resolution is changed.
-
-inline int light_level() { return 1023 - analogRead(Q4); }    // Brighter -> higher values (JP1 - Enviro.)
-inline int temp_level()  { return analogRead(U4); }           // Warmer -> higher values  (JP2 - Enviro.)
-inline int RV1_level()   { return analogRead(RV1); }          // Clockwise -> higher values (JP3 - Enviro.)
-inline int RV2_level()   { return analogRead(RV2); }          // Clockwise -> higher values (JP4 - Enviro.)
-inline int Q1_level()    { return 1023 - analogRead(Q1); }    // Higher reflectivity -> higher values (JP1 - Robot)
-inline int Q2_level()    { return 1023 - analogRead(Q2); }    // Higher reflectivity -> higher values (JP2 - Robot)
-inline int Q3_level()    { return 1023 - analogRead(Q3); }    // Higher reflectivity -> higher values (JP3 - Robot)
-inline int VDIV_level()  { return analogRead(VDIV); }         // Voltage divider tap (JP4 - Robot)
-
-
-/* =====================================
- * TFT LCD (SPI Interface) Pins
- * ====================================*/
+// -----------------------------------------------------------------------------
+// TFT LCD (SPI Interface) Pins
+// -----------------------------------------------------------------------------
 // NOTE: TFT LCD pins are only relevant when using the optional TFT LCD display.
 
 const uint8_t TFT_DC = 9;   // TFT Data/Command pin
