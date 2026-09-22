@@ -20,10 +20,13 @@ Work through each section in order and complete the template before
 writing any code. The time you spend planning will save far more time
 during development and debugging.
 
-The worked example at the end shows how the Activity 12 traffic light
-controller would look if it had been planned using this template. Read
-it alongside your own planning to check that your answers are at the
-right level of detail.
+The worked example at the end shows how the Activity 12 combination
+lock would look if it had been planned using this template. Read it
+alongside your own planning to check that your answers are at the
+right level of detail. The combination lock is purely event-driven -
+if your project also needs timed transitions or event flags recorded
+in one state and used in another, look at the Traffic Light
+Controller project from Activity 12 for that pattern instead.
 
 ---
 
@@ -287,18 +290,20 @@ firing to see what the program actually sees at that moment.
 
 ---
 
-## Capstone Example — Traffic Light Controller
+## Capstone Example — Combination Lock
 
-The following shows how the Activity 12 traffic light program would
-look if it had been planned using this template.
+The following shows how the Activity 12 combination lock program
+would look if it had been planned using this template.
 
 ### Part 1 — Project Description
 
-A traffic light controller for a single intersection with a left-turn
-lane. The light cycles through red, green, and yellow. A car sensor
-on the left-turn lane can request an advanced green turn signal at
-the start of the green phase. A pedestrian walk button extends the
-green phase and shows a walk signal so pedestrians can cross safely.
+A digital combination lock styled after a hotel-safe keypad. The
+user presses three buttons in sequence; each press beeps and lights
+the next progress LED, whether or not it is correct. Once three
+presses have been entered, the lock either opens (correct
+combination) or sounds an alarm (wrong combination) and returns to
+the start automatically. A reset button restarts entry at any time
+before the lock has opened.
 
 ### Part 2 — Hardware Inventory
 
@@ -306,148 +311,171 @@ green phase and shows a walk signal so pedestrians can cross safely.
 
 | Component | Signal type | Pin / connector | Notes |
 |-----------|-------------|-----------------|-------|
-| Car sensor (SW2) | Digital | SW2 | Active LOW, INPUT_PULLUP |
-| Walk button (SW5) | Digital | SW5 | Active LOW, INPUT_PULLUP |
+| Combination button 1 (SW2) | Digital | SW2 | Active LOW, INPUT_PULLUP |
+| Combination button 2 (SW3) | Digital | SW3 | Active LOW, INPUT_PULLUP |
+| Combination button 3 (SW4) | Digital | SW4 | Active LOW, INPUT_PULLUP |
+| Reset button (SW5) | Digital | SW5 | Active LOW, INPUT_PULLUP |
 
 **Outputs**
 
 | Component | Signal type | Pin / connector | Notes |
 |-----------|-------------|-----------------|-------|
-| Left turn LED (LED2) | Digital | LED2 | Flashes during advanced green |
-| Green LED (LED3) | Digital | LED3 | On during regular green |
-| Yellow LED (LED4) | Digital | LED4 | On during yellow |
-| Red LED (LED5) | Digital | LED5 | On during red and advanced green |
-| Walk signal (on-board LED) | Digital | LED_BUILTIN | On during extended green |
+| Progress LED 1 (LED2) | Digital | LED2 | On from the first press onward |
+| Progress LED 2 (LED3) | Digital | LED3 | On from the second press onward |
+| Progress LED 3 (LED4) | Digital | LED4 | On from the third press onward |
+| Unlocked LED (LED5) | Digital | LED5 | On only when unlocked |
+| Speaker (LS1) | PWM (tone) | LS1 | Entry beep, unlock beep, alarm beep |
 
 **Timing requirements**
 
-- Advanced green: 5 000 ms, LED2 flashes at 400 ms toggle interval
-- Regular green: 6 000 ms (extended by 4 000 ms if walk requested)
-- Yellow: 2 000 ms
-- Red: 5 000 ms
-- Main loop: 1 ms (needed for accurate timing of all intervals)
+- Entry beep: 80 ms per press
+- Unlock beep: 300 ms
+- Alarm: flashes every 150 ms, beeps 3 times (150 ms on / 150 ms off) then returns to entry
+- Main loop: 10 ms (button presses are handled with a brief blocking
+  wait for release, not non-blocking timing, so a fast loop is not
+  required here the way it was in the traffic light)
 
 ### Part 3 — State Identification
 
 | State name | Description |
 |------------|-------------|
-| `ADV_GREEN` | Left turn signal flashing; cross traffic still stopped (red on) |
-| `GREEN` | Straight-through traffic flowing; walk signal on if requested |
-| `YELLOW` | All traffic preparing to stop |
-| `RED` | All traffic stopped; car and walk requests recorded |
+| `ENTRY_1` | Ready; waiting for the first button press |
+| `ENTRY_2` | One press entered; waiting for the second |
+| `ENTRY_3` | Two presses entered; waiting for the third |
+| `UNLOCKED` | Correct combination entered; lock open |
+| `ALARM` | Wrong combination entered; flashing and beeping |
 
 ### Part 4 — State Details Table
 
 | State name | Active outputs | Transition event or condition | Next state |
 |------------|---------------|-------------------------------|------------|
-| `ADV_GREEN` | LED2 flashing, LED5 on | `elapsed >= ADV_GREEN_TIME` | `GREEN` |
-| `GREEN` | LED3 on, on-board LED if walk active | `elapsed >= effective_green` | `YELLOW` |
-| `YELLOW` | LED4 on | `elapsed >= YELLOW_TIME` | `RED` |
-| `RED` | LED5 on | `elapsed >= RED_TIME` and `car_waiting` | `ADV_GREEN` |
-| `RED` | LED5 on | `elapsed >= RED_TIME` and not `car_waiting` | `GREEN` |
+| `ENTRY_1` | LED2 on | any of SW2/SW3/SW4 pressed | `ENTRY_2` |
+| `ENTRY_2` | LED2 + LED3 on | any of SW2/SW3/SW4 pressed | `ENTRY_3` |
+| `ENTRY_3` | LED2 + LED3 + LED4 on | any button pressed, sequence correct | `UNLOCKED` |
+| `ENTRY_3` | LED2 + LED3 + LED4 on | any button pressed, sequence wrong | `ALARM` |
+| `UNLOCKED` | LED5 on | (none in the base activity - see EA1) | — |
+| `ALARM` | LED2-LED5 flashing | 3 beeps completed | `ENTRY_1` |
+| any except `UNLOCKED` | — | SW5 pressed | `ENTRY_1` |
 
-Note: `effective_green` equals `GREEN_TIME + WALK_EXTENSION` if
-`walk_requested` is true at the time of the red-to-green transition,
-otherwise `GREEN_TIME`.
+Note: the combination itself (which specific button is correct at
+each step) is only checked once, in `ENTRY_3`, after all three
+presses have been recorded - not as each button is pressed. See
+Activity 12 GE6 for why this matters.
 
 ### Part 5 — State Diagram
 
-
 ```
-    elapsed >= RED_TIME
-  +-----+             +-----------+ elapsed >= ADV_GREEN_TIME +-------+
-  | RED | ----------> | ADV_GREEN | ------------------------> | GREEN |
-  |     | car_waiting +-----------+                           |       |
-  |     |                                                     |       |
-  |     | --------------------------------------------------> |       |
-  +-----+    not car_waiting                                  +-------+
-     ^                                                            |
-     | elapsed >= YELLOW_TIME          elapsed >= effective_green |
-     |                                                            |
-  +--------+                                                      |
-  | YELLOW | <----------------------------------------------------+
-  +--------+
+                any button                any button
+  +---------+ -------------> +---------+ -------------> +---------+
+  | ENTRY_1 |                | ENTRY_2 |                | ENTRY_3 |
+  +---------+ <------------- +---------+ <------------- +---------+
+       ^           SW5            ^           SW5          |    |
+       |                          |                        |    |
+       |                          +------------------------+    |
+       |                              SW5                       |
+       |                                                        |
+       |  correct sequence                       wrong sequence |
+       |                                                        v
+  +----------+                                            +-------+
+  | UNLOCKED | <----------------------------------------- | ALARM |
+  +----------+          (not shown: no exit in base        +-------+
+                          activity - see EA1)         3 beeps done |
+       ^                                                           |
+       +-----------------------------------------------------------+
 ```
 
-Car and walk requests are recorded during `RED` and applied at the
-red-to-green transition. The `ADV_GREEN` → `GREEN` transition also
-applies a pending walk request.
+SW5 (not shown for every state to keep the diagram readable) returns
+any state except `UNLOCKED` to `ENTRY_1`.
 
 ### Part 6 — Code Planning
 
-**Initial state:** `RED` — set `LED5` on at startup.
+**Initial state:** `ENTRY_1` — set `LED2` on at startup.
 
 **Constants**
 
 | Constant | Value | Purpose |
 |----------|-------|---------|
-| `STATE_ADV_GREEN` | 0 | Advanced green state identifier |
-| `STATE_GREEN` | 1 | Green state identifier |
-| `STATE_YELLOW` | 2 | Yellow state identifier |
-| `STATE_RED` | 3 | Red state identifier |
-| `LOOP_DELAY` | 1 ms | Main loop rate |
-| `ADV_GREEN_TIME` | 5 000 ms | Advanced green duration |
-| `GREEN_TIME` | 6 000 ms | Base green duration |
-| `YELLOW_TIME` | 2 000 ms | Yellow duration |
-| `RED_TIME` | 5 000 ms | Red duration |
-| `FLASH_INTERVAL` | 400 ms | Advanced green LED toggle rate |
-| `WALK_EXTENSION` | 4 000 ms | Extra green time for pedestrians |
+| `STATE_ENTRY_1` | 0 | First entry state identifier |
+| `STATE_ENTRY_2` | 1 | Second entry state identifier |
+| `STATE_ENTRY_3` | 2 | Third entry state identifier |
+| `STATE_UNLOCKED` | 3 | Unlocked state identifier |
+| `STATE_ALARM` | 4 | Alarm state identifier |
+| `CORRECT_1`, `CORRECT_2`, `CORRECT_3` | 2, 3, 4 | The correct combination |
+| `LOOP_DELAY` | 10 ms | Main loop rate |
+| `ENTRY_BEEP_FREQ` / `ENTRY_BEEP_MS` | 1500 Hz / 80 ms | Beep per digit entered |
+| `UNLOCK_FREQ` / `UNLOCK_BEEP_MS` | 2000 Hz / 300 ms | Access-granted beep |
+| `ALARM_FREQ` | 2500 Hz | Alarm beep frequency |
+| `ALARM_BEEP_ON` / `ALARM_BEEP_OFF` | 150 ms / 150 ms | Alarm beep pattern |
+| `ALARM_BEEP_COUNT` | 3 | Beeps before returning to entry |
+| `FLASH_INTERVAL` | 150 ms | Alarm LED flash toggle rate |
 
 **Variables**
 
 | Variable | Type | Initial | Purpose |
 |----------|------|---------|---------|
-| `state` | int | `STATE_RED` | Current state |
+| `state` | int | `STATE_ENTRY_1` | Current state |
 | `state_start` | timestamp | `now()` | Time current state began |
-| `last_flash_time` | timestamp | `now()` | Last advanced green LED toggle |
-| `flash_on` | bool | `False` | Current flash LED state |
-| `car_waiting` | bool | `False` | Car request recorded during red |
-| `walk_requested` | bool | `False` | Walk request recorded during red |
-| `effective_green` | int | `GREEN_TIME` | Green duration this cycle |
+| `entered_1`, `entered_2`, `entered_3` | int | 0 | Buttons pressed so far this attempt |
+| `last_flash_time` | timestamp | `now()` | Alarm: last LED toggle |
+| `flash_on` | bool | `False` | Alarm: current LED flash state |
+| `last_beep_time` | timestamp | `now()` | Alarm: last beep toggle |
+| `beep_on` | bool | `False` | Alarm: current beep on/off state |
+| `alarm_beep_count` | int | 0 | Alarm: beeps completed so far |
 
 **Functions**
 
 | Function | Purpose |
 |----------|---------|
-| `all_leds_off()` | Turn off LED2–LED5 and on-board LED |
+| `all_leds_off()` | Turn off LED2-LED5 |
 | `enter_state(new_state, time, reason)` | Clear outputs, update state, record time, print diagnostic |
+| `read_button()` | Return which of SW2/SW3/SW4 is pressed (or 0) |
+| `wait_for_release()` | Block until SW2/SW3/SW4 are all released |
 
 **Main loop structure**
 
 ```
 loop:
     current_time = now()
-    elapsed = diff(current_time, state_start)
 
-    if state == ADV_GREEN:
-        flash LED2 if FLASH_INTERVAL elapsed
-        if elapsed >= ADV_GREEN_TIME: enter GREEN
+    if SW5 pressed and state != UNLOCKED:
+        wait for SW5 release
+        enter ENTRY_1
 
-    elif state == GREEN:
-        if elapsed >= effective_green: enter YELLOW
+    elif state == ENTRY_1:
+        pressed = read_button()
+        if pressed: record entered_1, beep, wait for release, enter ENTRY_2
 
-    elif state == YELLOW:
-        if elapsed >= YELLOW_TIME: enter RED
+    elif state == ENTRY_2:
+        pressed = read_button()
+        if pressed: record entered_2, beep, wait for release, enter ENTRY_3
 
-    elif state == RED:
-        record car_waiting if SW2 pressed
-        record walk_requested if SW5 pressed
-        if elapsed >= RED_TIME:
-            if car_waiting: enter ADV_GREEN
-            else: enter GREEN
+    elif state == ENTRY_3:
+        pressed = read_button()
+        if pressed:
+            record entered_3, beep, wait for release
+            if entered_1/2/3 match CORRECT_1/2/3: enter UNLOCKED
+            else: enter ALARM
+
+    elif state == UNLOCKED:
+        pass  # no exit in base activity
+
+    elif state == ALARM:
+        flash LEDs if FLASH_INTERVAL elapsed
+        toggle beep if its interval elapsed; count completed beeps
+        if 3 beeps completed: enter ENTRY_1
 ```
 
 ### Part 7 — Testing Plan
 
 | Starting state | Action | Expected next state | Expected outputs |
 |----------------|--------|---------------------|------------------|
-| `RED` | Wait 5 000 ms, no buttons | `GREEN` | LED3 on, LED5 off |
-| `RED` | Press SW2, wait 5 000 ms | `ADV_GREEN` | LED2 flashing, LED5 on |
-| `ADV_GREEN` | Wait 5 000 ms | `GREEN` | LED3 on, LED5 off |
-| `GREEN` | Wait 6 000 ms | `YELLOW` | LED4 on, LED3 off |
-| `YELLOW` | Wait 2 000 ms | `RED` | LED5 on, LED4 off |
-| `RED` | Press SW5, wait 5 000 ms | `GREEN` (extended) | LED3 on, on-board LED on |
-| `RED` | Press SW2 and SW5, wait | `ADV_GREEN` then `GREEN` (extended) | Walk signal after adv. green |
+| `ENTRY_1` | Press SW2 | `ENTRY_2` | LED2+LED3 on, short beep |
+| `ENTRY_2` | Press SW3 | `ENTRY_3` | LED2+LED3+LED4 on, short beep |
+| `ENTRY_3` | Press SW4 (correct combination) | `UNLOCKED` | LED5 on, unlock beep |
+| `ENTRY_3` | Press SW2 (wrong combination) | `ALARM` | LEDs flashing |
+| `ALARM` | Wait for 3 beeps | `ENTRY_1` | LED2 on, all else off |
+| `ENTRY_2` | Press SW5 | `ENTRY_1` | LED2 on, all else off |
+| `UNLOCKED` | Press SW5 | `UNLOCKED` (no change) | LED5 stays on |
 
 ---
 
