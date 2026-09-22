@@ -1,71 +1,71 @@
-"""
-================================================================================
-Capstone Project: Analog Sensor Monitor [BEAPER_Nano-Capstone_Analog_Monitor.py]
-April 22, 2026
+# ================================================================================
+# Capstone Project: Analog Sensor Monitor [Analog_Monitor.py]
+# Version: 1.0
+# Updated: July 25, 2026
+#
+# Platform: mirobo.tech BEAPER Nano circuit (any configuration)
+# Requires: BEAPER_Nano.py board module file
+#
+# This skeleton provides a multi-sensor monitoring and control structure.
+# Adapt it to your application by:
+#   1. Configuring your analog and digital inputs in the SENSOR CONFIGURATION
+#      section and the read_sensors() function.
+#   2. Writing your condition logic in check_conditions().
+#   3. Configuring your outputs in the OUTPUT CONFIGURATION section and
+#      the apply_outputs() function.
+#
+# Suggested applications:
+#   Greenhouse controller   - temperature, light, soil moisture sensors;
+#                             servo vent, motor fan, motor pump outputs
+#   Climate monitor         - temperature and humidity sensors;
+#                             LED indicators, alarm tone outputs
+#   Plant watering system   - soil moisture sensor, timer;
+#                             motor pump output, LED status indicators
+#   Environmental logger    - multiple analog sensors;
+#                             LED bar graph display, serial data output
+#
+# On-board analog inputs available (set jumpers to Enviro. mode):
+#     beaper.light_level()   - Ambient light sensor Q4 (JP1)
+#     beaper.temp_level()    - Temperature sensor U4 (JP2)
+#     beaper.RV1_level()     - Potentiometer RV1 (JP3) - useful as a threshold knob
+#     beaper.RV2_level()     - Potentiometer RV2 (JP4) - useful as a threshold knob
+#
+# External analog inputs available (each needs to be enabled/configured
+#   in the BEAPER_Nano.py board module):
+#     H1  - Sensor header with analog input, 3.3V, GND
+#     H2  - Sensor header with analog input, 3.3V, GND
+#     H3  - Sensor header with analog input, 3.3V, GND
+#     H4  - Sensor header with analog input, 3.3V, GND
+#
+# Digital inputs available:
+#     beaper.SW2 to beaper.SW5  - Pushbuttons (active LOW, INPUT_PULLUP)
+#     beaper.H1 to beaper.H4    - Expansion headers (for external sensors/switches)
+#
+# Analog outputs available:
+#     beaper.LS1             - Piezo speaker (tone() / noTone())
+#     beaper.LED2 to LED5    - LEDs (digital on/off or PWM brightness)
+#     Servo headers H5 to H8 - Servo position (set_servo())
+#
+# Digital outputs available:
+#     beaper.LED2 to LED5    - LEDs (on/off)
+#     Headers H1 to H4       - 3.3V output headers
+#     Headers H5 to H8       - 5V output headers (shared with H1 - H4)
+#
+# --------------------------------------------------------------------------------
+# Before you begin - complete your capstone plan using the preparation guide:
+#   1. Write a plain-English description of what your system monitors and
+#      what it controls, and under what conditions.
+#   2. List all inputs: sensor type, what it measures, acceptable range,
+#      and how often it needs to be read.
+#   3. List all outputs: what it drives, how it responds to sensor values,
+#      and whether it uses analog (PWM) or digital (on/off) control.
+#   4. Write your condition logic in plain language before coding it:
+#      e.g. "if temperature > HIGH_TEMP and fan is off: turn fan on"
+#   5. Write your testing plan: one test case per condition.
+# ================================================================================
 
-Platform: mirobo.tech BEAPER Nano circuit (any configuration)
-Requires: BEAPER_Nano.py board module file.
-
-This skeleton provides a multi-sensor monitoring and control structure.
-Adapt it to your application by:
-  1. Configuring your analog and digital inputs in the SENSOR CONFIGURATION
-     section and the read_sensors() function.
-  2. Writing your condition logic in check_conditions().
-  3. Configuring your outputs in the OUTPUT CONFIGURATION section and
-     the apply_outputs() function.
-
-Suggested applications:
-  Greenhouse controller   - temperature, light, soil moisture sensors;
-                            servo vent, motor fan, motor pump outputs
-  Climate monitor         - temperature and humidity sensors;
-                            LED indicators, alarm tone outputs
-  Plant watering system   - soil moisture sensor, timer;
-                            motor pump output, LED status indicators
-  Environmental logger    - multiple analog sensors;
-                            LED bar graph display, serial data output
-
-On-board analog inputs available (set jumpers to Enviro. mode):
-    beaper.light_level()   - Ambient light sensor Q4 (JP1)
-    beaper.temp_level()    - Temperature sensor U4 (JP2)
-    beaper.RV1_level()     - Potentiometer RV1 (JP3) - useful as a threshold knob
-    beaper.RV2_level()     - Potentiometer RV2 (JP4) - useful as a threshold knob
-
-External analog inputs available (each needs to be enabled/configured
-  in the BEAPER_Nano.py board module):
-    H1  - Sensor header with analog input, 3.3V, GND
-    H2  - Sensor header with analog input, 3.3V, GND
-    H3  - Sensor header with analog input, 3.3V, GND
-    H4  - Sensor header with analog input, 3.3V, GND
-
-Digital inputs available:
-    beaper.SW2 to beaper.SW5  - Pushbuttons (active LOW, INPUT_PULLUP)
-    beaper.H1 to beaper.H4    - Expansion headers (for external sensors/switches)
-
-Analog outputs available:
-    beaper.LS1             - Piezo speaker (tone() / noTone())
-    beaper.LED2 to LED5    - LEDs (digital on/off or PWM brightness)
-    Servo headers H5 to H8 - Servo position (set_servo())
-
-Digital outputs available:
-    beaper.LED2 to LED5    - LEDs (on/off)
-    Headers H1 to H4       - 3.3V output headers
-    Headers H5 to H8       - 5V output headers (shared with H1 - H4)
-
---------------------------------------------------------------------------------
-Before you begin - complete your capstone plan using the preparation guide:
-  1. Write a plain-English description of what your system monitors and
-     what it controls, and under what conditions.
-  2. List all inputs: sensor type, what it measures, acceptable range,
-     and how often it needs to be read.
-  3. List all outputs: what it drives, how it responds to sensor values,
-     and whether it uses analog (PWM) or digital (on/off) control.
-  4. Write your condition logic in plain language before coding it:
-     e.g. "if temperature > HIGH_TEMP and fan is off: turn fan on"
-  5. Write your testing plan: one test case per condition.
-================================================================================
-"""
-# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32
-import BEAPER_Nano as beaper
+# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32.
+import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
 
 import time
 
@@ -77,14 +77,14 @@ import time
 
 # --- Sensor 1: Temperature (example) -----------------------------------------
 TEMP_READ_INTERVAL  = const(2000)   # Read every 2000 ms (temperature changes slowly)
-TEMP_HIGH_THRESHOLD = 28            # Degrees C: above this, cooling output activates
-TEMP_LOW_THRESHOLD  = 24            # Degrees C: below this, cooling output deactivates
-                                    # (hysteresis gap prevents rapid on/off cycling)
+TEMP_HIGH_THRESHOLD = 28             # Degrees C: above this, cooling output activates
+TEMP_LOW_THRESHOLD  = 24             # Degrees C: below this, cooling output deactivates
+                                      # (hysteresis gap prevents rapid on/off cycling)
 
 # --- Sensor 2: Light (example) -----------------------------------------------
-LIGHT_READ_INTERVAL  = const(500)   # Read every 500 ms (light can change quickly)
-LIGHT_LOW_THRESHOLD  = 20000        # Below this (dark): lighting output activates
-LIGHT_HIGH_THRESHOLD = 30000        # Above this (bright): lighting output deactivates
+LIGHT_READ_INTERVAL  = const(500)    # Read every 500 ms (light can change quickly)
+LIGHT_LOW_THRESHOLD  = 20000         # Below this (dark): lighting output activates
+LIGHT_HIGH_THRESHOLD = 30000         # Above this (bright): lighting output deactivates
 
 # --- Add your sensors here ---
 # SENSOR_NAME_READ_INTERVAL  = const(1000)
@@ -92,10 +92,13 @@ LIGHT_HIGH_THRESHOLD = 30000        # Above this (bright): lighting output deact
 
 # ==============================================================================
 # OUTPUT CONFIGURATION
-# Name each output and its behavior parameters.
+# Name each output and its behaviour parameters.
 # ==============================================================================
 
-# --- Output 1: Cooling fan (example - motor on H9/H10) -----------------------
+# --- Output 1: Cooling fan (example - right motor driver output) -------------
+# Uses beaper.right_motor_forward() / right_motor_stop(), which drive the
+# H-bridge through the M2A/M2B pins (LED4/LED5). No servo header or H9/H10
+# is involved here - those pins do not exist on BEAPER Nano (H1-H8 only).
 FAN_ON  = 1   # Motor output value when fan is running
 FAN_OFF = 0   # Motor output value when fan is stopped
 
@@ -107,9 +110,9 @@ FAN_OFF = 0   # Motor output value when fan is stopped
 # ==============================================================================
 # LOOP TIMING
 # ==============================================================================
-LOOP_DELAY      = const(10)    # Main loop delay (ms) - keep at 10 or lower
-                                # so timing intervals remain accurate
-PRINT_INTERVAL  = const(5000)  # Print sensor summary every 5000 ms
+LOOP_DELAY      = const(10)     # Main loop delay (ms) - keep at 10 or lower
+                                 # so timing intervals remain accurate
+PRINT_INTERVAL  = const(5000)   # Print sensor summary every 5000 ms
 
 # ==============================================================================
 # PROGRAM VARIABLES
@@ -277,10 +280,10 @@ read_temperature()
 read_light()
 # read_SENSORNAME()
 
-state_start   = time.ticks_ms()
-last_temp_read  = state_start
-last_light_read = state_start
-last_print      = state_start
+startup_time    = time.ticks_ms()
+last_temp_read  = startup_time
+last_light_read = startup_time
+last_print      = startup_time
 
 while True:
   current_time = time.ticks_ms()
@@ -302,85 +305,133 @@ while True:
   time.sleep_ms(LOOP_DELAY)
 
 
-"""
-Capstone Development Guide
+# ================================================================================
+# Development Guide
+# ================================================================================
+#
+# This skeleton is deliberately generic. Your first task is to decide
+# what your system monitors and what it controls, then fill in the
+# template section by section.
+#
+# --------------------------------------------------------------------------------
+# Step 1 - Define your application
+# --------------------------------------------------------------------------------
+#
+# Write two or three sentences describing your system from the user's
+# perspective. Then answer:
+# - What physical quantities does it measure? (temperature, light,
+#   moisture, motion, distance, switch state...)
+# - What does it control in response? (fan, pump, servo, LEDs, alarm...)
+# - Under what conditions does each output activate or deactivate?
+# - How quickly do your inputs change? (This determines read intervals.)
+#
+# Complete the Capstone Preparation Guide before continuing.
+#
+# --------------------------------------------------------------------------------
+# Step 2 - Configure and test one sensor
+# --------------------------------------------------------------------------------
+#
+# Add your first sensor to the SENSOR CONFIGURATION section and write
+# its read function. In the main loop, temporarily replace the call to
+# check_conditions() and apply_outputs() with just a print statement
+# showing the raw sensor value. Verify the reading looks correct before
+# adding any control logic.
+#
+# For analog sensors:
+# - Print the raw ADC value while varying the physical quantity.
+# - Record the values at your intended threshold levels.
+# - Set your threshold constants from these measurements, not guesses.
+#
+# For digital inputs (buttons or contact switches):
+# - Verify the pin reads LOW when active and HIGH when not (INPUT_PULLUP).
+# - Test both states explicitly before using the value in conditions.
+#
+# --------------------------------------------------------------------------------
+# Step 3 - Add condition logic for that sensor
+# --------------------------------------------------------------------------------
+#
+# Write the condition for your first sensor in check_conditions() and
+# its output in apply_outputs(). Test the full sensor-to-output path:
+# vary the sensor input and verify the output responds correctly at both
+# threshold values (hysteresis boundaries if applicable).
+#
+# --------------------------------------------------------------------------------
+# Step 4 - Add remaining sensors and outputs
+# --------------------------------------------------------------------------------
+#
+# Add each additional sensor and its output one at a time, testing each
+# before adding the next. Use the comment templates (lines beginning with
+# '# ---') as insertion points. Sensors are independent - a slow
+# temperature read does not delay a fast moisture check.
+#
+# --------------------------------------------------------------------------------
+# Step 5 - Combine conditions
+# --------------------------------------------------------------------------------
+#
+# If your application requires combined logic (e.g. "fan runs only when
+# temperature is high AND humidity is high"), implement this in
+# check_conditions() after the individual sensor checks. Test the
+# combined logic by independently varying each input to verify all
+# combinations produce the correct output.
 
-This skeleton is deliberately generic. Your first task is to decide
-what your system monitors and what it controls, then fill in the
-template section by section.
 
-Step 1 - Define your application
-  Write two or three sentences describing your system from the user's
-  perspective. Then answer:
-  - What physical quantities does it measure? (temperature, light,
-    moisture, motion, distance, switch state...)
-  - What does it control in response? (fan, pump, servo, LEDs, alarm...)
-  - Under what conditions does each output activate or deactivate?
-  - How quickly do your inputs change? (This determines read intervals.)
-
-  Complete the capstone preparation guide before continuing.
-
-Step 2 - Configure and test one sensor
-  Add your first sensor to the SENSOR CONFIGURATION section and write
-  its read function. In the main loop, temporarily replace the call to
-  check_conditions() and apply_outputs() with just a print statement
-  showing the raw sensor value. Verify the reading looks correct before
-  adding any control logic.
-
-  For analog sensors:
-  - Print the raw ADC value while varying the physical quantity.
-  - Record the values at your intended threshold levels.
-  - Set your threshold constants from these measurements, not guesses.
-
-  For digital inputs (buttons or contact switches):
-  - Verify the pin reads LOW when active and HIGH when not (INPUT_PULLUP).
-  - Test both states explicitly before using the value in conditions.
-
-Step 3 - Add condition logic for that sensor
-  Write the condition for your first sensor in check_conditions() and
-  its output in apply_outputs(). Test the full sensor-to-output path:
-  vary the sensor input and verify the output responds correctly at both
-  threshold values (hysteresis boundaries if applicable).
-
-Step 4 - Add remaining sensors and outputs
-  Add each additional sensor and its output one at a time, testing each
-  before adding the next. Use the comment templates (lines beginning with
-  '# ---') as insertion points. Sensors are independent - a slow
-  temperature read does not delay a fast moisture check.
-
-Step 5 - Combine conditions
-  If your application requires combined logic (e.g. "fan runs only when
-  temperature is high AND humidity is high"), implement this in
-  check_conditions() after the individual sensor checks. Test the
-  combined logic by independently varying each input to verify all
-  combinations produce the correct output.
-
-Step 6 - Refinements and extensions
-
-  a) Calibration on startup: read each analog sensor several times at
-     startup, average the results, and use this as a baseline. Useful
-     for sensors whose raw values vary with supply voltage or ambient
-     conditions (light sensors, some moisture sensors).
-
-  b) Data logging: modify print_status() to print comma-separated values
-     (CSV format) that can be copied from the serial console into a
-     spreadsheet. Include a timestamp using time.ticks_ms().
-
-  c) Manual override: add a button that temporarily overrides the
-     automatic control of an output. Hold SW5 to run the fan regardless
-     of temperature, for example. How does this interact with the
-     hysteresis logic in check_conditions()?
-
-  d) Trend detection: store the previous reading of a slowly-changing
-     sensor and compute the rate of change. Activate an output early
-     if the value is changing rapidly toward a threshold, rather than
-     waiting until it crosses it. This is a simplified form of
-     predictive control used in real building automation systems.
-
-  e) Multiple zones: if your application monitors multiple physical
-     locations (e.g. two greenhouse beds, or two rooms), extend the
-     sensor configuration to include one set of variables per zone
-     and generalise check_conditions() to evaluate each zone
-     independently.
-
-"""
+# ================================================================================
+# Extension Activities
+# ================================================================================
+#
+# --------------------------------------------------------------------------------
+# EA 1 - Calibration on startup
+# --------------------------------------------------------------------------------
+#
+# Read each analog sensor several times at startup, average the
+# results, and use this as a baseline. Useful for sensors whose raw
+# values vary with supply voltage or ambient conditions (light
+# sensors, some moisture sensors).
+#
+# --------------------------------------------------------------------------------
+# EA 2 - Data logging
+# --------------------------------------------------------------------------------
+#
+# Modify print_status() to print comma-separated values (CSV format)
+# that can be copied from the serial console into a spreadsheet.
+# Include a timestamp using time.ticks_ms().
+#
+# --------------------------------------------------------------------------------
+# EA 3 - Manual override
+# --------------------------------------------------------------------------------
+#
+# Add a button that temporarily overrides the automatic control of an
+# output. Hold SW5 to run the fan regardless of temperature, for
+# example. How does this interact with the hysteresis logic in
+# check_conditions()?
+#
+# --------------------------------------------------------------------------------
+# EA 4 - Trend detection
+# --------------------------------------------------------------------------------
+#
+# Store the previous reading of a slowly-changing sensor and compute
+# the rate of change. Activate an output early if the value is
+# changing rapidly toward a threshold, rather than waiting until it
+# crosses it. This is a simplified form of predictive control used in
+# real building automation systems.
+#
+# --------------------------------------------------------------------------------
+# EA 5 - Multiple zones
+# --------------------------------------------------------------------------------
+#
+# If your application monitors multiple physical locations (e.g. two
+# greenhouse beds, or two rooms), extend the sensor configuration to
+# include one set of variables per zone and generalise
+# check_conditions() to evaluate each zone independently.
+#
+# With two or three zones, copying each sensor's block (as this
+# skeleton does throughout) is still manageable - two temperature
+# blocks, two fan outputs, and so on. If you find yourself
+# copy-pasting many nearly-identical blocks for many zones, that
+# repetition is exactly the situation a list of "zone" records (one
+# entry per zone, each holding that zone's sensor values, thresholds,
+# and output state) is suited to, iterated with a single generalised
+# check function instead of one copy per zone. This capstone's
+# skeleton does not use that structure - Simon Game's capstone
+# introduces lists for a similar reason (storing a growing sequence)
+# if you want to see the pattern applied elsewhere first.
