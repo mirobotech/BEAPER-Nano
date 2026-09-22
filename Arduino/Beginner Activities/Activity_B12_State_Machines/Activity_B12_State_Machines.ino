@@ -1,5 +1,5 @@
 /* ================================================================================
-Beginner Activity 12: State Machines [BEAPERNano_Activity_B12_State_Machines]
+Beginner Activity 12: State Machines [Activity_B12_State_Machines]
 Version: 1.2
 Updated: September 22, 2026
 
