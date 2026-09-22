@@ -1,57 +1,77 @@
-"""
-================================================================================
-Beginner Activity 12: State Machines [Activity_B12_State_Machines.py]
-April 14, 2026
+# ================================================================================
+# Beginner Activity 12: State Machines [Activity_B12_State_Machines.py]
+# Version: 1.2
+# Updated: September 22, 2026
+#
+# Platform: mirobo.tech BEAPER Nano circuit (any configuration)
+# Requires: BEAPER_Nano.py board module file
+#
+# This program uses a state machine to implement a three-button
+# combination lock, styled after a digital hotel safe lock. SW2, SW3,
+# and SW4 can be pressed at each step to enter the code. Each press
+# beeps and lights the next progress LED. After all three presses
+# have been entered, the program checks whether they matched the
+# correct combination (SW2, SW3, SW4, in that order). SW5 restarts
+# code entry from any state except UNLOCKED.
+#
+# State diagram:
+#   ENTRY_1 --(any button)--> ENTRY_2
+#   ENTRY_2 --(any button)--> ENTRY_3
+#   ENTRY_3 --(any button, correct sequence)--> UNLOCKED
+#   ENTRY_3 --(any button, wrong sequence)   --> ALARM
+#   ALARM --(3 alarm beeps complete)--> ENTRY_1
+#   Any state except UNLOCKED --(SW5)--> ENTRY_1
+#
+# Outputs per state:
+#   ENTRY_1:  LED2 on (ready, no digits entered)
+#   ENTRY_2:  LED2 + LED3 on (one digit entered)
+#   ENTRY_3:  LED2 + LED3 + LED4 on (two digits entered)
+#   UNLOCKED: LED5 on, beep (access granted)
+#   ALARM:    LED2-LED5 flashing, 3 beeps, then returns to ENTRY_1
+# ================================================================================
 
-Platform: mirobo.tech BEAPER Nano circuit (any configuration)
-Requires: BEAPER_Nano.py board module file.
-
-This program implements a traffic light controller as a state machine.
-The traffic light cycles through green, yellow, and red states. A car
-sensor (SW2) can register a waiting vehicle during red, triggering an
-advanced green turn signal before the regular green phase. A walk
-request (SW5) registered during red extends the subsequent green phase
-and lights the on-board LED as a walk signal.
-
-Traffic light LED assignments:
-  LED2        - Left turn signal (advanced green, flashing)
-  LED3        - Straight through / regular green
-  LED4        - Yellow
-  LED5        - Red (stays lit during advanced green phase)
-  On-board LED - Walk signal (active during extended green)
-================================================================================
-"""
-# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32
-import BEAPER_Nano as beaper
+# IMPORTANT: Copy BEAPER_Nano.py into your Arduino Nano ESP32.
+import BEAPER_Nano as beaper  # Set up BEAPER Nano I/O
 
 import time
 
 # --- State Constants ------------------
-# Each state is given a named integer constant. Using names rather
-# than raw numbers makes the code read like the state diagram.
-STATE_ADV_GREEN = const(0)           # Advanced green: left turn flashing
-STATE_GREEN     = const(1)           # Regular green: straight through
-STATE_YELLOW    = const(2)           # Yellow: prepare to stop
-STATE_RED       = const(3)           # Red: all stopped
+# States are given named integer constants to match the state diagram.
+STATE_ENTRY_1  = const(0)            # Waiting for the first button press
+STATE_ENTRY_2  = const(1)            # One press entered, waiting for the second
+STATE_ENTRY_3  = const(2)            # Two presses entered, waiting for the third
+STATE_UNLOCKED = const(3)            # Correct sequence entered
+STATE_ALARM    = const(4)            # Wrong sequence entered
+
+# --- The Correct Combination ----------
+# Each correct button is stored in its own named constant, in order.
+CORRECT_1 = const(2)                 # First press should be SW2
+CORRECT_2 = const(3)                 # Second press should be SW3
+CORRECT_3 = const(4)                 # Third press should be SW4
 
 # --- Program Constants ----------------
-LOOP_DELAY      = const(1)           # Main loop delay (ms)
-
-ADV_GREEN_TIME  = const(5000)        # Advanced green phase duration (ms)
-GREEN_TIME      = const(6000)        # Regular green phase duration (ms)
-YELLOW_TIME     = const(2000)        # Yellow phase duration (ms)
-RED_TIME        = const(5000)        # Red phase duration (ms)
-FLASH_INTERVAL  = const(400)         # Advanced green flash toggle interval (ms)
-WALK_EXTENSION  = const(4000)        # Extra green time for pedestrian crossing (ms)
+LOOP_DELAY       = const(10)         # Main loop delay (ms)
+ENTRY_BEEP_FREQ  = const(1500)       # Beep frequency for each digit entered (Hz)
+ENTRY_BEEP_MS    = const(80)         # Beep duration for each digit entered (ms)
+UNLOCK_FREQ      = const(2000)       # Access-granted beep frequency (Hz)
+UNLOCK_BEEP_MS   = const(300)        # Access-granted beep duration (ms)
+ALARM_FREQ       = const(2500)       # Alarm beep frequency (Hz)
+ALARM_BEEP_ON    = const(150)        # Alarm beep on duration (ms)
+ALARM_BEEP_OFF   = const(150)        # Alarm beep off duration (ms)
+ALARM_BEEP_COUNT = const(3)          # Number of beeps before returning to entry
+FLASH_INTERVAL   = const(150)        # Alarm LED flash toggle interval (ms)
 
 # --- Program Variables ----------------
-state           = STATE_RED          # Current state (start at red)
-state_start     = 0                  # Time current state began
-last_flash_time = 0                  # Last time advanced green LED toggled
-flash_on        = False              # Current flash LED state
-car_waiting     = False              # Car sensor triggered during red
-walk_requested  = False              # Walk signal requested during red
-effective_green = GREEN_TIME         # Green duration (extended if walk requested)
+state            = STATE_ENTRY_1
+state_start      = 0
+entered_1        = 0                 # Button pressed first this attempt (0-4)
+entered_2        = 0                 # Button pressed second this attempt
+entered_3        = 0                 # Button pressed third this attempt
+last_flash_time  = 0                 # Alarm: last time LEDs toggled
+flash_on         = False             # Alarm: current LED flash state
+last_beep_time   = 0                 # Alarm: last time the beep toggled
+beep_on          = False             # Alarm: current beep on/off state
+alarm_beep_count = 0                 # Alarm: number of beeps completed so far
 
 
 # --- Program Functions ----------------
@@ -62,21 +82,42 @@ def all_leds_off():
   beaper.LED4.value(0)
   beaper.LED5.value(0)
 
+def read_button():
+  # Return 2, 3, or 4 if that button is currently pressed, or 0 if
+  # none of the three combination buttons are pressed.
+  if beaper.SW2.value() == 0:
+    return 2
+  elif beaper.SW3.value() == 0:
+    return 3
+  elif beaper.SW4.value() == 0:
+    return 4
+  else:
+    return 0
+
+def wait_for_release():
+  # Block until SW2, SW3, and SW4 are all released. Called after
+  # a button press is detected.
+  while beaper.SW2.value() == 0 or beaper.SW3.value() == 0 or beaper.SW4.value() == 0:
+    pass
+
 def enter_state(new_state, current_time, reason=""):
-  # Transition to a new state: turn off all LEDs, set the new state,
-  # record the transition time, and print a diagnostic message.
-  global state, state_start, flash_on
+  # Transition to a new state: clear outputs, update state variable,
+  # record transition time, and print a diagnostic message.
+  global state, state_start, flash_on, beep_on, alarm_beep_count
   all_leds_off()
-  beaper.nano_led_off()              # Clear walk signal on any transition
+  beaper.noTone()                    # Silence speaker
   state = new_state
   state_start = current_time
   flash_on = False
+  beep_on = False
+  alarm_beep_count = 0
 
   state_names = {
-    STATE_ADV_GREEN: "ADV_GREEN",
-    STATE_GREEN:     "GREEN",
-    STATE_YELLOW:    "YELLOW",
-    STATE_RED:       "RED",
+    STATE_ENTRY_1:  "ENTRY_1",
+    STATE_ENTRY_2:  "ENTRY_2",
+    STATE_ENTRY_3:  "ENTRY_3",
+    STATE_UNLOCKED: "UNLOCKED",
+    STATE_ALARM:    "ALARM",
   }
   print("-->", state_names[new_state], end="")
   if reason:
@@ -87,303 +128,399 @@ def enter_state(new_state, current_time, reason=""):
 
 # --- Main Program ---------------------
 
+beaper.nano_led_on()  # Status LED on
 all_leds_off()
-beaper.nano_led_off()                # On-board LED reserved for walk signal
-print("Activity 12: State Machines - Traffic Light Controller")
-print("SW2: car sensor (advanced green request during red)")
-print("SW5: walk signal request (during red)")
-print()
-
-# Enter the initial state
 state_start = time.ticks_ms()
 last_flash_time = time.ticks_ms()
-print("--> RED (initial)")
-beaper.LED5.value(1)
+
+print("Combination Lock")
+print("Enter combination: SW2, SW3, SW4")
+print("SW5: restart entry")
+print()
+
+# Set initial state outputs
+enter_state(STATE_ENTRY_1, state_start, "startup")
+beaper.LED2.value(1)
 
 while True:
   current_time = time.ticks_ms()
-  elapsed = time.ticks_diff(current_time, state_start)
 
-  # --- State: Advanced Green ---
-  if state == STATE_ADV_GREEN:
-    # Red stays lit during advanced green (cross traffic still stopped)
-    # Flash LED2 at FLASH_INTERVAL while state persists
-    if time.ticks_diff(current_time, last_flash_time) >= FLASH_INTERVAL:
-      flash_on = not flash_on
-      beaper.LED2.value(flash_on)
-      last_flash_time = current_time
+  # SW5 restarts entry from any state except UNLOCKED
+  if beaper.SW5.value() == 0 and state != STATE_UNLOCKED:
+    while beaper.SW5.value() == 0:    # Wait for release
+      pass
+    enter_state(STATE_ENTRY_1, current_time, "SW5 reset")
+    beaper.LED2.value(1)
 
-    # Transition to regular green after ADV_GREEN_TIME
-    if elapsed >= ADV_GREEN_TIME:
-      # Apply walk extension if requested (request was held through adv. green)
-      effective_green = GREEN_TIME + WALK_EXTENSION if walk_requested else GREEN_TIME
-      enter_state(STATE_GREEN, current_time, "advanced green complete")
+  # --- State machine ---
+
+  elif state == STATE_ENTRY_1:
+    pressed = read_button()
+    if pressed != 0:
+      entered_1 = pressed
+      beaper.tone(ENTRY_BEEP_FREQ, ENTRY_BEEP_MS)
+      wait_for_release()
+      enter_state(STATE_ENTRY_2, current_time)
+      beaper.LED2.value(1)
       beaper.LED3.value(1)
-      if walk_requested:
-        beaper.nano_led_on()
-        print("    walk signal active (+", WALK_EXTENSION // 1000, "s extension)")
 
-  # --- State: Green ---
-  elif state == STATE_GREEN:
-    if elapsed >= effective_green:
-      walk_requested = False
-      enter_state(STATE_YELLOW, current_time, "timed out")
+  elif state == STATE_ENTRY_2:
+    pressed = read_button()
+    if pressed != 0:
+      entered_2 = pressed
+      beaper.tone(ENTRY_BEEP_FREQ, ENTRY_BEEP_MS)
+      wait_for_release()
+      enter_state(STATE_ENTRY_3, current_time)
+      beaper.LED2.value(1)
+      beaper.LED3.value(1)
       beaper.LED4.value(1)
 
-  # --- State: Yellow ---
-  elif state == STATE_YELLOW:
-    if elapsed >= YELLOW_TIME:
-      enter_state(STATE_RED, current_time, "timed out")
-      beaper.LED5.value(1)
-
-  # --- State: Red ---
-  elif state == STATE_RED:
-    # Check car sensor - record request but transition only when red elapses
-    if beaper.SW2.value() == 0 and not car_waiting:
-      car_waiting = True
-      print("    car sensor: advanced green requested")
-
-    # Check walk request - recorded here, processed on entering green
-    if beaper.SW5.value() == 0 and not walk_requested:
-      walk_requested = True
-      print("    walk button: extended green requested")
-
-    # Transition when red time elapses
-    if elapsed >= RED_TIME:
-      if car_waiting:
-        car_waiting = False
-        enter_state(STATE_ADV_GREEN, current_time, "car waiting")
-        beaper.LED5.value(1)              # Red stays on during advanced green
-        last_flash_time = current_time
+  elif state == STATE_ENTRY_3:
+    pressed = read_button()
+    if pressed != 0:
+      entered_3 = pressed
+      beaper.tone(ENTRY_BEEP_FREQ, ENTRY_BEEP_MS)
+      wait_for_release()
+      if entered_1 == CORRECT_1 and entered_2 == CORRECT_2 and entered_3 == CORRECT_3:
+        enter_state(STATE_UNLOCKED, current_time, "correct combination")
+        beaper.LED5.value(1)
+        beaper.tone(UNLOCK_FREQ, UNLOCK_BEEP_MS)
       else:
-        effective_green = GREEN_TIME + WALK_EXTENSION if walk_requested else GREEN_TIME
-        enter_state(STATE_GREEN, current_time, "timed out")
+        enter_state(STATE_ALARM, current_time, "wrong combination")
+
+  elif state == STATE_UNLOCKED:
+    # Lock is open - LED5 stays on (set on entry). No exit transition
+    # yet - see Extension Activity 1 to add a hold-to-relock feature.
+    pass
+
+  elif state == STATE_ALARM:
+    # Flash all LEDs together at FLASH_INTERVAL - a repeating timer
+    if time.ticks_diff(current_time, last_flash_time) >= FLASH_INTERVAL:
+      flash_on = not flash_on
+      if flash_on:
+        beaper.LED2.value(1)
         beaper.LED3.value(1)
-        if walk_requested:
-          beaper.nano_led_on()
-          print("    walk signal active (+", WALK_EXTENSION // 1000, "s extension)")
+        beaper.LED4.value(1)
+        beaper.LED5.value(1)
+      else:
+        all_leds_off()
+      last_flash_time = current_time
+
+    # Repeating beep, running independently of the flash timer above.
+    # After ALARM_BEEP_COUNT beeps, return to entry automatically.
+    if beep_on:
+      if time.ticks_diff(current_time, last_beep_time) >= ALARM_BEEP_ON:
+        beaper.noTone()
+        beep_on = False
+        last_beep_time = current_time
+        alarm_beep_count += 1
+        if alarm_beep_count >= ALARM_BEEP_COUNT:
+          enter_state(STATE_ENTRY_1, current_time, "alarm complete")
+          beaper.LED2.value(1)
+    else:
+      if time.ticks_diff(current_time, last_beep_time) >= ALARM_BEEP_OFF:
+        beaper.tone(ALARM_FREQ)
+        beep_on = True
+        last_beep_time = current_time
 
   time.sleep_ms(LOOP_DELAY)
 
 
-"""
-Guided Exploration
-
-Activities 9 through 11 focused on a single technical problem at a
-time: analog input, output, then non-blocking timing. Each activity's
-program grew more capable, but the overall structure stayed the same -
-a loop that checks conditions and updates outputs. This works well
-for independent controls, but becomes hard to manage when the program
-needs to behave differently depending on what has happened before.
-
-This activity introduces state machines: a way of organising a program
-around a set of named states, with explicit rules for when to move
-between them. The traffic light controller below has four states
-(ADV_GREEN, GREEN, YELLOW, RED), each with its own outputs and its
-own timing. The non-blocking timer patterns from Activity 11 appear
-here too - state duration is tracked with a one-shot elapsed timer,
-and the advanced green flash uses an independent repeating timer
-inside the same state. The difference is that now those timers drive
-transitions between program modes, not just individual outputs.
-
-1.  A state machine can be described visually as a state diagram:
-    circles represent states and arrows represent transitions between
-    them. Each arrow is labelled with the event or condition that
-    triggers the transition.
-
-    Draw the state diagram for this traffic light program. Your
-    diagram should have four circles (one per state) and arrows
-    showing every possible transition. Label each arrow with its
-    trigger - either a timing condition (e.g. "elapsed >= GREEN_TIME")
-    or an event (e.g. "car_waiting == True").
-
-    Compare your diagram to the program's 'while True:' loop. Can
-    you find a direct correspondence between each arrow in your
-    diagram and a specific 'if' statement in the code?
-
-    Notice that the outputs of each state - which LEDs are on - are
-    set when entering each state via 'enter_state()', not checked
-    continuously every loop iteration. Why is this cleaner? What
-    would happen if a noisy connection caused 'enter_state()' to
-    be called a second time while already in a state?
-
-    The red LED (LED5) stays on during the advanced green phase even
-    though the state has changed. Where in the code is this handled,
-    and why is it correct for cross-traffic safety?
-
-2.  States are defined using named integer constants:
-
-  STATE_ADV_GREEN = const(0)
-  STATE_GREEN     = const(1)
-  STATE_YELLOW    = const(2)
-  STATE_RED       = const(3)
-
-    The program could instead use raw numbers (0, 1, 2, 3) directly
-    in the 'if' statements. What would be lost? Consider what happens
-    if you need to add a new state between GREEN and YELLOW and must
-    renumber the existing states.
-
-    Named constants also make the serial output meaningful. The
-    'enter_state()' function uses a dictionary to look up the
-    state name for printing. What would the output look like if
-    raw numbers were used instead of names?
-
-    This naming principle applies beyond state machines. Any number
-    in your program that represents a meaningful concept - a pin,
-    a threshold, a mode - should have a name. Where else in this
-    curriculum have you seen this principle applied?
-
-3.  The program uses two flag variables to record sensor events
-    during red: 'car_waiting' and 'walk_requested'. Both are set
-    when their respective buttons are pressed during red, but
-    neither triggers an immediate transition - they are checked
-    only when the red duration elapses.
-
-    Why is this design correct for 'car_waiting'? What would happen
-    if the program transitioned to advanced green immediately when
-    SW2 was pressed, regardless of how much red time remained?
-
-    The walk request is treated differently from the car request:
-    it does not change which state follows red, only how long green
-    lasts and whether the walk signal lights. Trace through the
-    program for this sequence of events and identify exactly where
-    'walk_requested' affects the program's behaviour:
-
-    - Red phase begins
-    - SW5 pressed at t=2000ms into red
-    - SW2 pressed at t=3000ms into red
-    - Red elapses at t=5000ms
-
-    Both flags are separate variables with separate responsibilities,
-    even though they are both set during red and each cleared when
-    the phase it governs ends. Why is it important that they are
-    separate rather than combined into a single variable or checked
-    in a single 'if' statement?
-
-4.  The advanced green state contains two independent timers
-    running simultaneously:
-
-    - 'state_start' tracks how long the state has been active,
-      used to determine when to leave the state.
-    - 'last_flash_time' tracks when the LED last toggled, used
-      to control the flash rate.
-
-    These two timers are completely independent - the flash rate
-    does not affect the state duration and vice versa. Trace
-    through several iterations of the loop while in STATE_ADV_GREEN
-    and verify that both timers advance independently.
-
-    This is the multi-rate timing pattern from Activity 11, now
-    applied inside a single state of a state machine: the state-
-    duration timer is a one-shot elapsed timer (set once on entry,
-    never reset), while the flash timer is a repeating interval
-    timer (reset each time the LED toggles). What would happen to
-    the flash rate if 'state_start' were reset each time the LED
-    toggled? What would happen to the state duration?
-
-5.  The 'enter_state()' function prints a diagnostic message every
-    time a state transition occurs:
-
-  --> GREEN (timed out)
-  --> YELLOW (timed out)
-  --> RED (timed out)
-  --> ADV_GREEN (car waiting)
-  --> GREEN (advanced green complete)
-
-    This is serial output used as an engineering tool rather than
-    as a user interface. By printing on transitions rather than
-    every loop iteration, the output is concise and meaningful -
-    each line tells you exactly what happened and why.
-
-    Compare this to printing every loop iteration as some earlier
-    activities did. How many lines per second would be printed at
-    LOOP_DELAY = 1ms if every iteration printed a status message?
-    Why would that be less useful than transition-only printing?
-
-    Add a print statement inside the STATE_RED block that prints
-    the elapsed time every 1000ms while waiting. How does this
-    feel different from the transition prints? When would
-    continuous printing be useful versus transition-only printing?
-
-
-Extension Activities
-
-    Extension Activities 1 and 2 extend the traffic light program
-    you have been working with - add each feature directly to this
-    file. EA3 opens a separate skeleton that uses the same state
-    machine pattern to implement a completely different system.
-
-1.  Train crossing mode: add a train crossing sensor (SW3) that
-    forces the signal to yellow then red from any active green
-    state, and holds red until the train has cleared.
-
-    A real signal must transition through yellow before red so
-    that drivers already committed to crossing have time to clear
-    the intersection safely. Jumping directly to red could cause
-    collisions.
-
-    Draw the updated state diagram before writing any code. Then
-    implement the following behaviour:
-
-    - If SW3 is pressed while in STATE_ADV_GREEN or STATE_GREEN,
-      immediately transition to STATE_YELLOW (interrupting the
-      normal cycle)
-    - Yellow then transitions normally to red after YELLOW_TIME
-    - A 'train_crossing' flag distinguishes train-forced red from
-      normal red, preventing the normal cycle from resuming while
-      SW3 is held
-    - After SW3 is released, a CLEARANCE_TIME delay elapses
-      before returning to normal red and resuming the cycle
-
-    You will need:
-    - A 'train_crossing' boolean flag
-    - A 'clearance_start' timestamp for the post-release delay
-    - A check for SW3 at the top of the main loop, before the
-      state logic, to catch it in any green state
-    - Modified red state logic that checks 'train_crossing'
-      before deciding whether to resume the normal cycle
-
-    How many new transitions does train crossing add to the state
-    diagram? Does the yellow-first requirement change how you
-    structure the SW3 check relative to the existing yellow state
-    logic?
-
-2.  Crosswalk extension: the main program already processes a
-    walk request (SW5) registered during red, extending the green
-    phase and lighting the on-board LED as a walk signal. Extend
-    this behaviour in two ways:
-
-    a) Walk signal timeout: the on-board LED should turn off
-       partway through the extended green phase (after WALK_TIME
-       milliseconds) to indicate that the safe crossing window
-       has closed, even though the light remains green. Add a
-       'walk_start_time' timestamp set when entering the extended
-       green, and turn off the on-board LED when WALK_TIME elapses.
-
-    b) Walk request during green: currently a walk request pressed
-       during green is ignored (the check only runs during red).
-       Add handling so that SW5 pressed during green sets
-       'walk_requested' and extends the current green phase by
-       WALK_EXTENSION, starting the walk signal immediately.
-       Guard against extending an already-extended phase.
-
-    For part (b), how do you extend the current green phase
-    without restarting the state timer? Consider using
-    'effective_green' and 'walk_requested' together to calculate
-    the remaining time correctly.
-
-3.  Combination lock: implement a three-button combination lock
-    as a standalone state machine.
-    Open: B12_Combination_Lock_Project.py
-
-    The correct combination is SW2, SW3, SW4 pressed in sequence.
-    The lock has states for each step of the sequence, an unlocked
-    state, and an alarm state triggered by any wrong button press.
-    SW5 resets from any state.
-
-    This state machine is event-driven rather than time-driven -
-    transitions occur when buttons are pressed, not when timers
-    elapse. Compare its structure to the traffic light's structure:
-    what is the same and what is different?
-
-"""
+# ================================================================================
+# Guided Exploration
+# ================================================================================
+#
+# Activities 9 through 11 focused on a single technical problem at a
+# time: analog input, output, and non-blocking timing. Each activity's
+# program grew more capable, but the overall structure stayed the
+# same - a loop that checks conditions and updates outputs directly.
+# This works well when a program's behaviour depends only on its
+# current inputs, but breaks down when a program needs to behave
+# differently depending on what has happened before. For example,
+# the same button could mean something different depending what part
+# of the program is currently running.
+#
+# This activity introduces state machines: a way of organising a
+# program around a set of named states, with explicit rules for when
+# to move between them, and what to do while each state is active.
+# You have actually built a similar combination lock program twice
+# before - as a step-counter in Activity 6, and refactored with
+# functions in Activity 8. This activity solves the same problem a
+# third time as a proper state machine, allowing you to compare all
+# three approaches directly.
+#
+# --------------------------------------------------------------------------------
+# GE 1 - The state diagram
+# --------------------------------------------------------------------------------
+#
+# A state machine can be described visually using a state diagram:
+# circles represent states and arrows represent transitions between
+# them. Each arrow is labelled with the event that triggers it.
+#
+# Draw the state diagram for this program. Your diagram should
+# have five circles (ENTRY_1, ENTRY_2, ENTRY_3, UNLOCKED, ALARM)
+# and an arrow for every transition described in the header
+# comment.
+#
+# Compare your diagram to the state machine section of the main
+# loop. Can you find a direct correspondence between each arrow in
+# your diagram and a specific 'elif' branch in the code?
+#
+# --------------------------------------------------------------------------------
+# GE 2 - Named state constants
+# --------------------------------------------------------------------------------
+#
+# States are defined using named integer constants:
+#
+# Example code:
+#
+# STATE_ENTRY_1  = const(0)
+# STATE_ENTRY_2  = const(1)
+# STATE_ENTRY_3  = const(2)
+# STATE_UNLOCKED = const(3)
+# STATE_ALARM    = const(4)
+#
+# The program could instead use raw numbers (0, 1, 2, 3, 4) directly
+# in the 'if' statements. What would be lost? Consider what happens
+# if you need to insert a new state between ENTRY_2 and ENTRY_3 and
+# must renumber the existing states.
+#
+# Named constants also make the serial output meaningful. The
+# 'enter_state()' function uses a dictionary to look up the state
+# name for printing. What would the output look like if raw numbers
+# were used instead of names?
+#
+# --------------------------------------------------------------------------------
+# GE 3 - enter_state() and centralized transitions
+# --------------------------------------------------------------------------------
+#
+# Every state transition goes through 'enter_state()' rather than
+# setting 'state' directly. This function clears every output
+# before setting the new state, resetting 'flash_on', 'beep_on',
+# and 'alarm_beep_count' at the same time. Each caller then turns
+# on only what the new state needs.
+#
+# Compare this to an alternative design where every state's
+# outputs are checked and set fresh on every single loop
+# iteration, regardless of whether the state just changed. What
+# would be different about the program's behaviour, readability,
+# and efficiency?
+#
+# Why does 'enter_state()' reset 'alarm_beep_count' to 0 even
+# though it is only used inside STATE_ALARM? What would happen on
+# the second time the lock enters ALARM if this reset were
+# missing?
+#
+# --------------------------------------------------------------------------------
+# GE 4 - Reading buttons: read_button() and wait_for_release()
+# --------------------------------------------------------------------------------
+#
+# Reading the buttons uses two small functions:
+#
+# Example code:
+#
+# def read_button():
+#   if beaper.SW2.value() == 0:
+#     return 2
+#   elif beaper.SW3.value() == 0:
+#     return 3
+#   elif beaper.SW4.value() == 0:
+#     return 4
+#   else:
+#     return 0
+#
+# def wait_for_release():
+#   while beaper.SW2.value() == 0 or beaper.SW3.value() == 0 or beaper.SW4.value() == 0:
+#     pass
+#
+# 'read_button()' uses the same 'beaper.SWx.value() == 0' check
+# you have used since Activity 3 - nothing new there. The only new
+# idea is 'wait_for_release()': once a press is detected and
+# recorded, the program deliberately pauses until the button is
+# physically released, before continuing.
+#
+# Why is this necessary? Consider what would happen without
+# 'wait_for_release()' if a press were held down for 300ms: at
+# LOOP_DELAY = 10ms, how many loop iterations would that span, and
+# what would 'entered_1' end up containing after all of them?
+#
+# This pattern - detect a press, then wait for release before
+# continuing - is a simplified version of 'read_keypad()' from
+# Activity 8, which did the same thing across all four buttons.
+# Compare the two: what does 'read_keypad()' do that
+# 'read_button()' plus 'wait_for_release()' does not?
+#
+# Note that 'wait_for_release()' blocks the program - it is not
+# the non-blocking style from Activity 11. Why is blocking
+# acceptable here but not in STATE_ALARM below? Think about what
+# else the program needs to keep doing while each state is active.
+#
+# --------------------------------------------------------------------------------
+# GE 5 - Tracing the happy path
+# --------------------------------------------------------------------------------
+#
+# Trace through the "happy path" - the sequence of transitions
+# when the combination is entered correctly:
+#
+# Example code:
+#
+# Start in ENTRY_1
+# Press SW2 --> ENTRY_2 (entered_1 = 2)
+# Press SW3 --> ENTRY_3 (entered_2 = 3)
+# Press SW4 --> UNLOCKED (entered_3 = 4, all three correct)
+#
+# For each transition, identify: which 'elif' branch handles it,
+# which LEDs turn on, and what gets printed to the console. Run
+# the program and verify your trace against the actual serial
+# output.
+#
+# Now trace an incorrect attempt: SW3, SW2, SW4. Which state does
+# each press lead to? Is anything different about how ENTRY_2 and
+# ENTRY_3 behave for this attempt compared to the correct one, or
+# do they behave identically until the final check?
+#
+# --------------------------------------------------------------------------------
+# GE 6 - Why check the whole combination at once
+# --------------------------------------------------------------------------------
+#
+# Notice that pressing a wrong button during ENTRY_1 or ENTRY_2
+# does not trigger the alarm immediately - it is simply recorded
+# and the program moves on to the next entry state, exactly as if
+# it were correct. The combination is only checked once, after
+# all three presses have been entered, in STATE_ENTRY_3.
+#
+# Why might this be a better design than checking each button as
+# it is pressed and triggering the alarm on the first wrong one?
+# Think about someone trying to guess the combination by trial and
+# error: what could they learn from a lock that reveals which
+# specific digit was wrong, that they could not learn from a lock
+# that only reveals whether the whole sequence was right or wrong?
+#
+# --------------------------------------------------------------------------------
+# GE 7 - Independent timers inside the alarm state
+# --------------------------------------------------------------------------------
+#
+# The ALARM state contains two independent repeating timers
+# running simultaneously - the same multi-rate timing pattern
+# from Activity 11, but now happening inside a single state
+# rather than across the whole program:
+#
+# - 'last_flash_time' controls when the LEDs toggle, at
+#   FLASH_INTERVAL.
+# - 'last_beep_time' controls when the beep toggles, using two
+#   different intervals depending on 'beep_on': ALARM_BEEP_ON
+#   while beeping, ALARM_BEEP_OFF while silent.
+#
+# Trace through several iterations of the loop while in
+# STATE_ALARM and verify that the flash and beep timers advance
+# independently - one does not wait for or reset the other.
+#
+# 'alarm_beep_count' increments each time a beep finishes (when
+# 'beep_on' changes from True to False). Once it reaches
+# ALARM_BEEP_COUNT, the program calls 'enter_state(STATE_ENTRY_1,
+# ...)' - from inside the alarm-handling code itself, not from a
+# button press. What does this tell you about what can trigger a
+# state transition? Must it always be a button press?
+#
+# --------------------------------------------------------------------------------
+# GE 8 - Comparing three versions of the same lock
+# --------------------------------------------------------------------------------
+#
+# You have now seen three variations of the same combination lock:
+# a step-counter with 'if attempts == 1: ... elif attempts == 2:'
+# logic in Activity 6, a version refactored to use functions in
+# Activity 8, and now this state machine version - which also
+# behaves differently, checking the whole combination at once
+# rather than rejecting on the first wrong button.
+#
+# Compare all three versions (open your earlier files if you
+# still have them). What does naming the states explicitly add
+# that the attempts-counter versions did not have? Is there
+# anything the earlier versions did more simply? A state machine
+# is a tool, not always the best tool - when would a simple
+# counter be preferable to a full state machine?
+#
+#
+# ================================================================================
+# Extension Activities
+# ================================================================================
+#
+# --------------------------------------------------------------------------------
+# EA 1 - Hold-to-relock from UNLOCKED
+# --------------------------------------------------------------------------------
+#
+# The UNLOCKED state currently does nothing useful after the
+# lock opens - LED5 stays on indefinitely. Implement a re-lock
+# mechanism: SW5 must be held for RESET_HOLD_TIME milliseconds
+# to re-lock. Use the 'button_is_down' and 'button_down_time'
+# pattern from Activity 11.
+#
+# Why require a hold rather than a tap to re-lock? Think about
+# what would happen in a real access-control system if the door
+# accidentally re-locked while someone was passing through.
+#
+# --------------------------------------------------------------------------------
+# EA 2 - Lockout after failed attempts
+# --------------------------------------------------------------------------------
+#
+# Add a lockout after three failed attempts. Declare an
+# 'attempt_count' variable that increments each time the lock
+# transitions to ALARM (which only happens from STATE_ENTRY_3).
+# After three failed attempts, enter a LOCKOUT state that ignores
+# all input for LOCKOUT_TIME milliseconds before returning to
+# ENTRY_1.
+#
+# Add LOCKOUT to your state diagram and identify the new
+# transitions. How does this change the security of the lock
+# compared to the version with no lockout?
+#
+# --------------------------------------------------------------------------------
+# EA 3 - A four-button combination
+# --------------------------------------------------------------------------------
+#
+# Extend the lock to a four-button combination. Add a
+# 'CORRECT_4' constant, an 'entered_4' variable, and a new
+# 'STATE_ENTRY_4' state following the same pattern as
+# ENTRY_1 through ENTRY_3. Update the state diagram and the
+# final check in what is now STATE_ENTRY_4 to compare all four
+# entered values.
+#
+# What did you have to change in how many places to add one more
+# digit? A fully flexible version - supporting any combination
+# length without adding a new state and a new variable for each
+# digit - would store the combination as a list and use a loop
+# with an index variable instead. Lists and indexing are covered
+# in the intermediate activities; for now, four independent
+# variables is a reasonable way to extend this design by one step.
+#
+# --------------------------------------------------------------------------------
+# EA 4 - Designing a security alarm capstone
+# --------------------------------------------------------------------------------
+#
+# Consider how this combination lock could form the arm/disarm
+# mechanism for a security alarm capstone project. What would
+# the full system's state diagram look like, including:
+# - Disarmed state (lock is open, sensors ignored)
+# - Arming state (countdown delay while you leave)
+# - Armed state (sensors active)
+# - Triggered state (alarm sounding)
+# - Each combination lock state for disarming
+#
+# Draw the complete state diagram. How many states does the
+# full system have? How does the lock's state machine nest
+# inside the alarm system's state machine?
+#
+# --------------------------------------------------------------------------------
+# EA 5 - Traffic Light Controller
+# --------------------------------------------------------------------------------
+#
+# Apply what you have learned to a different kind of state
+# machine - one driven mostly by elapsed time rather than button
+# presses, with events (a simulated car and pedestrian) setting
+# flags that are checked later rather than triggering an immediate
+# transition. Open: B12_Traffic_Light_Controller_Project.py
+#
+# This project is a skeleton, not a finished program - re-read
+# GE1 through GE7 before starting, since the traffic light reuses
+# the same enter_state() and named-constant patterns as the
+# combination lock above.
