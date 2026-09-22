@@ -12,28 +12,27 @@ This repository contains Arduino C/C++ programs for BEAPER Nano:
 
 BEAPER Nano Beginner Learning Activities
 
-* Activity-B01-Output - Output, program structure
-* Activity_B02-Timing - Output with timing (blocking)
-* Activity-B03-Input- Input programming activity, including logic states
-* Activity-B04-Constants_Variables - Constants and Variables activity
-* B04-Constants-Variables-Exploration - Constants and Variables extension project
-* Activity-B05-Decision_Structures - Decision structures and comparison operators
-* Activity-B06-Conditional-Loops - Conditional while loops
-* Activity-B07-Counted-Loops - For loops
-* Activity-B08-Functions - Creating and using functions
-* Activity-B09-Analog-Input - Reading and processing analog input values
-* Activity-B10-AnalogOutput - Controlling real-world outputs
-* B10-Motor-Controller-Project - PWM motor output project
-* B10-Servo-Controller-Project - Servo output project
-* B10-Sound-Controller-Project - Sound output project
-* Activity-B11-Non-Blocking-Timing - Multiple concurrent timers
-* B11-Timed-Analog-Output - Non-blocking timing project
-* Activity-B12-State-Machines - A new way to structure programs
-* B12-Combination-Lock-Project - Digital safe project
-* Microcontroller Core Curriculum.md - Curriculum overview
-* Numeric Types.md - Numeric types explainer
-* Capstone Preparation Guide - Capstone project explainer
-* Analog-Monitor - Analog monitor capstone project template
-* Line-Follower - Line following robot capstone project template
-* Simon-Game - Memory game capstone project template
-* Sumo-Robot - Sumo robot capstone project template
+* Activity_B01_Output - Program structure, simple output
+* Activity_B02_Timing - Output with timing (blocking)
+* Activity_B03_Input - Input and boolean logic states
+* Activity_B04_Constants_Variables - Using constants and variables
+* B04_Level_Indicator_Project - Level indicator extension project
+* Activity_B05_Decision_Structures - Decision structures and comparison operators
+* B05_Rapid_Clicker_Project - Rapid clicker game extension project
+* Activity_B06_Conditional_Loops - Conditional while loops
+* B06_Combination_Lock_Project - Combination lock extension project
+* Activity_B07_Counted_Loops - Using for loops
+* B07_Morse_Code_Project - Morse code generator extension project
+* Activity_B08_Functions - Creating and using functions
+* Activity_B09_Analog_Input - Reading and processing analog input values
+* Activity_B10_Analog_Output - Controlling real-world outputs
+* B10_Motor_Controller_Project - PWM motor controller extension project
+* B10_Servo_Controller_Project - Servo controller extension project
+* B10_Sound_Controller_Project - Sound player extension project
+* Activity_B11_Non-Blocking_Timing - Using timestamps and multiple concurrent timers
+* B11-LED_Controller_Project - LED output controller extension project
+* Activity_B12_State_Machines - A new way to structure programs
+* B12_Traffic_Light_Controller_Project - Traffic light controller extension project
+* Microcontroller_Core_Curriculum.md - Curriculum overview
+* Numeric_Types.md - Numeric types explainer
+* Capstone_Preparation_Guide.md - Capstone project explainer
